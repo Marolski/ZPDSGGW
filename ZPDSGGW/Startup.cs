@@ -1,9 +1,13 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
+using System;
+using ZPDSGGW.Commands;
 using ZPDSGGW.Database;
 using ZPDSGGW.Repository;
 
@@ -22,10 +26,13 @@ namespace ZPDSGGW
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
-
+            services.AddControllers().AddNewtonsoftJson(s =>
+            {
+                s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
             services.AddControllers();
-
-            services.AddScoped<IRepository, MockRepository>(); 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddScoped<IRepository, ProposalCommands>(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -9,6 +9,6 @@ namespace ZPDSGGW.Database
         {
 
         }
-        public DbSet<Proposal> Commands { get; set; }
+        public DbSet<Proposal> Proposal { get; set; }
     }
 }
