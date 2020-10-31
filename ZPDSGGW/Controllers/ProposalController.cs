@@ -14,10 +14,11 @@ namespace ZPDSGGW.Controllers
     public class ProposalController: ControllerBase
     {
         private readonly ILogger<ProposalController> _logger;
-        private readonly MockRepository _repository = new MockRepository();
-        public ProposalController(ILogger<ProposalController> logger)
+        private readonly IRepository _repository;
+        public ProposalController(ILogger<ProposalController> logger, IRepository repository)
         {
             _logger = logger;
+            _repository = repository;
         }
 
         [HttpGet]
