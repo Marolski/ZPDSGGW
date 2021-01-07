@@ -28,7 +28,7 @@ namespace ZPDSGGW
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
             services.AddControllers().AddNewtonsoftJson(s =>
             {
-                s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                s.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
