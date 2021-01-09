@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZPDSGGW.Repository
+namespace ZPDSGGW.DTOs.InvitationPromoter
 {
-    public interface IRepositoryInvitePromoter
+    public class InvitationPromoterUpdateDto
     {
     }
 }

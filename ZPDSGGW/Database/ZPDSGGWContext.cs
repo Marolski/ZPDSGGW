@@ -10,6 +10,6 @@ namespace ZPDSGGW.Database
 
         }
         public DbSet<Proposal> Proposal { get; set; }
-        public DbSet<InvitePromoter> InvitePromoter { get; set; }
+        public DbSet<InvitationPromoter> InvitationPromoter { get; set; }
     }
 }

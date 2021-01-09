@@ -7,7 +7,7 @@ using ZPDSGGW.Enums;
 
 namespace ZPDSGGW.Models
 {
-    public class InvitePromoter
+    public class InvitationPromoter
     {
 
         [Key]
@@ -26,6 +26,8 @@ namespace ZPDSGGW.Models
         public Degrees degrees { get; set; }
         [Required]
         public string Description { get; set; }
+        [Required]
+        public bool Accepted { get; set; } = false;
 
 
     }

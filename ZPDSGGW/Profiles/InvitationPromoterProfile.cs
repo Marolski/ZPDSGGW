@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZPDSGGW.Repository
+namespace ZPDSGGW.Profiles
 {
-    public interface IRepository
+    public class InvitationPromoterProfile
     {
-        bool SaveChanges();
     }
 }
