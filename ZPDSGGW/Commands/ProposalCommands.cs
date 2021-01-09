@@ -8,7 +8,7 @@ using ZPDSGGW.Repository;
 
 namespace ZPDSGGW.Commands
 {
-    public class ProposalCommands : IRepository
+    public class ProposalCommands : IRepositoryProposals
     {
         private readonly ZPDSGGWContext _context;
 

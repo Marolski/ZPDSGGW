@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZPDSGGW.Repository;
 
-namespace ZPDSGGW.Repository
+namespace ZPDSGGW.Commands
 {
-    public interface IRepository
+    public class InvitePromoter : IRepositoryInvitePromoter
     {
-        bool SaveChanges();
     }
 }

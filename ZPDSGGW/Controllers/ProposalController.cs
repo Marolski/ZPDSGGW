@@ -17,10 +17,10 @@ namespace ZPDSGGW.Controllers
     public class ProposalController: ControllerBase
     {
         private readonly ILogger<ProposalController> _logger;
-        private readonly IRepository _repository;
+        private readonly IRepositoryProposals _repository;
         private readonly IMapper _mapper;
 
-        public ProposalController(ILogger<ProposalController> logger, IRepository repository, IMapper mapper)
+        public ProposalController(ILogger<ProposalController> logger, IRepositoryProposals repository, IMapper mapper)
         {
             _logger = logger;
             _repository = repository;

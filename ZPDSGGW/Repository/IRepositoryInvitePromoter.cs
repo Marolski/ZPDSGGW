@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 namespace ZPDSGGW.Repository
 {
-    public interface IRepository
+    public interface IRepositoryInvitePromoter
     {
-        bool SaveChanges();
     }
 }

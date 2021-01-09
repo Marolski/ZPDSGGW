@@ -7,7 +7,7 @@ using ZPDSGGW.Models;
 
 namespace ZPDSGGW.Repository
 {
-    public class MockRepository : IRepository
+    public class MockRepository : IRepositoryProposals
     {
         public Guid user1 = Guid.Parse("80e4ed42-e6e7-4fcc-b85e-c489b747beb3"); 
         public Guid user2 = Guid.Parse("d1dcd728-fa3d-457b-970d-c53e37b36b6c");
