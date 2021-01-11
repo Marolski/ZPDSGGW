@@ -27,7 +27,7 @@ namespace ZPDSGGW.Models
         [Required]
         public string Description { get; set; }
         [Required]
-        public bool Accepted { get; set; } = false;
+        public bool Accepted { get; set; }
 
 
     }

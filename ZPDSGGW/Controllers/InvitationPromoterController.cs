@@ -28,14 +28,14 @@ namespace ZPDSGGW.Controllers
         }
 
         //Get api/invitation
-        [HttpGet("{promoterSurname}", Name = "GetInvitationsByPromoterSurname")]
+        [HttpGet]
         public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(string promoterSurname)
         {
             var invitations = _repository.GetInvitations(promoterSurname);
             return Ok(_mapper.Map<IEnumerable<InvitationPromoterReadDto>>(invitations));
         }
         //Get api/invitation/{id}
-        [HttpGet("{Id}", Name = "GetInvitationById")]
+        [HttpGet("{id}", Name = "GetInvitation")]
         public ActionResult<InvitationPromoterReadDto> GetInvitation(Guid id) 
         {
             var invitation = _repository.GetInvitation(id);
@@ -52,10 +52,10 @@ namespace ZPDSGGW.Controllers
             _repository.SaveChanges();
 
             var invitationPromoterReadDto = _mapper.Map<InvitationPromoterReadDto>(newInvitation);
-            return CreatedAtRoute(nameof(GetInvitation), new { Id = invitationPromoterReadDto.Id }, invitationPromoterReadDto);
+            return CreatedAtRoute(nameof(GetInvitation), new {Id = invitationPromoterReadDto.Id}, invitationPromoterReadDto);
         }
         //PATCH api/invitation/{id}
-        [HttpPatch("{id}")]
+        [HttpPatch]
         public ActionResult PartialUpdateInvitation(Guid id, JsonPatchDocument<InvitationPromoterUpdateDto> json)
         {
             var invitationFromRepo = _repository.GetInvitation(id);

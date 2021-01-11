@@ -34,6 +34,7 @@ namespace ZPDSGGW
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IRepositoryProposals, ProposalCommands>();
+            services.AddScoped<IRepositoryInvitationPromoter, InvitationPromoterCommands>();
             //swagger
             services.AddSwaggerGen();
         }
