@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ZPDSGGW.Dictionaries;
 using ZPDSGGW.Enums;
 
 namespace ZPDSGGW.Controllers
@@ -24,6 +25,19 @@ namespace ZPDSGGW.Controllers
         public class File
         {
             public IFormFile file { get; set; }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> DownloadFile(string pathToFile)
+        {
+            var ms = new MemoryStream();
+            using (var stream = new FileStream(pathToFile, FileMode.Open))
+            {
+                await stream.CopyToAsync(ms);
+            }
+            ms.Position = 0;
+            var extension = Path.GetExtension(pathToFile).ToLower();
+            return File(ms, MimeTypeExtension.GetMimeType()[extension], Path.GetFileName(pathToFile));
         }
 
         [HttpPost]
