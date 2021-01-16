@@ -11,5 +11,6 @@ namespace ZPDSGGW.Database
         }
         public DbSet<Proposal> Proposal { get; set; }
         public DbSet<InvitationPromoter> InvitationPromoter { get; set; }
+        public DbSet<File> File { get; set; }
     }
 }

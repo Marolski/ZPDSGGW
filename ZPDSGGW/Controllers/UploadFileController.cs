@@ -1,13 +1,19 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ZPDSGGW.Dictionaries;
+using ZPDSGGW.DTOs.FileDto;
 using ZPDSGGW.Enums;
+using ZPDSGGW.Repository;
+using ZPDSGGW.Models;
+using ZPDSGGW.Services;
 
 namespace ZPDSGGW.Controllers
 {
@@ -15,102 +21,29 @@ namespace ZPDSGGW.Controllers
     [ApiController]
     public class UploadFileController: ControllerBase
     {
+        private readonly ILogger<UploadFileController> _logger;
+        private readonly IRepositoryFile _repository;
+        private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _environment;
 
-        public UploadFileController(IWebHostEnvironment environment)
+        public UploadFileController(IRepositoryFile repository, IWebHostEnvironment environment)
         {
+            _repository = repository;
             _environment = environment;
         }
 
-        public class File
-        {
-            public IFormFile file { get; set; }
-        }
-
         [HttpGet]
-        public async Task<ActionResult> DownloadFile(string pathToFile)
+        public ActionResult<FileReadDto> GetFileByPath(string pathToFile)
         {
-            var ms = new MemoryStream();
-            using (var stream = new FileStream(pathToFile, FileMode.Open))
-            {
-                await stream.CopyToAsync(ms);
-            }
-            ms.Position = 0;
-            var extension = Path.GetExtension(pathToFile).ToLower();
-            return File(ms, MimeTypeExtension.GetMimeType()[extension], Path.GetFileName(pathToFile));
+            
         }
 
         [HttpPost]
-        public async Task<string> UploadThesis([FromForm]File objFile, DocumentKind documentKind)
+        public ActionResult<FileCreateDto> UploadThesis([FromForm] System.IO.File objFile, FileCreateDto createFile)
         {
-            try
-            {
-                
-                if (objFile.file.Length > 0)
-                {
-                    switch (documentKind)
-                    {
-                        case DocumentKind.thesis:
-                            if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString()))
-                                Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString());
-                            if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString() + "\\" + objFile.file.FileName))
-                                Console.WriteLine("plik został nadpisany");
-                            //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(_environment.WebRootPath +"\\"+ DocumentKind.thesis.ToString() +"\\"+ objFile.file.FileName))
-                            {
-                                objFile.file.CopyTo(fs);
-                                fs.Flush();
-                                return "\\" + DocumentKind.thesis.ToString() + "\\" + objFile.file.FileName;
-                            }
-                            break;
-                        case DocumentKind.proposal:
-                            if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString()))
-                                Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString());
-                            if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString() + "\\" + objFile.file.FileName))
-                                Console.WriteLine("plik został nadpisany");
-                            //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString() + "\\" + objFile.file.FileName))
-                            {
-                                objFile.file.CopyTo(fs);
-                                fs.Flush();
-                                return "\\" + DocumentKind.proposal.ToString() + "\\" + objFile.file.FileName;
-                            }
-                            break;
-                        case DocumentKind.paymentConfirmation:
-                            if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString()))
-                                Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString());
-                            if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString() + "\\" + objFile.file.FileName))
-                                Console.WriteLine("plik został nadpisany");
-                            //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString() + "\\" + objFile.file.FileName))
-                            {
-                                objFile.file.CopyTo(fs);
-                                fs.Flush();
-                                return "\\" + DocumentKind.paymentConfirmation.ToString() + "\\" + objFile.file.FileName;
-                            }
-                            break;
-                        default:
-                            if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString()))
-                                Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString());
-                            if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString() + "\\" + objFile.file.FileName))
-                                Console.WriteLine("plik został nadpisany");
-                            //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString() + "\\" + objFile.file.FileName))
-                            {
-                                objFile.file.CopyTo(fs);
-                                fs.Flush();
-                                return "\\" + DocumentKind.Inne.ToString() + "\\" + objFile.file.FileName;
-                            }
-                            break;
-                    }
-                }
-                else
-                    throw new FileNotFoundException("Nie znaleziono pliku");
-            }
-            catch (Exception ex )
-            {
-                return ex.Message.ToString();
-            }
+            FileService service = new FileService(_environment);
+            service.Uploadfile(objFile,createFile.DocumentKind)
+            var fileModel = _mapper.Map<ZPDSGGW.Models.File>(createFile);
         }
     }
 }
