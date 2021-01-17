@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using ZPDSGGW.Enums;
 
-namespace ZPDSGGW.Models
+namespace ZPDSGGW.DTOs.FileDto
 {
-    public class File
+    public class FileReadDto
     {
-        [Key]
         public Guid Id { get; set; }
-        [Required]
         public string Path { get; set; }
-        [Required]
-        public DocumentKind DocumentKind {get; set;}
-        [Required]
+        public DocumentKind DocumentKind { get; set; }
         public bool Accepted { get; set; }
     }
 }

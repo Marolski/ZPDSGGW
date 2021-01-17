@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZPDSGGW.Database;
 
 namespace ZPDSGGW.Migrations
 {
     [DbContext(typeof(ZPDSGGWContext))]
-    partial class ZPDSGGWContextModelSnapshot : ModelSnapshot
+    [Migration("20210116125423_FileModel")]
+    partial class FileModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,12 +26,6 @@ namespace ZPDSGGW.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Accepted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("DocumentKind")
-                        .HasColumnType("int");
 
                     b.Property<string>("Path")
                         .IsRequired()
