@@ -8,9 +8,10 @@ namespace ZPDSGGW.Repository
 {
     public interface IRepositoryFile
     {
-        File GetPathById(Guid id);
-        void SavePath(string path);
+        string GetPathById(Guid id);
+        void SavePath(File file);
         bool SaveChanges();
         void UpdateProposal(File file);
+        File GetFileById(Guid id);
     }
 }

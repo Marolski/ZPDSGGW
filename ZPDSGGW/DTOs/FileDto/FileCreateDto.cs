@@ -9,8 +9,6 @@ namespace ZPDSGGW.DTOs.FileDto
     public class FileCreateDto
     {
         public Guid Id { get; set; }
-        public string Path { get; set; }
-  
         public DocumentKind DocumentKind { get; set; }
         public bool Accepted { get; set; }
     }

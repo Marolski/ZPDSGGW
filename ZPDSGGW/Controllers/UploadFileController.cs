@@ -14,6 +14,8 @@ using ZPDSGGW.Enums;
 using ZPDSGGW.Repository;
 using ZPDSGGW.Models;
 using ZPDSGGW.Services;
+using File = ZPDSGGW.Models.File;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace ZPDSGGW.Controllers
 {
@@ -26,24 +28,63 @@ namespace ZPDSGGW.Controllers
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _environment;
 
-        public UploadFileController(IRepositoryFile repository, IWebHostEnvironment environment)
+        public UploadFileController(IRepositoryFile repository, IWebHostEnvironment environment, IMapper mapper, ILogger<UploadFileController> logger)
         {
             _repository = repository;
             _environment = environment;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        [HttpGet("{id}", Name = "GetFileById")]
+        public async Task<ActionResult> GetFileById(Guid id)
+        {
+            var pathToFile = _repository.GetPathById(id);
+            FileService service = new FileService(_environment);
+            return await service.DownloadFile(pathToFile);
         }
 
         [HttpGet]
-        public ActionResult<FileReadDto> GetFileByPath(string pathToFile)
+        public ActionResult<FileReadDto> GetFileModel(Guid id)
         {
-            
+            var file = _repository.GetFileById(id);
+            if (file != null)
+                return Ok(_mapper.Map<FileReadDto>(file));
+            return NotFound();
         }
 
         [HttpPost]
-        public ActionResult<FileCreateDto> UploadThesis([FromForm] System.IO.File objFile, FileCreateDto createFile)
+        public ActionResult<FileReadDto> UploadThesis([FromForm] Models.FormFile objFile, DocumentKind documentKind, bool accepted)
         {
             FileService service = new FileService(_environment);
-            service.Uploadfile(objFile,createFile.DocumentKind)
-            var fileModel = _mapper.Map<ZPDSGGW.Models.File>(createFile);
+            var path = service.Uploadfile(objFile, documentKind);
+            var fileModel = new File
+            {
+                Id = new Guid(),
+                Path = path.Result,
+                DocumentKind = documentKind,
+                Accepted = accepted,
+            };
+            _repository.SavePath(fileModel);
+            _repository.SaveChanges();
+            return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        public ActionResult UpdateFileModel(Guid id, JsonPatchDocument<FileUpdateDto> json)
+        {
+            var fileModel = _repository.GetFileById(id);
+            if (fileModel == null)
+                return NotFound();
+            var fileToPatch = _mapper.Map<FileUpdateDto>(fileModel);
+            json.ApplyTo(fileToPatch, ModelState);
+            if (!TryValidateModel(fileToPatch))
+                return ValidationProblem(ModelState);
+            _mapper.Map(fileToPatch, fileModel);
+            _repository.UpdateProposal(fileModel);
+            _repository.SaveChanges();
+            return NoContent();
+
         }
     }
 }

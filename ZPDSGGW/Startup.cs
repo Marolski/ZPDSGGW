@@ -36,6 +36,7 @@ namespace ZPDSGGW
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IRepositoryProposals, ProposalCommands>();
             services.AddScoped<IRepositoryInvitationPromoter, InvitationPromoterCommands>();
+            services.AddScoped<IRepositoryFile, FileCommands>();
             //swagger
             services.AddSwaggerGen();
         }
@@ -64,11 +65,6 @@ namespace ZPDSGGW
             {
                 endpoints.MapControllers();
             });
-
-            //app.Run(async (context) =>
-            //{
-            //    await context.Response.WriteAsync("Could Not Find");
-            //});
 
             app.UseSwagger();
 

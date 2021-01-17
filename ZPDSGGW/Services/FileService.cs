@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ZPDSGGW.Dictionaries;
 using ZPDSGGW.Enums;
 using ZPDSGGW.Repository;
+using ZPDSGGW.Models;
 
 namespace ZPDSGGW.Services
 {
@@ -19,10 +20,6 @@ namespace ZPDSGGW.Services
         public FileService(IWebHostEnvironment environment)
         {
             _environment = environment;
-        }
-        public class File
-        {
-            public IFormFile file { get; set; }
         }
 
         public async Task<ActionResult> DownloadFile(string pathToFile)
@@ -36,7 +33,7 @@ namespace ZPDSGGW.Services
             var extension = Path.GetExtension(pathToFile).ToLower();
             return File(ms, MimeTypeExtension.GetMimeType()[extension], Path.GetFileName(pathToFile));
         }
-        public async Task<string> Uploadfile([FromForm]File objFile, DocumentKind documentKind)
+        public async Task<string> Uploadfile([FromForm] Models.FormFile objFile, DocumentKind documentKind)
         {
             try
             {
