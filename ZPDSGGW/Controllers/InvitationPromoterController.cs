@@ -71,8 +71,6 @@ namespace ZPDSGGW.Controllers
             return NoContent();
         }
 
-        ///////////////
-        ///do napisania Mapowanie w InvitationProfile
 
 
     }
