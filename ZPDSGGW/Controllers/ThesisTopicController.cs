@@ -29,13 +29,13 @@ namespace ZPDSGGW.Controllers
 
         //Get api/thesis
         [HttpGet]
-        public ActionResult<IEnumerable<ThesisReadDto>> GetAllTopics()
+        public ActionResult<IEnumerable<string>> GetAllTopics()
         {
             var topics = _repository.GetTopics();
-            return Ok(_mapper.Map<IEnumerable<ThesisReadDto>>(topics));
+            return Ok(topics);
         }
 
-        [HttpGet("{Id}", Name = "GetTopicById")]
+        [HttpGet("{id}", Name = "GetTopicById")]
         public ActionResult<ThesisReadDto> GetTopicById(Guid id)
         {
             var topic = _repository.GetTopicById(id);
@@ -44,7 +44,7 @@ namespace ZPDSGGW.Controllers
             return NotFound();
         }
 
-        [HttpGet("{promoterName, promoterSurname}")]
+        [HttpGet("promoter")]
         public ActionResult<IEnumerable<string>> GettopicFromPromoter(string promoterName, string promoterSurname)
         {
             var topics = _repository.GetTopicsFromPromoter(promoterName, promoterSurname);
