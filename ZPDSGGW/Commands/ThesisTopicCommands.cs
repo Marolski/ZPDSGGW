@@ -24,24 +24,6 @@ namespace ZPDSGGW.Commands
             _context.Add(topic);
         }
 
-        public IEnumerable<User> GetPromoters()
-        {
-            var topics = _context.ThesisTopics.ToList();
-            if (topics == null)
-                throw new ArgumentNullException(nameof(topics));
-            var promoterList = new List<User>();
-            foreach (var topic in topics)
-            {
-                promoterList.Add(new User
-                {
-                    Name = topic.NamePromoter,
-                    Surname = topic.SurnamePromoter,
-                });
-            }
-            return promoterList;
-
-        }
-
         public ThesisTopic GetTopicById(Guid id)=> _context.ThesisTopics.FirstOrDefault(x => x.Id == id);
 
         public IEnumerable<string> GetTopics()
@@ -57,10 +39,13 @@ namespace ZPDSGGW.Commands
             return topicList;
         }
 
-        public IEnumerable<string> GetTopicsFromPromoter(string promoterName, string promoterSurname)
+        public IEnumerable<string> GetTopicsFromPromoter(Guid id)
         {
-            var topics = _context.ThesisTopics.Where(x => x.NamePromoter == promoterName && x.SurnamePromoter == promoterSurname).ToList();
-            if (topics == null)
+            var promoter = _context.Promoter.Where(x => x.Id == id);
+            if (promoter == null)
+                throw new ArgumentNullException();
+            var topics = _context.ThesisTopics.Where(x => x.Promoter == promoter);
+            if(topics==null)
                 throw new ArgumentNullException();
             var topicList = new List<string>();
             foreach (var topic in topics)

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZPDSGGW.Database;
 
 namespace ZPDSGGW.Migrations
 {
     [DbContext(typeof(ZPDSGGWContext))]
-    partial class ZPDSGGWContextModelSnapshot : ModelSnapshot
+    [Migration("20210118182105_PromoterModel")]
+    partial class PromoterModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,8 +187,13 @@ namespace ZPDSGGW.Migrations
                     b.Property<int>("Degrees")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("PromoterId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("NamePromoter")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SurnamePromoter")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Topic")
                         .IsRequired()
@@ -194,18 +201,7 @@ namespace ZPDSGGW.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PromoterId");
-
                     b.ToTable("ThesisTopics");
-                });
-
-            modelBuilder.Entity("ZPDSGGW.Models.ThesisTopic", b =>
-                {
-                    b.HasOne("ZPDSGGW.Models.Promoter", "Promoter")
-                        .WithMany()
-                        .HasForeignKey("PromoterId");
-
-                    b.Navigation("Promoter");
                 });
 #pragma warning restore 612, 618
         }

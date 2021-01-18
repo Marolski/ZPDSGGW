@@ -7,17 +7,18 @@ using ZPDSGGW.Enums;
 
 namespace ZPDSGGW.Models
 {
-    public class ThesisTopic
+    public class Promoter
     {
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public Promoter Promoter { get; set; }
+        public string Name { get; set; }
+        [Required]
+        public string Surname { get; set; }
         [Required]
         public Degrees Degrees { get; set; }
         [Required]
-        public string Topic { get; set; }
-        [Required]
-        public bool Available { get; set; }
+        public int Availability { get; set; }
+
     }
 }

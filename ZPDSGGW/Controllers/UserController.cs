@@ -26,11 +26,11 @@ namespace ZPDSGGW.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<User>> GetAllPromoters()
-        {
-            var topics = _repository.GetPromoters();
-            return Ok(_mapper.Map<IEnumerable<ThesisReadDto>>(topics));
-        }
+        //[HttpGet]
+        //public ActionResult<IEnumerable<User>> GetAllPromoters()
+        //{
+        //    var topics = _repository.GetPromoters();
+        //    return Ok(_mapper.Map<IEnumerable<ThesisReadDto>>(topics));
+        //}
     }
 }
