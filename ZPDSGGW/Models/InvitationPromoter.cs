@@ -13,9 +13,9 @@ namespace ZPDSGGW.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public Student Student { get; set; }
+        public Guid StudentId { get; set; }
         [Required]
-        public Promoter Promoter { get; set; }
+        public Guid PromoterId { get; set; }
         [Required]
         public string Topic { get; set; }
         [Required]

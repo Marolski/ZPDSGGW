@@ -41,10 +41,7 @@ namespace ZPDSGGW.Commands
 
         public IEnumerable<string> GetTopicsFromPromoter(Guid id)
         {
-            var promoter = _context.Promoter.Where(x => x.Id == id);
-            if (promoter == null)
-                throw new ArgumentNullException();
-            var topics = _context.ThesisTopics.Where(x => x.Promoter == promoter);
+            var topics = _context.ThesisTopics.Where(x => x.PromoterId == id);
             if(topics==null)
                 throw new ArgumentNullException();
             var topicList = new List<string>();

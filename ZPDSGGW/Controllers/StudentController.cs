@@ -12,6 +12,8 @@ using ZPDSGGW.Repository;
 
 namespace ZPDSGGW.Controllers
 {
+    [ApiController]
+    [Route("api/student")]
     public class StudentController : ControllerBase
     {
         private readonly ILogger<StudentController> _logger;
@@ -26,23 +28,23 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<StudentReadDto>> GetAllPromoters()
+        public ActionResult<IEnumerable<StudentReadDto>> GetAllStudent()
         {
             var student = _repository.GetAllStudents();
             return Ok(_mapper.Map<IEnumerable<StudentReadDto>>(student));
         }
-        //Get api/proposals/{id}
-        [HttpGet("{id}", Name = "GetPromoterById")]
-        public ActionResult<StudentReadDto> GetPromoterById(Guid id)
+
+        [HttpGet("{id}", Name = "GetStudentById")]
+        public ActionResult<StudentReadDto> GetStudentById(Guid id)
         {
             var student = _repository.GetStudentById(id);
             if (student != null)
                 return Ok(_mapper.Map<StudentReadDto>(student));
             return NotFound();
         }
-        //POST api/proposals
+
         [HttpPost]
-        public ActionResult<StudentReadDto> CreatePromoter(StudentCreateDto studentCreateDto)
+        public ActionResult<StudentReadDto> CreateStudent(StudentCreateDto studentCreateDto)
         {
             var student = _mapper.Map<Student>(studentCreateDto);
             _repository.CreateStudent(student);
@@ -50,7 +52,7 @@ namespace ZPDSGGW.Controllers
 
             var studentReadDto = _mapper.Map<StudentReadDto>(student);
 
-            return CreatedAtRoute(nameof(GetPromoterById), new { Id = studentReadDto.Id }, studentReadDto);
+            return CreatedAtRoute(nameof(GetStudentById), new { Id = studentReadDto.Id }, studentReadDto);
         }
         //PUT api/proposals/{id}
         //[HttpPut("{id}")]
@@ -65,9 +67,9 @@ namespace ZPDSGGW.Controllers
 
         //    return NoContent();
         //}
-        //PATCH api/proposals/{id}
+
         [HttpPatch("{id}")]
-        public ActionResult PartialPromoterUpdate(Guid id, JsonPatchDocument<StudentUpdateDto> json)
+        public ActionResult PartialStudentUpdate(Guid id, JsonPatchDocument<StudentUpdateDto> json)
         {
             var studentFromRepo = _repository.GetStudentById(id);
             if (studentFromRepo == null)
@@ -81,9 +83,9 @@ namespace ZPDSGGW.Controllers
             _repository.SaveChanges();
             return NoContent();
         }
-        //DELETE api/proposals/{id}
+
         [HttpDelete("{id}")]
-        public ActionResult DeleteProposal(Guid id)
+        public ActionResult DeleteStudent(Guid id)
         {
             var studentFromRepo = _repository.GetStudentById(id);
             if (studentFromRepo == null)

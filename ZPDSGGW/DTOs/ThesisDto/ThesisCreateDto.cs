@@ -9,7 +9,7 @@ namespace ZPDSGGW.DTOs.ThesisDto
     public class ThesisCreateDto
     {
         public Guid Id { get; set; }
-        public Models.Promoter Promoter { get; set; }
+        public Guid PromoterId { get; set; }
         public string Topic { get; set; }
         public bool Available { get; set; }
     }

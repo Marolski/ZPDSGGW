@@ -26,10 +26,7 @@ namespace ZPDSGGW.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-        /// <summary>
-        /// //////////////////////////////////////////////////dopisać mapowania Z imie i nazwisko promtora na model promotor
-        /// </summary>
-        /// <returns></returns>
+
         //Get api/thesis
         [HttpGet]
         public ActionResult<IEnumerable<string>> GetAllTopics()
@@ -48,7 +45,7 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpGet("promoter")]
-        public ActionResult<IEnumerable<string>> GettopicFromPromoter(Guid id)
+        public ActionResult<IEnumerable<string>> GetTopicFromPromoter(Guid id)
         {
             var topics = _repository.GetTopicsFromPromoter(id);
             return Ok(topics);

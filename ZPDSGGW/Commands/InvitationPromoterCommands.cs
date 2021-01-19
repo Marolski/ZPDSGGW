@@ -31,9 +31,9 @@ namespace ZPDSGGW.Commands
             return _context.InvitationPromoter.FirstOrDefault(x => x.Id == id);
         }
 
-        public IEnumerable<InvitationPromoter> GetInvitations()
+        public IEnumerable<InvitationPromoter> GetInvitations(Guid id)
         {
-            var invitation = _context.InvitationPromoter.ToList();
+            var invitation = _context.InvitationPromoter.Where(x => x.PromoterId == id);
             if (invitation == null)
                 throw new ArgumentNullException(nameof(invitation));
             return invitation;
