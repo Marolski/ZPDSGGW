@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZPDSGGW.Database;
 
 namespace ZPDSGGW.Migrations
 {
     [DbContext(typeof(ZPDSGGWContext))]
-    partial class ZPDSGGWContextModelSnapshot : ModelSnapshot
+    [Migration("20210119113321_ChangeThesisTopicModel")]
+    partial class ChangeThesisTopicModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,21 +55,30 @@ namespace ZPDSGGW.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PromoterId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("PromoterName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PromoterSurname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Topic")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("degrees")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("PromoterId");
-
-                    b.HasIndex("StudentId");
 
                     b.ToTable("InvitationPromoter");
                 });
@@ -164,29 +175,6 @@ namespace ZPDSGGW.Migrations
                     b.ToTable("Proposal");
                 });
 
-            modelBuilder.Entity("ZPDSGGW.Models.Student", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StudentNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Student");
-                });
-
             modelBuilder.Entity("ZPDSGGW.Models.ThesisTopic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -208,21 +196,6 @@ namespace ZPDSGGW.Migrations
                     b.HasIndex("PromoterId");
 
                     b.ToTable("ThesisTopics");
-                });
-
-            modelBuilder.Entity("ZPDSGGW.Models.InvitationPromoter", b =>
-                {
-                    b.HasOne("ZPDSGGW.Models.Promoter", "Promoter")
-                        .WithMany()
-                        .HasForeignKey("PromoterId");
-
-                    b.HasOne("ZPDSGGW.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId");
-
-                    b.Navigation("Promoter");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("ZPDSGGW.Models.ThesisTopic", b =>

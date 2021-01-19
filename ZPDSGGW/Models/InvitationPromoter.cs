@@ -13,22 +13,15 @@ namespace ZPDSGGW.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public Student Student { get; set; }
         [Required]
-        public string Surname { get; set; }
-        [Required]
-        public string PromoterName { get; set; }
-        [Required]
-        public string PromoterSurname { get; set; }
+        public Promoter Promoter { get; set; }
         [Required]
         public string Topic { get; set; }
-        [Required]
-        public Degrees degrees { get; set; }
         [Required]
         public string Description { get; set; }
         [Required]
         public bool Accepted { get; set; }
-
 
     }
 }

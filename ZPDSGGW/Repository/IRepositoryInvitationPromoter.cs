@@ -11,7 +11,7 @@ namespace ZPDSGGW.Repository
         bool SaveChanges();
         void CreateInvitationToThePromoter(InvitationPromoter invitation);
         InvitationPromoter GetInvitation(Guid id);
-        IEnumerable<InvitationPromoter> GetInvitations(string romoterSurname);
+        IEnumerable<InvitationPromoter> GetInvitations();
         void UpdateInvitation(InvitationPromoter invitation);
 
     }

@@ -18,21 +18,30 @@ namespace ZPDSGGW.Controllers
     {
         private readonly ILogger<InvitationPromoterController> _logger;
         private readonly IRepositoryInvitationPromoter _repository;
+        private readonly IRepositoryPromoter _repositoryPromoter;
         private readonly IMapper _mapper;
 
-        public InvitationPromoterController(IRepositoryInvitationPromoter repository, ILogger<InvitationPromoterController> logger, IMapper mapper)
+        public InvitationPromoterController(IRepositoryInvitationPromoter repository, ILogger<InvitationPromoterController> logger, IMapper mapper, IRepositoryPromoter repositoryPromoter)
         {
             _repository = repository;
             _mapper = mapper;
             _logger = logger;
+            _repositoryPromoter = repositoryPromoter;
         }
 
         //Get api/invitation
         [HttpGet]
-        public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(string promoterSurname)
+        public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(Guid id)
         {
-            var invitations = _repository.GetInvitations(promoterSurname);
-            return Ok(_mapper.Map<IEnumerable<InvitationPromoterReadDto>>(invitations));
+            var promoter = _repositoryPromoter.GetPromoterById(id);
+            var invitations = _repository.GetInvitations();
+            var invitationPromoter = new List<InvitationPromoter>();
+            foreach (var invitation in invitations)
+            {
+                if (invitation.Promoter == promoter)
+                    invitationPromoter.Add(invitation);
+            }
+            return Ok(_mapper.Map<IEnumerable<InvitationPromoterReadDto>>(invitationPromoter));
         }
         //Get api/invitation/{id}
         [HttpGet("{id}", Name = "GetInvitation")]

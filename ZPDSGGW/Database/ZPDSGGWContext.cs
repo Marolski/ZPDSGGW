@@ -14,6 +14,7 @@ namespace ZPDSGGW.Database
         public DbSet<File> File { get; set; }
         public DbSet<ThesisTopic> ThesisTopics { get; set; }
         public DbSet<Promoter> Promoter { get; set; }
+        public DbSet<Student> Student { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Promoter>().HasData(

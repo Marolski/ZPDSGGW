@@ -39,6 +39,7 @@ namespace ZPDSGGW
             services.AddScoped<IRepositoryFile, FileCommands>();
             services.AddScoped<IRepositoryThesisTopic, ThesisTopicCommands>();
             services.AddScoped<IRepositoryPromoter, PromoterCommands>();
+            services.AddScoped<IRepositoryStudent, StudentCommands>();
             //swagger
             services.AddSwaggerGen();
         }

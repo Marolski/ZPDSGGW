@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using ZPDSGGW.Enums;
 
 namespace ZPDSGGW.Models
 {
-    public class ThesisTopic
+    public class Student
     {
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public Promoter Promoter { get; set; }
+        public string Name { get; set; }
         [Required]
-        public string Topic { get; set; }
+        public string Surname { get; set; }
         [Required]
-        public bool Available { get; set; }
+        public string StudentNumber { get; set; }
+
     }
 }

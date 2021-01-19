@@ -31,18 +31,12 @@ namespace ZPDSGGW.Commands
             return _context.InvitationPromoter.FirstOrDefault(x => x.Id == id);
         }
 
-        public IEnumerable<InvitationPromoter> GetInvitations(string promoterSurname)
+        public IEnumerable<InvitationPromoter> GetInvitations()
         {
-            if (promoterSurname == null || promoterSurname == "")
-                throw new ArgumentNullException(promoterSurname);
-            var invitations = _context.InvitationPromoter;
-            var invitationsFound = new List<InvitationPromoter>();
-            foreach (var invitation in invitations)
-            {
-                if (invitation.PromoterSurname == promoterSurname)
-                    invitationsFound.Add(invitation);
-            }
-            return invitationsFound.ToList();
+            var invitation = _context.InvitationPromoter.ToList();
+            if (invitation == null)
+                throw new ArgumentNullException(nameof(invitation));
+            return invitation;
         }
 
         public void UpdateInvitation(InvitationPromoter invitation)
