@@ -25,18 +25,12 @@ namespace ZPDSGGW.Repository
 
         public Proposal GetProposalById(Guid id)
         {
-            return new Proposal { Date = DateTime.UtcNow, Degree = Degrees.inz, Id = user1, Name = "Marcin", Surname = "Testowy", PromoterName = "Andrew", PromoterSurname = "Skrzat" };
+            throw new NotImplementedException();
         }
 
         public IEnumerable<Proposal> GetProposals()
         {
-            var proposals = new List<Proposal>
-            {
-                new Proposal { Date = DateTime.UtcNow, Degree = Degrees.inz, Id = user1, Name="Marcin", Surname="Testowy1", PromoterName = "Andrew", PromoterSurname= "Skrzat1"},
-                new Proposal { Date = DateTime.UtcNow, Degree = Degrees.mgr, Id = user2, Name="Kacper", Surname="Testowy2", PromoterName = "Maciej", PromoterSurname= "Skrzat2"},
-                new Proposal { Date = DateTime.UtcNow, Degree = Degrees.dr, Id = user3, Name="Wojtek", Surname="Testowy3", PromoterName = "Zbyszek", PromoterSurname= "Skrzat3"}
-            };
-            return proposals;
+            throw new NotImplementedException();
         }
 
         public bool SaveChanges()

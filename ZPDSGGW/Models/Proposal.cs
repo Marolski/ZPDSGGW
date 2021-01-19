@@ -12,17 +12,11 @@ namespace ZPDSGGW.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public Guid StudentId { get; set; }
         [Required]
-        public string Surname { get; set; }
-        [Required]
-        public string PromoterName { get; set; }
-        [Required]
-        public string PromoterSurname { get; set; }
+        public Guid PromoterId { get; set; }
         [Required]
         public ProposalStatus Status { get; set; }
-        [Required]
-        public Degrees Degree { get; set; }
         [Required]
         [MaxLength(250)]
         public string Topic { get; set; }
