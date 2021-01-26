@@ -7,11 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.Swagger;
 using System;
 using System.Text;
+using ZPDSGGW.Authentication;
 using ZPDSGGW.Commands;
 using ZPDSGGW.Database;
 using ZPDSGGW.Repository;
@@ -44,26 +46,9 @@ namespace ZPDSGGW
             services.AddScoped<IRepositoryUser, UserCommands>();
 
             //authentication
+            services.AddSingleton<ICustomAuthenticationManager, CustomAuthenticationManager>();
 
-            var key = "test key";
-            services.AddSingleton<IJWTAuthenticationManager>(new JWTAuthenticationManager(key));
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x => 
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+            services.AddAuthentication("Basic").AddScheme<BasicAuthentication, CustomAuthenticationHandler>("Basic", null);
             //swagger
             services.AddSwaggerGen();
         }
@@ -87,6 +72,8 @@ namespace ZPDSGGW
             app.UseAuthorization();
 
             app.UseAuthentication();
+
+            IdentityModelEventSource.ShowPII = true;
 
             app.UseStaticFiles();
 

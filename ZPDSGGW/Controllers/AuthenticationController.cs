@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZPDSGGW.Authentication;
 using ZPDSGGW.Models;
 using ZPDSGGW.Repository;
 
@@ -14,9 +15,9 @@ namespace ZPDSGGW.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IJWTAuthenticationManager manager;
+        private readonly ICustomAuthenticationManager manager;
 
-        public AuthenticationController(IJWTAuthenticationManager manager)
+        public AuthenticationController(ICustomAuthenticationManager manager)
         {
             this.manager = manager;
         }
