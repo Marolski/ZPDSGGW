@@ -13,10 +13,10 @@ namespace ZPDSGGW.Profiles
         public StudentProfile()
         {
             //Source -> Target
-            CreateMap<Student, StudentReadDto>();
-            CreateMap<StudentCreateDto, Student>();
-            CreateMap<StudentUpdateDto, Student>();
-            CreateMap<Student, StudentUpdateDto>();
+            CreateMap<User, UserReadDto>();
+            CreateMap<UserCreateDto, User>();
+            CreateMap<UserUpdateDto, User>();
+            CreateMap<User, UserUpdateDto>();
         }
     }
 }

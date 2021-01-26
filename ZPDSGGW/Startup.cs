@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -6,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.Swagger;
 using System;
+using System.Text;
 using ZPDSGGW.Commands;
 using ZPDSGGW.Database;
 using ZPDSGGW.Repository;
@@ -38,8 +41,29 @@ namespace ZPDSGGW
             services.AddScoped<IRepositoryInvitationPromoter, InvitationPromoterCommands>();
             services.AddScoped<IRepositoryFile, FileCommands>();
             services.AddScoped<IRepositoryThesisTopic, ThesisTopicCommands>();
-            services.AddScoped<IRepositoryPromoter, PromoterCommands>();
-            services.AddScoped<IRepositoryStudent, StudentCommands>();
+            services.AddScoped<IRepositoryUser, UserCommands>();
+
+            //authentication
+
+            var key = "test key";
+            services.AddSingleton<IJWTAuthenticationManager>(new JWTAuthenticationManager(key));
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x => 
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
             //swagger
             services.AddSwaggerGen();
         }
@@ -61,6 +85,8 @@ namespace ZPDSGGW
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseAuthentication();
 
             app.UseStaticFiles();
 

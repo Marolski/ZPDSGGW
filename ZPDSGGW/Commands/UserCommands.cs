@@ -3,40 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZPDSGGW.Database;
+using ZPDSGGW.Enums;
 using ZPDSGGW.Models;
 using ZPDSGGW.Repository;
 
 namespace ZPDSGGW.Commands
 {
-    public class StudentCommands : IRepositoryStudent
+    public class UserCommands : IRepositoryUser
     {
         private readonly ZPDSGGWContext _context;
 
-        public StudentCommands(ZPDSGGWContext context)
+        public UserCommands(ZPDSGGWContext context)
         {
             _context = context;
         }
-        public void CreateStudent(Student student)
+        public void CreateUser(User student)
         {
             if (student == null)
                 throw new ArgumentNullException(nameof(student));
             _context.Add(student);
         }
 
-        public void DeleteStudent(Student student)
+        public void DeleteUser(User student)
         {
             if (student == null)
                 throw new ArgumentNullException(nameof(student));
-            _context.Student.Remove(student);
+            _context.User.Remove(student);
         }
 
-        public IEnumerable<Student> GetAllStudents() => _context.Student.ToList();
+        public IEnumerable<User> GetAllUsers(Roles role)
+        {
+           return _context.User.Where(x => x.Role == role).ToList();
+        }
 
-        public Student GetStudentById(Guid id) => _context.Student.FirstOrDefault(x => x.Id == id);
+        public User GetUserById(Guid id) => _context.User.FirstOrDefault(x => x.Id == id);
 
         public bool SaveChanges() => (_context.SaveChanges() >= 0);
 
-        public void UpdateStudent(Student student)
+        public void UpdateUser(User student)
         {
             //nothing
         }
