@@ -16,6 +16,6 @@ namespace ZPDSGGW.DTOs.Student
         public int Availability { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
-        public Roles Role { get; set; }
+        public string Role { get; set; }
     }
 }

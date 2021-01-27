@@ -31,9 +31,14 @@ namespace ZPDSGGW.Commands
             _context.User.Remove(student);
         }
 
-        public IEnumerable<User> GetAllUsers(Roles role)
+        public IEnumerable<User> GetAllUsers(string role)
         {
-           return _context.User.Where(x => x.Role == role).ToList();
+           return _context.User.Where(x => x.Role ==  role).ToList();
+        }
+
+        public User GetUserByCredential(string username, string password)
+        {
+            return _context.User.FirstOrDefault(x => x.Username == username && x.Password == password);
         }
 
         public User GetUserById(Guid id) => _context.User.FirstOrDefault(x => x.Id == id);

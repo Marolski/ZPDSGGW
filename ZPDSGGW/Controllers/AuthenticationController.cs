@@ -15,20 +15,20 @@ namespace ZPDSGGW.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly ICustomAuthenticationManager manager;
+        private IAuthenticationManager _manager;
 
-        public AuthenticationController(ICustomAuthenticationManager manager)
+        public AuthenticationController(IAuthenticationManager manager)
         {
-            this.manager = manager;
+            _manager = manager;
         }
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] User userCredential)
+        public IActionResult Authenticate([FromBody] AuthenticateModel model)
         {
-            var token = manager.Authentication(userCredential.Username, userCredential.Password);
-            if (token == null)
+            var user = _manager.Authenticate(model.Username, model.Password);
+            if (user == null)
                 return Unauthorized();
-            return Ok(token);
+            return Ok(user);
         }
     }
 }

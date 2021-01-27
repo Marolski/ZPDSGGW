@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -7,8 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZPDSGGW.DTOs.InvitationPromoter;
+using ZPDSGGW.Enums;
 using ZPDSGGW.Models;
 using ZPDSGGW.Repository;
+using ZPDSGGW.Services;
 
 namespace ZPDSGGW.Controllers
 {
@@ -28,6 +31,7 @@ namespace ZPDSGGW.Controllers
         }
 
         //Get api/invitation
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet]
         public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(Guid id)
         {
@@ -37,7 +41,8 @@ namespace ZPDSGGW.Controllers
             return NotFound();
         }
         //Get api/invitation/{id}
-        [HttpGet("{id}", Name = "GetInvitation")]
+        [Authorize(Roles = Roles.Student)]
+        [HttpGet("{id}", Name = "GetInvitation")]       
         public ActionResult<InvitationPromoterReadDto> GetInvitation(Guid id) 
         {
             var invitation = _repository.GetInvitation(id);
@@ -46,6 +51,7 @@ namespace ZPDSGGW.Controllers
             return NotFound();
         }
         //POST api/anvitation
+        [Authorize(Roles = Roles.Student)]
         [HttpPost]
         public ActionResult<InvitationPromoterReadDto> CreateInvitation(InvitationPromoterCreateDto invitation)
         {
@@ -57,6 +63,7 @@ namespace ZPDSGGW.Controllers
             return CreatedAtRoute(nameof(GetInvitation), new {Id = invitationPromoterReadDto.Id}, invitationPromoterReadDto);
         }
         //PATCH api/invitation/{id}
+        [Authorize(Roles = Roles.Student)]
         [HttpPatch]
         public ActionResult PartialUpdateInvitation(Guid id, JsonPatchDocument<InvitationPromoterUpdateDto> json)
         {

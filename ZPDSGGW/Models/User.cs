@@ -30,7 +30,8 @@ namespace ZPDSGGW.Models
         [Required]
         public string Username { get; set; }
         [Required]
-        public Roles Role { get; set; }
+        public string Role { get; set; }
+        public string Token { get; set; }
 
     }
 }

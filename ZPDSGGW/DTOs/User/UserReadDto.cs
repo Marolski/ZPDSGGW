@@ -14,6 +14,6 @@ namespace ZPDSGGW.DTOs.Student
         public string StudentNumber { get; set; }
         public Degrees Degrees { get; set; }
         public int Availability { get; set; }
-        public Roles Role { get; set; }
+        public string Role { get; set; }
     }
 }

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZPDSGGW.Controllers
+namespace ZPDSGGW.Authentication
 {
-    public class FileController
+    public class Key
     {
+        public string SecretKey { get; set; }
     }
 }

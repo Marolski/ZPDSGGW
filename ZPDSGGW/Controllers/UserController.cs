@@ -27,7 +27,7 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserReadDto>> GetAllUser(Roles role)
+        public ActionResult<IEnumerable<UserReadDto>> GetAllUser(string role)
         {
             var users = _repository.GetAllUsers(role);
             return Ok(_mapper.Map<IEnumerable<UserReadDto>>(users));

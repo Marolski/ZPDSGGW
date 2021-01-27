@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace ZPDSGGW.Enums
 {
-    public enum Roles
+    public static class Roles
     {
-        Adminin =1,
-        Student,
-        Promoter,
-        Deanery,
+        public const string Admin = "Admin";
+        public const string Student = "Student";
+        public const string Promoter = "Promoter";
+        public const string Deanery = "Deanery";
     }
 }

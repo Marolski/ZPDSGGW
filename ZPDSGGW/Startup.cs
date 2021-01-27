@@ -44,11 +44,32 @@ namespace ZPDSGGW
             services.AddScoped<IRepositoryFile, FileCommands>();
             services.AddScoped<IRepositoryThesisTopic, ThesisTopicCommands>();
             services.AddScoped<IRepositoryUser, UserCommands>();
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
 
-            //authentication
-            services.AddSingleton<ICustomAuthenticationManager, CustomAuthenticationManager>();
+            // configure strongly typed settings objects
+            var keySection = Configuration.GetSection("Key");
+            services.Configure<Key>(keySection);
 
-            services.AddAuthentication("Basic").AddScheme<BasicAuthentication, CustomAuthenticationHandler>("Basic", null);
+            // configure jwt authentication
+            var getKey = keySection.Get<Key>();
+            var key = Encoding.ASCII.GetBytes(getKey.SecretKey);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
             //swagger
             services.AddSwaggerGen();
         }
@@ -69,9 +90,10 @@ namespace ZPDSGGW
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
-            app.UseAuthentication();
 
             IdentityModelEventSource.ShowPII = true;
 
