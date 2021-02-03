@@ -31,7 +31,7 @@ namespace ZPDSGGW.Controllers
         }
 
         //Get api/invitation
-        [Authorize(Roles = Roles.Admin)]
+        [Authorize(Roles = Roles.Admin+","+Roles.Promoter)]
         [HttpGet]
         public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(Guid id)
         {
@@ -51,7 +51,7 @@ namespace ZPDSGGW.Controllers
             return NotFound();
         }
         //POST api/anvitation
-        [Authorize(Roles = Roles.Student)]
+        [Authorize(Roles = Roles.Student + "," + Roles.Promoter)]
         [HttpPost]
         public ActionResult<InvitationPromoterReadDto> CreateInvitation(InvitationPromoterCreateDto invitation)
         {
