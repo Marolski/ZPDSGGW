@@ -1,11 +1,11 @@
 import axios from "axios";
 require('dotenv');
 
-export default class Requests {
+export default class Requests{
 
         API_URL = process.env.VUE_APP_API_URL;
 
-    public async get(endpoint = null, param = null): Promise<any>{
+    public async get(endpoint = '', param = null): Promise<any>{
         return param? await axios.get(`${this.API_URL}/${endpoint}/${param}`)
          : axios.get(`${this.API_URL}/${endpoint}`);
     }
