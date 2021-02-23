@@ -12,7 +12,7 @@ using ZPDSGGW.Repository;
 namespace ZPDSGGW.Controllers
 {
     [ApiController]
-    [Route("api/student")]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
