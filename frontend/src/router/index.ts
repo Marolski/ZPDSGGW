@@ -22,7 +22,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/profile',
-    name: 'Profile',
+    name: 'MyProfile',
     component: Profile
   },
   {

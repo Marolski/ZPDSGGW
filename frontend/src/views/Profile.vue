@@ -1,7 +1,8 @@
 <script lang='ts'>
-    import { Component, Vue } from 'vue-property-decorator';
     import IUser from "../types/User";
-    import UserService from "../services/UserService"
+    import UserService from "../services/UserService";
+    import Vue from 'vue';
+    import { Component } from "vue-property-decorator";
 
     const userService = new UserService();
     @Component({
@@ -36,29 +37,31 @@
 
        
         async test() {
-            this.myProfile = await userService.getUser();
+            const tmp= await userService.getUser();
+            console.log(tmp.data);
+            this.myProfile = tmp.data;
         }
         //watchers
     }
 
 </script>
 
-
 <template>
   <div class="about">
     <h1>Moj profil</h1>
     <div>
         <div>
-            Imie: {{myProfile}}
+            Imie: {{myProfile.Name}}
         </div>
         <div>
             Nazwisko:{{myProfile.Surname}}
         </div>
         <div>
-            Numer indeksu: {{myProfile.studentNumber}}
+            Numer indeksu: {{myProfile.StudentNumber}}
         </div>
-        <button v-on:click="send">
-        </button>
+        <div>
+            <md-button class="md-primary md-raised">Primary</md-button>
+        </div>
     </div>
   </div>
 </template>
