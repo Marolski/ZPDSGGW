@@ -34,14 +34,15 @@ namespace ZPDSGGW.Controllers
             return Ok(_mapper.Map<IEnumerable<ProposalReadDto>>(proposals));
         }
         //Get api/proposals/{id}
-        [HttpGet("{id}",Name = "GetProposalById")]
-        public ActionResult <ProposalReadDto> GetProposalById(Guid id)
+        [HttpGet("{id}", Name = "GetProposalByStudentId")]
+        public ActionResult<ProposalReadDto> GetProposalByStudentId(Guid id)
         {
-            var proposal = _repository.GetProposalById(id);
-            if (proposal!=null)
+            var proposal = _repository.GetProposalByStudentId(id);
+            if (proposal != null)
                 return Ok(_mapper.Map<ProposalReadDto>(proposal));
             return NotFound();
         }
+
         //POST api/proposals
         [HttpPost]
         public ActionResult <ProposalReadDto> CreateProposal(ProposalCreateDto proposalCreateDto)
@@ -52,7 +53,7 @@ namespace ZPDSGGW.Controllers
 
             var proposalReadDto = _mapper.Map<ProposalReadDto>(proposal);
 
-            return CreatedAtRoute(nameof(GetProposalById), new { Id = proposalReadDto.Id }, proposalReadDto);
+            return CreatedAtRoute(nameof(GetProposalByStudentId), new { Id = proposalReadDto.Id }, proposalReadDto);
         }
         //PUT api/proposals/{id}
         [HttpPut("{id}")]

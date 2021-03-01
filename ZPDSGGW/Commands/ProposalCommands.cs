@@ -36,6 +36,16 @@ namespace ZPDSGGW.Commands
             return _context.Proposal.FirstOrDefault(p => p.Id == id);
         }
 
+        public Proposal GetProposalByPromoterId(Guid id)
+        {
+            return _context.Proposal.FirstOrDefault(p => p.PromoterId == id);
+        }
+
+        public Proposal GetProposalByStudentId(Guid id)
+        {
+            return _context.Proposal.FirstOrDefault(p => p.StudentId == id);
+        }
+
         public IEnumerable<Proposal> GetProposals()
         {
             return _context.Proposal.ToList();

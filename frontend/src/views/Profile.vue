@@ -1,10 +1,13 @@
 <script lang='ts'>
     import IUser from "../types/User";
     import UserService from "../services/UserService";
+    import ProposalService from "../services/ProposalService";
     import Vue from 'vue';
     import { Component } from "vue-property-decorator";
+    import IProposal from '../types/Proposal';
 
     const userService = new UserService();
+    const proposalService = new ProposalService();
     @Component({
         name: 'MyProfile',
         components:{}
@@ -21,7 +24,13 @@
             role: '',
 
         };
-        tmp: any = 'aaaa'
+        proposal: IProposal = {
+            Status: '',
+            Topic: '',
+            Date: '',
+            PromoterId: '',
+            StudentId: ''
+        }
 
         //computed properties
         get userCount(){
@@ -32,14 +41,14 @@
         //lifecycles hooks
         created(){
             this.test()
-            console.log(this.myProfile);
         }
 
        
         async test() {
-            const tmp= await userService.getUser();
-            console.log(tmp.data);
-            this.myProfile = tmp.data;
+            const userdata= await userService.getUser();
+            const proposalData = await proposalService.getProposal();
+            this.myProfile = userdata.data;
+            this.proposal = proposalData.data;
         }
         //watchers
     }
@@ -60,7 +69,10 @@
             Numer indeksu: {{myProfile.StudentNumber}}
         </div>
         <div>
-            <md-button class="md-primary md-raised">Primary</md-button>
+            Promotor: <md-button class="md-primary md-raised">Znajdź promotora</md-button>
+        </div>
+        <div>
+            Temat pracy: {{proposal.Topic}} /<md-button class="md-primary md-raised">Dodaj temat pracy</md-button>
         </div>
     </div>
   </div>

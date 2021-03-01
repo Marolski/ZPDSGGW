@@ -28,6 +28,16 @@ namespace ZPDSGGW.Repository
             throw new NotImplementedException();
         }
 
+        public Proposal GetProposalByPromoterId(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Proposal GetProposalByStudentId(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<Proposal> GetProposals()
         {
             throw new NotImplementedException();

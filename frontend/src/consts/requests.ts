@@ -6,9 +6,6 @@ export default class Requests{
         API_URL = process.env.VUE_APP_API_URL;
 
     public async get(endpoint = '', param = ''): Promise<any>{
-        console.log(this.API_URL);
-        console.log(endpoint);
-        console.log(`${this.API_URL}/${endpoint}/${param}`);
         return param? await axios.get(`${this.API_URL}/${endpoint}/${param}`)
          : axios.get(`${this.API_URL}/${endpoint}`);
     }
