@@ -12,14 +12,12 @@
             Numer indeksu: {{myProfile.StudentNumber}}
         </div>
         <div>
-            Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><md-button v-else class="md-primary md-raised" id="show-modal" @click="toggleModal">Znajdź promotora</md-button>
+            Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><md-button v-else class="md-primary md-raised" id="show-modal">Znajdź promotora</md-button>
         </div>
         <div>
             Temat pracy: <a v-if="proposal.Topic">{{proposal.Topic}}</a> <md-button v-else class="md-primary md-raised">Dodaj temat pracy</md-button>
         </div>
-        <div>
-            <Modal/>
-        </div>
+        <modal-promoters />
     </div>
   </div>
 </template>
@@ -31,17 +29,17 @@
     import Vue from 'vue';
     import { Component } from "vue-property-decorator";
     import IProposal from '../types/Proposal';
-    import Modal from '../components/Modal.vue'
+    import ModalPromoters from '../components/ModalPromoters.vue';
 
     const userService = new UserService();
     const proposalService = new ProposalService();
     @Component({
         name: 'MyProfile',
-        components:{Modal}
+        components:{ModalPromoters}
     })
     export default class MyProfile extends Vue{
         //data
-        showModal = false;
+        users: Array<IUser> = [];
         myProfile: IUser = {
             Id: '',
             name: '',
@@ -59,7 +57,6 @@
             PromoterId: '',
             StudentId: ''
         }
-
         //computed properties
         get userCount(){
             return this.myProfile;
@@ -70,18 +67,14 @@
         created(){
             this.test()
         }
-
-       
         async test() {
             const userdata= await userService.getUser();
             const proposalData = await proposalService.getProposal();
+            const datatata = await userService.getAllUsers();
+            console.log(datatata.data)
             this.myProfile = userdata.data;
             this.proposal = proposalData.data;
             this.proposal.PromoterId = '';
-        }
-        toggleModal(){
-            this.showModal = !this.showModal;
-            console.log(this.showModal)
         }
         //watchers
     }

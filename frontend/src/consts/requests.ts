@@ -9,6 +9,11 @@ export default class Requests{
         return param? await axios.get(`${this.API_URL}/${endpoint}/${param}`)
          : axios.get(`${this.API_URL}/${endpoint}`);
     }
+
+    public async getStringParam(endpoint = '', param = ''): Promise<any>{
+        return param? await axios.get(`${this.API_URL}/${endpoint}${param}`)
+         : axios.get(`${this.API_URL}/${endpoint}`);
+    }
          
     public async post(endpoint = '', param = ''): Promise<any>{
         return param? await axios.post(`${this.API_URL}/${endpoint}/${param}`)

@@ -6,4 +6,5 @@ export default {
     thesisFromPromoter: 'thesis/promoter',
     uploadFile: 'upload',
     user: 'user',
+    users: 'user?role='
 }
