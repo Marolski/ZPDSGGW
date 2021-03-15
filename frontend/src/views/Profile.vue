@@ -12,12 +12,11 @@
             Numer indeksu: {{myProfile.StudentNumber}}
         </div>
         <div>
-            Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><md-button v-else class="md-primary md-raised" id="show-modal">Znajdź promotora</md-button>
+            Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><router-link v-else to="/proposal"><md-button class="md-primary md-raised">Znajdź promotora</md-button></router-link>
         </div>
         <div>
-            Temat pracy: <a v-if="proposal.Topic">{{proposal.Topic}}</a> <md-button v-else class="md-primary md-raised">Dodaj temat pracy</md-button>
+            Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a> <md-button v-else class="md-primary md-raised">Przeglądaj propozycje</md-button>
         </div>
-        <modal-promoters />
     </div>
   </div>
 </template>
@@ -68,9 +67,9 @@
             this.test()
         }
         async test() {
-            const userdata= await userService.getUser();
+            const userdata= await userService.getUser('60758688-3B61-4C74-B755-12179DF8A524')
             const proposalData = await proposalService.getProposal();
-            const datatata = await userService.getAllUsers();
+            const datatata = await userService.getAllUsers('Promoter');
             console.log(datatata.data)
             this.myProfile = userdata.data;
             this.proposal = proposalData.data;

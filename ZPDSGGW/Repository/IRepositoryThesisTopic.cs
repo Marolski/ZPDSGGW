@@ -8,7 +8,7 @@ namespace ZPDSGGW.Repository
 {
     public interface IRepositoryThesisTopic
     {
-        IEnumerable<string> GetTopics();
+        IEnumerable<ThesisTopic> GetTopics();
         IEnumerable<string> GetTopicsFromPromoter(Guid id);
         ThesisTopic GetTopicById(Guid id);
         void CreateTopic(ThesisTopic topic);

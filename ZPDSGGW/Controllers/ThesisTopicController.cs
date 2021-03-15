@@ -29,7 +29,7 @@ namespace ZPDSGGW.Controllers
 
         //Get api/thesis
         [HttpGet]
-        public ActionResult<IEnumerable<string>> GetAllTopics()
+        public ActionResult<IEnumerable<ThesisTopic>> GetAllTopics()
         {
             var topics = _repository.GetTopics();
             return Ok(topics);

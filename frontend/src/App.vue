@@ -1,15 +1,57 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/profile">Profile</router-link> |
-      <router-link to="/login">Login</router-link> |
-      <router-link to="/proposal">Proposal</router-link>
-    </div>
+    <md-toolbar class="md-primary">
+      <md-button class="md-icon-button" @click="showNavigation = true">
+        <md-icon>menu</md-icon>
+      </md-button>
+      <span class="md-title">My Title</span>
+
+    </md-toolbar>
+
+    <md-drawer :md-active.sync="showNavigation" md-swipeable>
+      <md-toolbar class="md-transparent" md-elevation="0">
+        <span class="md-title">Menu</span>
+      </md-toolbar>
+
+      <md-list>
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/">Home</router-link></span>
+        </md-list-item>
+
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/about">About</router-link></span>
+        </md-list-item>
+
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/profile">Profile</router-link></span>
+        </md-list-item>
+
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/login">Login</router-link></span>
+        </md-list-item>
+
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/proposal">Proposal</router-link></span>
+        </md-list-item>
+
+        <md-list-item>
+          <span id="nav" class="md-list-item-text"><router-link to="/topics">Topics</router-link></span>
+        </md-list-item>
+      </md-list>
+    </md-drawer>
     <router-view/>
   </div>
 </template>
+
+<script>
+  export default {
+    name: 'Temporary',
+    data: () => ({
+      showNavigation: false,
+      showSidepanel: false
+    })
+  }
+</script>
 
 <style lang="scss">
 #app {
@@ -21,7 +63,7 @@
 }
 
 #nav {
-  padding: 30px;
+  padding: 10px;
 
   a {
     font-weight: bold;
@@ -32,4 +74,20 @@
     }
   }
 }
+.page-container {
+    min-height: 300px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(#000, .12);
+  }
+
+   // Demo purposes only
+  .md-drawer {
+    width: 230px;
+    max-width: calc(100vw - 125px);
+  }
+
+  .md-content {
+    padding: 8px;
+  }
 </style>

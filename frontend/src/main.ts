@@ -6,7 +6,10 @@ import 'vue-material/dist/vue-material.min.css';
 import 'vue-material/dist/theme/default.css';
 import VueMaterial from 'vue-material';
 import VModal from 'vue-js-modal';
-import 'vue-js-modal/dist/styles.css'
+import 'vue-js-modal/dist/styles.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'; 
+import 'bootstrap-css-only/css/bootstrap.min.css'; 
+import 'mdbvue/lib/mdbvue.css'
 
 Vue.config.productionTip = false
 Vue.use(VueMaterial)

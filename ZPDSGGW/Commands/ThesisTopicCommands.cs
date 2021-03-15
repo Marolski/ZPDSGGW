@@ -26,17 +26,12 @@ namespace ZPDSGGW.Commands
 
         public ThesisTopic GetTopicById(Guid id)=> _context.ThesisTopics.FirstOrDefault(x => x.Id == id);
 
-        public IEnumerable<string> GetTopics()
+        public IEnumerable<ThesisTopic> GetTopics()
         {
             var topics = _context.ThesisTopics.ToList();
             if (topics == null)
                 throw new ArgumentNullException(nameof(topics));
-            var topicList = new List<string>();
-            foreach (var topic in topics)
-            {
-                topicList.Add(topic.Topic);
-            }
-            return topicList;
+            return topics;
         }
 
         public IEnumerable<string> GetTopicsFromPromoter(Guid id)
