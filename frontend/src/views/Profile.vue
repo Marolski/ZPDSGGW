@@ -15,7 +15,7 @@
             Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><router-link v-else to="/proposal"><md-button class="md-primary md-raised">Znajdź promotora</md-button></router-link>
         </div>
         <div>
-            Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a> <md-button v-else class="md-primary md-raised">Przeglądaj propozycje</md-button>
+            Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><router-link v-else to="/topics"><md-button class="md-primary md-raised">Przeglądaj propozycje</md-button></router-link>
         </div>
     </div>
   </div>

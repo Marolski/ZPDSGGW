@@ -1,6 +1,11 @@
 <template>
   <div class="tableStyle">
-  <mdb-datatable-2 v-model="data" selectable  @selected="handleClick($event)"/>
+    <div style="padding-top: 50px;"></div>
+    <div class="inputDiv">
+      <mdb-input v-model="value" />
+      <mdb-btn color="primary" style="margin-bottom: 20px; ">Wybierz</mdb-btn>
+    </div>
+    <mdb-datatable-2 v-model="data" selectable  @selected="handleClick($event)"/>
   </div>
 </template>
 
@@ -9,18 +14,19 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import ThesisTopicService from '../services/ThesisTopicService';
 import ITopic from '../types/ThesisTopic';
-import { mdbDatatable2 } from 'mdbvue';
+import { mdbDatatable2, mdbBtn  } from 'mdbvue';
 import UserService from '../services/UserService';
 import { use } from "vue/types/umd";
-
+import { mdbInput } from 'mdbvue';
 const topics = new ThesisTopicService();
 const userService = new UserService();
 @Component({
         name: 'TopicList',
-        components:{mdbDatatable2}
+        components:{mdbDatatable2, mdbBtn, mdbInput }
     })
     export default class TopicList extends Vue {
         options: Array<ITopic> = [];
+        value: any = '';
         data = {
           rows: [],
           columns: [{
@@ -72,7 +78,7 @@ const userService = new UserService();
           return userData.data;
         }
         handleClick(param: string){
-          console.log(param)
+          this.value = param.topic;
         }
     }
 </script>
@@ -83,5 +89,19 @@ const userService = new UserService();
 }
 .mdb-datatable{
   max-width: 80% !important;
+}
+.md-form{
+  margin-left: 10%;
+  margin-right: 2%;
+  min-width: 80%;
+  margin-bottom: 20px;
+}
+.inputDiv{
+  display: flex;
+  margin-right: 10%;
+  margin-left: 10%;
+}
+.form-control{
+  min-width: 300px;
 }
 </style>

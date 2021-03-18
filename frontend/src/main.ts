@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
+import LoginPage from '../src/views/LoginPage.vue'
 import router from './router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'vue-material/dist/vue-material.min.css';

@@ -5,14 +5,15 @@ import Profile from '../views/Profile.vue'
 import Login from '../views/LoginPage.vue'
 import Proposal from '../views/Proposal.vue'
 import TopicList from '../views/ThesisTopicList.vue'
+import LoginPage from '../views/LoginPage.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'LoginPage',
+    component: LoginPage
   },
   {
     path: '/about',
