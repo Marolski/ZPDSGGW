@@ -10,13 +10,13 @@
 
       <div class="form">
         <md-field>
-          <label>E-mail</label>
-          <md-input v-model="login.email" autofocus></md-input>
+          <label>Login</label>
+          <md-input v-model="login.Username" autofocus></md-input>
         </md-field>
 
         <md-field md-has-password>
           <label>Password</label>
-          <md-input v-model="login.password" type="password"></md-input>
+          <md-input v-model="login.Password" type="password"></md-input>
         </md-field>
       </div>
 
@@ -37,7 +37,9 @@
 <script lang="ts">
     import Vue from 'vue';
     import { Component } from "vue-property-decorator";
-
+    import Authenticate from '../services/AuthenticateService';
+    import router from '../router/index'
+    const auth = new Authenticate();
 @Component({
         name: 'LoginPage',
         components:{}
@@ -45,16 +47,24 @@
     export default class LoginPage extends Vue{
         loading: any = false;
         login: object = {
-            email: "",
-            password: "",
+            Username: "",
+            Password: "",
         }
-        auth() {
+        async auth() {
             // your code to login user
             // this is only for example of loading
             this.loading = true;
+            const res = await auth.authorization(this.login)
+            localStorage.clear();
+            localStorage.setItem('token', res.data.Token)
+            localStorage.setItem('id', res.data.Id)
+            localStorage.setItem('role', res.data.Role)
+            console.log(localStorage.getItem('role'));
+            console.log(res);
             setTimeout(() => {
                 this.loading = false;
-            }, 5000);
+                router.push('/profile')
+            }, 500);
         }
     }
 </script>

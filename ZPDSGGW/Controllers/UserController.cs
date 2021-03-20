@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ namespace ZPDSGGW.Controllers
             _repository = repository;
             _mapper = mapper;
         }
-
+        [Authorize(Roles = Roles.Admin + "," + Roles.Promoter+","+ Roles.Deanery + "," + Roles.Student)]
         [HttpGet]
         public ActionResult<IEnumerable<UserReadDto>> GetAllUser(string role)
         {
@@ -33,6 +34,7 @@ namespace ZPDSGGW.Controllers
             return Ok(_mapper.Map<IEnumerable<UserReadDto>>(users));
         }
 
+        [Authorize(Roles = Roles.Admin + "," + Roles.Promoter + "," + Roles.Deanery+","+Roles.Student)]
         [HttpGet("{id}", Name = "GetUserById")]
         public ActionResult<UserReadDto> GetUserById(Guid id)
         {

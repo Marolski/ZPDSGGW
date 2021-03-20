@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import Home from '../views/Home.vue'
 import Profile from '../views/Profile.vue'
-import Login from '../views/LoginPage.vue'
 import Proposal from '../views/Proposal.vue'
 import TopicList from '../views/ThesisTopicList.vue'
 import LoginPage from '../views/LoginPage.vue'
@@ -27,11 +25,6 @@ const routes: Array<RouteConfig> = [
     path: '/profile',
     name: 'MyProfile',
     component: Profile
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login
   },
   {
     path: '/proposal',
