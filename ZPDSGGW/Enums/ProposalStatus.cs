@@ -7,7 +7,8 @@ namespace ZPDSGGW.Enums
 {
     public enum ProposalStatus
     {
-        Send =1,
+        InProgress =1,
+        Send,
         Delivered,
         Received,
         Reject,

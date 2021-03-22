@@ -13,7 +13,6 @@ namespace ZPDSGGW.Models
         public Guid Id { get; set; }
         [Required]
         public Guid StudentId { get; set; }
-        [Required]
         public Guid PromoterId { get; set; }
         [Required]
         public ProposalStatus Status { get; set; }

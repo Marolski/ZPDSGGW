@@ -24,17 +24,14 @@ export default class Requests{
     }
 
     public async delete(endpoint = '', param = ''): Promise<any>{
-        return param? await axios.delete(`${this.API_URL}/${endpoint}/${param}`,this.config)
-         : axios.delete(`${this.API_URL}/${endpoint}`,this.config);
+        return await axios.delete(`${this.API_URL}/${endpoint}/${param}`,this.config);
     }
 
-    public async put(endpoint = '', param = ''): Promise<any>{
-        return param? await axios.put(`${this.API_URL}/${endpoint}/${param}`,this.config)
-         : axios.put(`${this.API_URL}/${endpoint}`,this.config);
+    public async put(endpoint = '', param = '', body: object): Promise<any>{
+        return await axios.put(`${this.API_URL}/${endpoint}/${param}`,body,this.config)
     }
 
-    public async patch(endpoint = '', param = ''): Promise<any>{
-        return param? await axios.patch(`${this.API_URL}/${endpoint}/${param}`,this.config)
-         : axios.patch(`${this.API_URL}/${endpoint}`,this.config);
+    public async patch(endpoint = '', param = '', body: object): Promise<any>{
+        return await axios.patch(`${this.API_URL}/${endpoint}/${param}`, body, this.config)
     }
 }

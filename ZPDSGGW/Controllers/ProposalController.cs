@@ -38,9 +38,7 @@ namespace ZPDSGGW.Controllers
         public ActionResult<ProposalReadDto> GetProposalByStudentId(Guid id)
         {
             var proposal = _repository.GetProposalByStudentId(id);
-            if (proposal != null)
-                return Ok(_mapper.Map<ProposalReadDto>(proposal));
-            return NotFound();
+            return Ok(_mapper.Map<ProposalReadDto>(proposal));
         }
 
         //POST api/proposals

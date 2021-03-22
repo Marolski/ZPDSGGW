@@ -33,7 +33,7 @@ namespace ZPDSGGW.Commands
 
         public Proposal GetProposalById(Guid id)
         {
-            return _context.Proposal.FirstOrDefault(p => p.Id == id);
+            return _context.Proposal.FirstOrDefault(p => p.StudentId == id);
         }
 
         public Proposal GetProposalByPromoterId(Guid id)

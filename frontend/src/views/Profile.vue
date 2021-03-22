@@ -1,5 +1,6 @@
 <template>
   <div class="about">
+      <div><Alert v-show="showError"/></div>
     <h1>Moj profil</h1>
     <div>
         <div>
@@ -12,11 +13,16 @@
             Numer indeksu: {{myProfile.StudentNumber}}
         </div>
         <div>
-            Promotor: <a v-if="proposal.PromoterId">{{proposal.PromoterId}}</a><md-button @click.native="modal = true" class="md-primary md-raised">Znajdź promotora</md-button>
+            Promotor: <a v-if="proposal.PromoterId">{{promoterName}}</a><md-button @click.native="modal = true" class="md-primary md-raised">Znajdź promotora</md-button>
         </div>
         <div>
             Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><router-link v-else to="/topics"><md-button class="md-primary md-raised">Przeglądaj propozycje</md-button></router-link>
         </div>
+    </div>
+    <div>
+        <router-link to="/proposal"><md-button class="md-primary md-raised">Wyślij wniosek</md-button></router-link>
+        <md-button class="md-primary md-raised">Wyślij zaproszenie do promotora</md-button>
+        <md-button class="md-primary md-raised">Dokumenty</md-button>
     </div>
     <div>
         <mdb-modal :show="modal" @close="modal = false">
@@ -25,12 +31,11 @@
             </mdb-modal-header>
             <mdb-modal-body>
                 <mdb-list-group>
-                   <mdb-list-group-item :action="true" v-for="item in users" :key="item.Name">{{item.Degrees}} {{item.Name}} {{item.Surname}}</mdb-list-group-item>
+                   <mdb-list-group-item :action="true" v-for="item in users" :key="item.Name" @click.native="updatePromoter(item)">{{item.Degrees}} {{item.Name}} {{item.Surname}}</mdb-list-group-item>
                 </mdb-list-group>
             </mdb-modal-body>
             <mdb-modal-footer>
                 <mdb-btn color="secondary" @click.native="modal = false">Close</mdb-btn>
-                <mdb-btn color="primary">Save changes</mdb-btn>
             </mdb-modal-footer>
         </mdb-modal>
   </div>
@@ -45,9 +50,15 @@
     import { Component } from "vue-property-decorator";
     import IProposal from '../types/Proposal';
     import { mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter, mdbBtn,mdbListGroup, mdbListGroupItem, mdbBadge  } from 'mdbvue';
+    import UserHelper from '../services/helpers/UserHelper'
+    import Alert from  '../components/Alert.vue';
+    import ProposalHelper from '../services/helpers/ProposalHelper';
+import { use } from "vue/types/umd";
 
     const userService = new UserService();
     const proposalService = new ProposalService();
+    const userHelper = new UserHelper();
+    const proposalHelper = new ProposalHelper();
     @Component({
         name: 'MyProfile',
         components: { mdbModal,
@@ -58,13 +69,17 @@
             mdbBtn,
             mdbListGroup, 
             mdbListGroupItem, 
-            mdbBadge
+            mdbBadge,
+            Alert
         },
     })
     export default class MyProfile extends Vue{
         //data
+        userId: string = localStorage.getItem('id');
+        showError: boolean | any = false;
         users: Array<IUser> = [];
         modal: any = false;
+        promoterName: string | any = '';
         myProfile: IUser = {
             Id: '',
             name: '',
@@ -76,7 +91,8 @@
 
         };
         proposal: IProposal = {
-            Status: '',
+            Id: '',
+            Status: 1,
             Topic: '',
             Date: '',
             PromoterId: '',
@@ -90,18 +106,39 @@
         //methods
         //lifecycles hooks
         created(){
-            this.test()
+            this.getData()
+            this.checkProposalExist()
         }
-        async test() {
-            const id = localStorage.getItem('id');
-            const userdata = await userService.getUser(id);
-            const promoterList = await userService.getAllUsers('Promoter');
-            const proposalData = await proposalService.getProposal();
-            this.myProfile = userdata.data;
-            this.proposal = proposalData.data;
-            this.users = promoterList.data;
-            console.log(promoterList.data);
-            this.proposal.PromoterId = '';
+        async getData() {
+            try {
+                const userdata = await userService.getUser(this.userId);
+                const promoterList = await userService.getAllUsers('Promoter');            
+                this.myProfile = userdata.data;
+                this.users = promoterList.data;
+                this.promoterName = userHelper.getUserName(this.proposal.PromoterId);
+            } catch (error) {
+                this.showError = true;
+            }
+        }
+        async checkProposalExist(){
+            try {
+                const proposalData = await proposalService.getProposal(this.userId);
+                if(proposalData.data == "")
+                    proposalHelper.createEmptyProposal(this.userId);
+            } catch (error) {
+                this.showError = true;
+            }
+        }
+        async updatePromoter(user: IProposal){
+            try {
+                const proposalData = await proposalService.getProposal(this.userId);
+                this.proposal = proposalData.data;
+                this.proposal.PromoterId = user.PromoterId;
+                console.log(this.proposal)
+                const updatedPromoter = await proposalService.patchProposal(this.userId,this.proposal)
+            } catch (error) {
+                this.showError = true;
+            }
         }
         //watchers
     }

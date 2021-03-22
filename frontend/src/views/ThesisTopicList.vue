@@ -1,5 +1,6 @@
 <template>
   <div class="tableStyle">
+      <div><Alert v-show="showError"/></div>
     <div style="padding-top: 50px;"></div>
     <div class="inputDiv">
       <mdb-input v-model="value" />
@@ -16,16 +17,18 @@ import ThesisTopicService from '../services/ThesisTopicService';
 import ITopic from '../types/ThesisTopic';
 import { mdbDatatable2, mdbBtn  } from 'mdbvue';
 import UserService from '../services/UserService';
-import { use } from "vue/types/umd";
 import { mdbInput } from 'mdbvue';
+import Alert from  '../components/Alert.vue';
+
 const topics = new ThesisTopicService();
 const userService = new UserService();
 @Component({
         name: 'TopicList',
-        components:{mdbDatatable2, mdbBtn, mdbInput }
+        components:{mdbDatatable2, mdbBtn, mdbInput, Alert }
     })
     export default class TopicList extends Vue {
         options: Array<ITopic> = [];
+        showError: boolean | any = false;
         value: any = '';
         data = {
           rows: [],
@@ -51,31 +54,39 @@ const userService = new UserService();
           this.populate();
         }
         async populate(){
-            const topicsData = await topics.getTopics();
-            const allPromoters = await userService.getAllUsers('Promoter');
-            const promotersData = allPromoters.data;
-            this.options = topicsData.data;
-            this.options.forEach(element => {
-              const row ={
-                name: element.PromoterId,
-                topic: element.Topic,
-                available: '',
-              };
-              const name = promotersData.filter(function(elem){
-                if(elem.Id === element.Id){
-                  return elem
+            try {
+              const topicsData = await topics.getTopics();
+              const allPromoters = await userService.getAllUsers('Promoter');
+              const promotersData = allPromoters.data;
+              this.options = topicsData.data;
+              this.options.forEach(element => {
+                const row ={
+                  name: element.PromoterId,
+                  topic: element.Topic,
+                  available: '',
+                };
+                const name = promotersData.filter(function(elem){
+                  if(elem.Id === element.Id){
+                    return elem
+                  }
+                })
+                row.name = `${name[0].Degrees} ${name[0].Name} ${name[0].Surname}`;
+                if (element.Available == true){
+                  row.available = 'TAK';
+                  this.data.rows.push(row)
                 }
-              })
-              row.name = `${name[0].Degrees} ${name[0].Name} ${name[0].Surname}`;
-              if (element.Available == true){
-                row.available = 'TAK';
-                this.data.rows.push(row)
-              }
-            });
+              });
+            } catch (error) {
+              this.showError = true
+            }
         }
         async sendDataToProposal(id: string){
-          const userData = await userService.getUser(id)
-          return userData.data;
+          try {
+            const userData = await userService.getUser(id)
+            return userData.data;
+          } catch (error) {
+              this.showError = true;
+          }
         }
         handleClick(param: string){
           this.value = param.topic;
