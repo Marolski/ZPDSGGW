@@ -70,6 +70,7 @@ namespace ZPDSGGW.Controllers
         [HttpPatch("{id}")]
         public ActionResult PartialProposalUpdate(Guid id, JsonPatchDocument<ProposalUpdateDto> json)
         {
+            Console.WriteLine(json);
             var proposalFromRepo = _repository.GetProposalById(id);
             if (proposalFromRepo == null)
                 return NotFound();

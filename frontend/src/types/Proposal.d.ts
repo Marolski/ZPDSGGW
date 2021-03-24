@@ -3,6 +3,6 @@ export default interface IProposal{
     Status: number,
     Topic: string,
     Date: Date,
-    PromoterId?: string,
+    PromoterId: string,
     StudentId: string 
 }

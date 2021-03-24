@@ -13,7 +13,7 @@
             Numer indeksu: {{myProfile.StudentNumber}}
         </div>
         <div>
-            Promotor: <a v-if="proposal.PromoterId">{{promoterName}}</a><md-button @click.native="modal = true" class="md-primary md-raised">Znajdź promotora</md-button>
+            Promotor: <a v-if="proposal.PromoterId!=''">{{promoterName}}</a><md-button @click.native="modal = true" class="md-primary md-raised">Znajdź promotora</md-button>
         </div>
         <div>
             Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><router-link v-else to="/topics"><md-button class="md-primary md-raised">Przeglądaj propozycje</md-button></router-link>
@@ -31,7 +31,7 @@
             </mdb-modal-header>
             <mdb-modal-body>
                 <mdb-list-group>
-                   <mdb-list-group-item :action="true" v-for="item in users" :key="item.Name" @click.native="updatePromoter(item)">{{item.Degrees}} {{item.Name}} {{item.Surname}}</mdb-list-group-item>
+                   <mdb-list-group-item :action="true" v-for="item in promotersList" :key="item.Name" @click.native="updatePromoter(item)">{{item.Degrees}} {{item.Name}} {{item.Surname}}</mdb-list-group-item>
                 </mdb-list-group>
             </mdb-modal-body>
             <mdb-modal-footer>
@@ -53,8 +53,7 @@
     import UserHelper from '../services/helpers/UserHelper'
     import Alert from  '../components/Alert.vue';
     import ProposalHelper from '../services/helpers/ProposalHelper';
-import { use } from "vue/types/umd";
-
+    import { use } from "vue/types/umd";
     const userService = new UserService();
     const proposalService = new ProposalService();
     const userHelper = new UserHelper();
@@ -77,9 +76,9 @@ import { use } from "vue/types/umd";
         //data
         userId: string = localStorage.getItem('id');
         showError: boolean | any = false;
-        users: Array<IUser> = [];
+        promotersList: Array<IUser> = [];
         modal: any = false;
-        promoterName: string | any = '';
+        promoterName = '';
         myProfile: IUser = {
             Id: '',
             name: '',
@@ -112,30 +111,35 @@ import { use } from "vue/types/umd";
         async getData() {
             try {
                 const userdata = await userService.getUser(this.userId);
-                const promoterList = await userService.getAllUsers('Promoter');            
+                const promoterList = await userService.getAllUsers('Promoter');        
                 this.myProfile = userdata.data;
-                this.users = promoterList.data;
-                this.promoterName = userHelper.getUserName(this.proposal.PromoterId);
+                this.promotersList = promoterList.data;
             } catch (error) {
                 this.showError = true;
             }
         }
         async checkProposalExist(){
             try {
-                const proposalData = await proposalService.getProposal(this.userId);
-                if(proposalData.data == "")
+                const proposalDataUser = await proposalService.getProposal(this.userId);
+                if(proposalDataUser.data == "")
                     proposalHelper.createEmptyProposal(this.userId);
+                else {
+                    this.proposal = proposalDataUser.data;
+                    const promoterFromProposal = await userService.getUser(proposalDataUser.data.PromoterId)
+                    this.promoterName = userHelper.getUserName(promoterFromProposal.data);  
+                }
             } catch (error) {
                 this.showError = true;
             }
         }
-        async updatePromoter(user: IProposal){
+        async updatePromoter(user: IUser){
             try {
-                const proposalData = await proposalService.getProposal(this.userId);
-                this.proposal = proposalData.data;
-                this.proposal.PromoterId = user.PromoterId;
-                console.log(this.proposal)
-                const updatedPromoter = await proposalService.patchProposal(this.userId,this.proposal)
+                await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": user.Id}]);
+                const proposalDataUser = await proposalService.getProposal(this.userId);
+                this.proposal.PromoterId = proposalDataUser.data.PromoterId;
+                const promoterFromProposal = await userService.getUser(proposalDataUser.data.PromoterId)
+                this.promoterName = userHelper.getUserName(promoterFromProposal.data);
+                this.modal = false;
             } catch (error) {
                 this.showError = true;
             }

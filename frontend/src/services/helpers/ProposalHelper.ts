@@ -11,7 +11,7 @@ export default class ProposalHelper{
             Id : guid.generateUUID(),
             Status : 1,
             Topic: '',
-            Date: Date.UTC,
+            Date: Date.now(),
             PromoterId : '',
             StudentId : id
         }

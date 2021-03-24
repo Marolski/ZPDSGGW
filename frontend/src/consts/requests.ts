@@ -31,7 +31,7 @@ export default class Requests{
         return await axios.put(`${this.API_URL}/${endpoint}/${param}`,body,this.config)
     }
 
-    public async patch(endpoint = '', param = '', body: object): Promise<any>{
+    public async patch(endpoint = '', param = '', body: Array<object>): Promise<any>{
         return await axios.patch(`${this.API_URL}/${endpoint}/${param}`, body, this.config)
     }
 }

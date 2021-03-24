@@ -1,12 +1,11 @@
 import UserService from '../UserService';
-
+import IUser from "../../types/User";
 
 const userService = new UserService();
 export default class UserHelper{
-    async getUserName(id: string){
-        const user = await userService.getUser(id);
-        if(user.data.Role == 'Promoter')
-            return `${user.data.Degrees} ${user.data.Name} ${user.data.Surname}`
-        else return `${user.data.Name} ${user.data.Surname}`
+    getUserName(user){
+        if(user.Role == 'Promoter')
+            return `${user.Degrees} ${user.Name} ${user.Surname}`
+        else return `${user.Name} ${user.Surname}`
     }
 }
