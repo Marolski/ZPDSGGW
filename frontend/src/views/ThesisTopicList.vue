@@ -3,10 +3,10 @@
       <div><Alert v-show="showError"/></div>
     <div style="padding-top: 50px;"></div>
     <div class="inputDiv">
-      <mdb-input v-model="value" />
-      <mdb-btn color="primary" style="margin-bottom: 20px; ">Wybierz</mdb-btn>
+      <mdb-input v-model="thesisTopicName" />
+      <mdb-btn color="primary" style="margin-bottom: 20px; " @click.native="updateTopicStatus">Wybierz</mdb-btn>
     </div>
-    <mdb-datatable-2 v-model="data" selectable  @selected="handleClick($event)"/>
+    <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
   </div>
 </template>
 
@@ -19,17 +19,22 @@ import { mdbDatatable2, mdbBtn  } from 'mdbvue';
 import UserService from '../services/UserService';
 import { mdbInput } from 'mdbvue';
 import Alert from  '../components/Alert.vue';
+import ProposalService from "../services/ProposalService";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
+const proposalService = new ProposalService();
 @Component({
         name: 'TopicList',
         components:{mdbDatatable2, mdbBtn, mdbInput, Alert }
     })
     export default class TopicList extends Vue {
-        options: Array<ITopic> = [];
+        userId: string = localStorage.getItem('id');
+        inputValue: string;
+        topicsArray: Array<ITopic> = [];
         showError: boolean | any = false;
-        value: any = '';
+        checkedTopicId: string;
+        thesisTopicName: any = '';
         data = {
           rows: [],
           columns: [{
@@ -48,18 +53,20 @@ const userService = new UserService();
           sort: true
         }]
         }
-        rows: Array<any> = [];
         
-        mounted(){
+        created(){
           this.populate();
         }
+        
         async populate(){
             try {
-              const topicsData = await topics.getTopics();
+              this.data.rows = [];
+              console.log(this.data.rows.length)
+              const allTopics = await topics.getTopics();
               const allPromoters = await userService.getAllUsers('Promoter');
               const promotersData = allPromoters.data;
-              this.options = topicsData.data;
-              this.options.forEach(element => {
+              this.topicsArray = allTopics.data;
+              this.topicsArray.forEach(element => {
                 const row ={
                   name: element.PromoterId,
                   topic: element.Topic,
@@ -71,11 +78,18 @@ const userService = new UserService();
                   }
                 })
                 row.name = `${name[0].Degrees} ${name[0].Name} ${name[0].Surname}`;
-                if (element.Available == true){
+                if (element.Available == 1)
                   row.available = 'TAK';
-                  this.data.rows.push(row)
-                }
+                else if(element.Available == 2)
+                  row.available = 'NIE';
+                else if(element.Available == 3)
+                  row.available = "ZAREZERWOWANE";
+                this.data.rows.push(row)
+                console.log(row)
+
               });
+              console.log(this.data)
+              $vm.set()
             } catch (error) {
               this.showError = true
             }
@@ -88,8 +102,21 @@ const userService = new UserService();
               this.showError = true;
           }
         }
-        handleClick(param: string){
-          this.value = param.topic;
+        handleClick(param: ITopic){
+          if(param == undefined)
+            return
+          this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
+          this.thesisTopicName = param.topic;
+        }
+        async updateTopicStatus(){
+          try {
+            console.log(this.thesisTopicName)
+            await topics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": 3}])
+            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
+            this.populate();
+          } catch (error) {
+            this.showError = true;
+          }
         }
     }
 </script>

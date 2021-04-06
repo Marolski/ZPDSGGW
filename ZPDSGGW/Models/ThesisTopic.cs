@@ -16,6 +16,6 @@ namespace ZPDSGGW.Models
         [Required]
         public string Topic { get; set; }
         [Required]
-        public bool Available { get; set; }
+        public ThesisTopicStatus Available { get; set; }
     }
 }

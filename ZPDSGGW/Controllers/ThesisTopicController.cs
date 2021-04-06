@@ -62,7 +62,7 @@ namespace ZPDSGGW.Controllers
             return CreatedAtRoute(nameof(GetTopicById), new { Id = thesisReadDto.Id }, thesisReadDto);
         }
 
-        [HttpPatch]
+        [HttpPatch("{id}")]
         public ActionResult PartialUpdateInvitation(Guid id, JsonPatchDocument<ThesisUpdateDto> json)
         {
             var topicFromRepo = _repository.GetTopicById(id);
