@@ -7,6 +7,23 @@
       <mdb-btn color="primary" style="margin-bottom: 20px; " @click.native="updateTopicStatus">Wybierz</mdb-btn>
     </div>
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
+    <mdb-container>
+    <mdb-btn color="default" @click.native="contact = true">launch contact form modal</mdb-btn>
+    <mdb-modal :show="contact" @close="contact = false">
+      <mdb-modal-header class="text-center">
+        <mdb-modal-title tag="h4" bold class="w-100">Wyślij zapytanie do promotora</mdb-modal-title>
+      </mdb-modal-header>
+      <mdb-modal-body class="mx-3 grey-text">
+        <mdb-input v-model="invitationName" disabled label="Student" />
+        <mdb-input v-model="invitationPromoterName" disabled label="Promotor"/>
+        <mdb-input v-model="thesisTopicName" disabled label="Temat"/>
+        <mdb-textarea v-model="invitationDesc" label="Wiadomość"/>
+      </mdb-modal-body>
+      <mdb-modal-footer center>
+        <mdb-btn @click.native="createInvitation" color="unique">Wyślij <mdb-icon icon="paper-plane" class="ml-1"/></mdb-btn>
+      </mdb-modal-footer>
+    </mdb-modal>
+  </mdb-container>
   </div>
 </template>
 
@@ -15,81 +32,127 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import ThesisTopicService from '../services/ThesisTopicService';
 import ITopic from '../types/ThesisTopic';
-import { mdbDatatable2, mdbBtn  } from 'mdbvue';
 import UserService from '../services/UserService';
-import { mdbInput } from 'mdbvue';
 import Alert from  '../components/Alert.vue';
 import ProposalService from "../services/ProposalService";
+import InvitationService from "../services/InvitationService";
+import router from "../router";
+import IInvitation from '../types/Invitation';
+import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter } from 'mdbvue';
+import UserHelper from "../services/helpers/UserHelper";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
 const proposalService = new ProposalService();
+const invitationservice = new InvitationService();
+const userHelper = new UserHelper();
+interface Row{
+  name: string;
+  topic: string;
+  available: string;
+}
 @Component({
         name: 'TopicList',
-        components:{mdbDatatable2, mdbBtn, mdbInput, Alert }
+        components:{
+          mdbDatatable2, 
+          mdbBtn, 
+          mdbInput, 
+          Alert,
+          mdbContainer,
+          mdbModal,
+          mdbModalHeader,
+          mdbModalBody,
+          mdbModalFooter,
+          mdbTextarea,
+          mdbModalTitle,
+          mdbIcon,
+          
+        }
     })
     export default class TopicList extends Vue {
         userId: string = localStorage.getItem('id');
         inputValue: string;
         topicsArray: Array<ITopic> = [];
         showError: boolean | any = false;
+        onlyTopic: boolean;
         checkedTopicId: string;
         thesisTopicName: any = '';
+        myTopic: boolean;
+        contact: any = false;
+        invitationDesc: any = '';
+        invitationName: any = '';
+        invitationPromoterName: any = '';
+        invitation: IInvitation ={
+          Id: '',
+          StudentId: '',
+          PromoterId: '',
+          Topic: '',
+          Description: '',
+          Accepted: false
+        }
         data = {
           rows: [],
-          columns: [{
-          label: 'Imie',
-          field: 'name',
-          sort: true
-        },
-        {
-          label: 'Temat',
-          field: 'topic',
-          sort: true
-        },
-        {
-          label: 'Dostępny',
-          field: 'available',
-          sort: true
-        }]
+          
         }
-        
+        public get setRows(){
+          return this.data
+        }
+        public set setRows(newdata: object){
+          this.data = newdata
+        }
         created(){
           this.populate();
         }
         
         async populate(){
             try {
-              this.data.rows = [];
-              console.log(this.data.rows.length)
               const allTopics = await topics.getTopics();
               const allPromoters = await userService.getAllUsers('Promoter');
               const promotersData = allPromoters.data;
               this.topicsArray = allTopics.data;
+              const rows = [];
+              const newDataObject = {
+                columns: [{
+                  label: 'Imie',
+                  field: 'name',
+                  sort: true
+                },
+                {
+                  label: 'Temat',
+                  field: 'topic',
+                  sort: true
+                },
+                {
+                  label: 'Dostępny',
+                  field: 'available',
+                  sort: true
+                }],
+                rows
+              };
+
               this.topicsArray.forEach(element => {
                 const row ={
                   name: element.PromoterId,
                   topic: element.Topic,
                   available: '',
-                };
+                };           
                 const name = promotersData.filter(function(elem){
                   if(elem.Id === element.Id){
                     return elem
                   }
                 })
-                row.name = `${name[0].Degrees} ${name[0].Name} ${name[0].Surname}`;
+                row.name = userHelper.getUserName(name[0]);
                 if (element.Available == 1)
                   row.available = 'TAK';
                 else if(element.Available == 2)
                   row.available = 'NIE';
                 else if(element.Available == 3)
                   row.available = "ZAREZERWOWANE";
-                this.data.rows.push(row)
-                console.log(row)
-
+                rows.push(row)
               });
-              console.log(this.data)
-              $vm.set()
+              this.setRows = newDataObject;
+              const user = await userService.getUser(this.userId);
+              this.invitationName = userHelper.getUserName(user.data);
             } catch (error) {
               this.showError = true
             }
@@ -102,18 +165,40 @@ const proposalService = new ProposalService();
               this.showError = true;
           }
         }
-        handleClick(param: ITopic){
-          if(param == undefined)
+        handleClick(param: Row){
+          if(param == undefined){
+            this.invitationPromoterName = '';
             return
+          }
+          else if(typeof(param)!=typeof("")){
+            this.contact = true;
+            this.onlyTopic = false;
+          }
           this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
           this.thesisTopicName = param.topic;
+          this.invitationPromoterName = param.name;
         }
         async updateTopicStatus(){
           try {
-            console.log(this.thesisTopicName)
-            await topics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": 3}])
             await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
-            this.populate();
+            router.push('Profile');
+          } catch (error) {
+            this.showError = true;
+          }
+        }
+        async createInvitation(){
+          try {
+            if(this.checkedTopicId!='')
+              await topics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": 3}])
+            this.invitation.Id = 'b5cead43-1120-4ad7-8bd3-1095c417685a';
+            this.invitation.StudentId = this.userId;
+            const proposal = await proposalService.getProposal(this.userId);
+            const proposaldata = proposal.data;
+            this.invitation.PromoterId = proposaldata.PromoterId
+            this.invitation.Topic = proposaldata.Topic;
+            this.invitation.Description = this.invitationDesc;
+            this.invitation.Accepted = true;
+            await invitationservice.postInvitation(this.invitation);
           } catch (error) {
             this.showError = true;
           }

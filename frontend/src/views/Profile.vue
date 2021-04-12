@@ -16,7 +16,7 @@
             Promotor: <a v-if="proposal.PromoterId!=''">{{promoterName}}</a><md-button @click.native="modal = true" class="md-primary md-raised">Znajdź promotora</md-button>
         </div>
         <div>
-            Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><router-link v-else to="/topics"><md-button class="md-primary md-raised">Przeglądaj propozycje</md-button></router-link>
+            Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><router-link to="/topics"><md-button class="md-primary md-raised">Przeglądaj propozycje</md-button></router-link>
         </div>
     </div>
     <div>
