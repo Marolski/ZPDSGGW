@@ -21,7 +21,7 @@
     </div>
     <div>
         <router-link to="/proposal"><md-button class="md-primary md-raised">Wyślij wniosek</md-button></router-link>
-        <md-button class="md-primary md-raised">Wyślij zaproszenie do promotora</md-button>
+        <md-button @click.native="contact = true" class="md-primary md-raised">Wyślij zaproszenie do promotora</md-button>
         <md-button class="md-primary md-raised">Dokumenty</md-button>
     </div>
     <div>
@@ -39,25 +39,46 @@
             </mdb-modal-footer>
         </mdb-modal>
   </div>
+
+  <mdb-container>
+      <mdb-modal :show="contact" @close="contact = false">
+        <mdb-modal-header class="text-center">
+          <mdb-modal-title tag="h4" bold class="w-100">Wyślij zapytanie do promotora</mdb-modal-title>
+        </mdb-modal-header>
+        <mdb-modal-body class="mx-3 grey-text">
+          <mdb-input v-model="studentName" disabled label="Student" />
+          <mdb-input v-model="promoterName" disabled label="Promotor"/>
+          <mdb-input v-model="proposal.Topic" disabled label="Temat"/>
+          <mdb-textarea v-model="invitationDesc" label="Wiadomość"/>
+        </mdb-modal-body>
+        <mdb-modal-footer center>
+          <mdb-btn @click.native="createInvitation" color="unique">Wyślij <mdb-icon icon="paper-plane" class="ml-1"/></mdb-btn>
+        </mdb-modal-footer>
+      </mdb-modal>
+    </mdb-container>
   </div>
 </template>
 
 <script lang='ts'>
-    import IUser from "../types/User";
-    import UserService from "../services/UserService";
-    import ProposalService from "../services/ProposalService";
-    import Vue from 'vue';
-    import { Component } from "vue-property-decorator";
-    import IProposal from '../types/Proposal';
-    import { mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter, mdbBtn,mdbListGroup, mdbListGroupItem, mdbBadge  } from 'mdbvue';
-    import UserHelper from '../services/helpers/UserHelper'
-    import Alert from  '../components/Alert.vue';
-    import ProposalHelper from '../services/helpers/ProposalHelper';
-    import { use } from "vue/types/umd";
+import IUser from "../types/User";
+import UserService from "../services/UserService";
+import ProposalService from "../services/ProposalService";
+import Vue from 'vue';
+import { Component } from "vue-property-decorator";
+import IProposal from '../types/Proposal';
+import { mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter, mdbBtn,mdbListGroup, mdbListGroupItem, mdbBadge,mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbIcon } from 'mdbvue';
+import UserHelper from '../services/helpers/UserHelper'
+import Alert from  '../components/Alert.vue';
+import ProposalHelper from '../services/helpers/ProposalHelper';
+import { use } from "vue/types/umd";
+import InvitationHelper from "../services/helpers/InvitationHelper";
+import IInvitation from '../types/Invitation';
+
     const userService = new UserService();
     const proposalService = new ProposalService();
     const userHelper = new UserHelper();
     const proposalHelper = new ProposalHelper();
+    const invitationHelper = new InvitationHelper()
     @Component({
         name: 'MyProfile',
         components: { mdbModal,
@@ -69,7 +90,12 @@
             mdbListGroup, 
             mdbListGroupItem, 
             mdbBadge,
-            Alert
+            Alert,
+            mdbDatatable2, 
+            mdbInput, 
+            mdbContainer,
+            mdbIcon,
+            mdbTextarea
         },
     })
     export default class MyProfile extends Vue{
@@ -79,6 +105,9 @@
         promotersList: Array<IUser> = [];
         modal: any = false;
         promoterName = '';
+        studentName = '';
+        invitationDesc = '';
+        contact = false;
         myProfile: IUser = {
             Id: '',
             name: '',
@@ -97,6 +126,13 @@
             PromoterId: '',
             StudentId: ''
         }
+        invitation: IInvitation ={
+          StudentId: '',
+          PromoterId: '',
+          Topic: '',
+          Description: '',
+          Accepted: false
+        }
         //computed properties
         get userCount(){
             return this.myProfile;
@@ -114,6 +150,7 @@
                 const promoterList = await userService.getAllUsers('Promoter');        
                 this.myProfile = userdata.data;
                 this.promotersList = promoterList.data;
+                this.studentName = userHelper.getUserName(userdata.data);
             } catch (error) {
                 this.showError = true;
             }
@@ -143,6 +180,14 @@
             } catch (error) {
                 this.showError = true;
             }
+        }
+        async createInvitation(){
+          try {
+            invitationHelper.postInvitation('',this.invitation,this.invitationDesc);
+            this.contact = false;
+          } catch (error) {
+            this.showError = true;
+          }
         }
         //watchers
     }

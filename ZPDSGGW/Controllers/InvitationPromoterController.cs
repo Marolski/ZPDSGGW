@@ -55,6 +55,8 @@ namespace ZPDSGGW.Controllers
         [HttpPost]
         public ActionResult<InvitationPromoterReadDto> CreateInvitation(InvitationPromoterCreateDto invitation)
         {
+            Guid id = Guid.NewGuid();
+            invitation.Id = id;
             var newInvitation = _mapper.Map<InvitationPromoter>(invitation);
             _repository.CreateInvitationToThePromoter(newInvitation);
             _repository.SaveChanges();

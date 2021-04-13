@@ -54,6 +54,9 @@ namespace ZPDSGGW.Controllers
         [HttpPost]
         public ActionResult<ThesisReadDto> CreateTopic(ThesisCreateDto createTopic)
         {
+            Guid id = new Guid();
+            Console.WriteLine(id);
+            createTopic.Id = id;
             var thesisTopic = _mapper.Map<ThesisTopic>(createTopic);
             _repository.CreateTopic(thesisTopic);
             _repository.SaveChanges();

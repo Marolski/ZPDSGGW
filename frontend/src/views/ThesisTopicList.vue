@@ -8,22 +8,21 @@
     </div>
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
     <mdb-container>
-    <mdb-btn color="default" @click.native="contact = true">launch contact form modal</mdb-btn>
-    <mdb-modal :show="contact" @close="contact = false">
-      <mdb-modal-header class="text-center">
-        <mdb-modal-title tag="h4" bold class="w-100">Wyślij zapytanie do promotora</mdb-modal-title>
-      </mdb-modal-header>
-      <mdb-modal-body class="mx-3 grey-text">
-        <mdb-input v-model="invitationName" disabled label="Student" />
-        <mdb-input v-model="invitationPromoterName" disabled label="Promotor"/>
-        <mdb-input v-model="thesisTopicName" disabled label="Temat"/>
-        <mdb-textarea v-model="invitationDesc" label="Wiadomość"/>
-      </mdb-modal-body>
-      <mdb-modal-footer center>
-        <mdb-btn @click.native="createInvitation" color="unique">Wyślij <mdb-icon icon="paper-plane" class="ml-1"/></mdb-btn>
-      </mdb-modal-footer>
-    </mdb-modal>
-  </mdb-container>
+      <mdb-modal :show="contact" @close="contact = false">
+        <mdb-modal-header class="text-center">
+          <mdb-modal-title tag="h4" bold class="w-100">Wyślij zapytanie do promotora</mdb-modal-title>
+        </mdb-modal-header>
+        <mdb-modal-body class="mx-3 grey-text">
+          <mdb-input v-model="invitationName" disabled label="Student" />
+          <mdb-input v-model="invitationPromoterName" disabled label="Promotor"/>
+          <mdb-input v-model="thesisTopicName" disabled label="Temat"/>
+          <mdb-textarea v-model="invitationDesc" label="Wiadomość"/>
+        </mdb-modal-body>
+        <mdb-modal-footer center>
+          <mdb-btn @click.native="createInvitation" color="unique">Wyślij <mdb-icon icon="paper-plane" class="ml-1"/></mdb-btn>
+        </mdb-modal-footer>
+      </mdb-modal>
+    </mdb-container>
   </div>
 </template>
 
@@ -40,12 +39,14 @@ import router from "../router";
 import IInvitation from '../types/Invitation';
 import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter } from 'mdbvue';
 import UserHelper from "../services/helpers/UserHelper";
+import InvitationHelper from "../services/helpers/InvitationHelper";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
 const proposalService = new ProposalService();
 const invitationservice = new InvitationService();
 const userHelper = new UserHelper();
+const invitationHelper = new InvitationHelper();
 interface Row{
   name: string;
   topic: string;
@@ -83,7 +84,6 @@ interface Row{
         invitationName: any = '';
         invitationPromoterName: any = '';
         invitation: IInvitation ={
-          Id: '',
           StudentId: '',
           PromoterId: '',
           Topic: '',
@@ -188,17 +188,8 @@ interface Row{
         }
         async createInvitation(){
           try {
-            if(this.checkedTopicId!='')
-              await topics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": 3}])
-            this.invitation.Id = 'b5cead43-1120-4ad7-8bd3-1095c417685a';
-            this.invitation.StudentId = this.userId;
-            const proposal = await proposalService.getProposal(this.userId);
-            const proposaldata = proposal.data;
-            this.invitation.PromoterId = proposaldata.PromoterId
-            this.invitation.Topic = proposaldata.Topic;
-            this.invitation.Description = this.invitationDesc;
-            this.invitation.Accepted = true;
-            await invitationservice.postInvitation(this.invitation);
+            invitationHelper.postInvitation(this.checkedTopicId,this.invitation,this.invitationDesc);
+            this.contact = false;
           } catch (error) {
             this.showError = true;
           }
