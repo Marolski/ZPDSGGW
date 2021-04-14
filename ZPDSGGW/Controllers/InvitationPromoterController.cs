@@ -43,7 +43,7 @@ namespace ZPDSGGW.Controllers
         //Get api/invitation/{id}
         [Authorize(Roles = Roles.Student)]
         [HttpGet("{id}", Name = "GetInvitation")]       
-        public ActionResult<InvitationPromoterReadDto> GetInvitation(Guid id) 
+        public ActionResult<InvitationPromoterReadDto> GetInvitationByUserId(Guid id) 
         {
             var invitation = _repository.GetInvitation(id);
             if(invitation!=null)
@@ -62,7 +62,7 @@ namespace ZPDSGGW.Controllers
             _repository.SaveChanges();
 
             var invitationPromoterReadDto = _mapper.Map<InvitationPromoterReadDto>(newInvitation);
-            return CreatedAtRoute(nameof(GetInvitation), new {Id = invitationPromoterReadDto.Id}, invitationPromoterReadDto);
+            return CreatedAtRoute(nameof(GetInvitationByUserId), new {Id = invitationPromoterReadDto.Id}, invitationPromoterReadDto);
         }
         //PATCH api/invitation/{id}
         [Authorize(Roles = Roles.Student)]

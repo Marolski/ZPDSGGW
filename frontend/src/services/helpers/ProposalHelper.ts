@@ -1,19 +1,14 @@
 import IProposal from '../../types/Proposal';
 import ProposalService from '../ProposalService';
-import Guid from './GuidGenerator';
 
-
-const guid = new Guid();
 const proposalService = new ProposalService();
 export default class ProposalHelper{
-    async createEmptyProposal(id: string){
+    async createEmptyProposal(idStudent: string, idPromoter: string){
         const emptyProposal: IProposal = {
-            Id : guid.generateUUID(),
             Status : 1,
             Topic: '',
-            Date: Date.now(),
-            PromoterId : '',
-            StudentId : id
+            PromoterId : idPromoter,
+            StudentId : idStudent
         }
         await proposalService.postProposal(emptyProposal);
     }

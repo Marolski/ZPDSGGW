@@ -1,158 +1,135 @@
 <template>
   <div class="component">
-    <form novalidate class="md-layout" @submit.prevent="validateUser">
+    <form novalidate class="md-layout" @submit.prevent="saveUser">
       <md-card class="md-layout-item md-size-50 md-small-size-100" style="margin:auto;">
         <md-card-header>
-          <div class="md-title">Users</div>
+          <div class="md-title">Wniosek</div>
         </md-card-header>
 
         <md-card-content>
           <div class="md-layout md-gutter">
             <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('firstName')">
-                <label for="first-name">First Name</label>
-                <md-input name="first-name" id="first-name" autocomplete="given-name" v-model="form.firstName" :disabled="sending" />
-                <span class="md-error" v-if="!$v.form.firstName.required">The first name is required</span>
-                <span class="md-error" v-else-if="!$v.form.firstName.minlength">Invalid first name</span>
-              </md-field>
-            </div>
-
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('lastName')">
-                <label for="last-name">Last Name</label>
-                <md-input name="last-name" id="last-name" autocomplete="family-name" v-model="form.lastName" :disabled="sending" />
-                <span class="md-error" v-if="!$v.form.lastName.required">The last name is required</span>
-                <span class="md-error" v-else-if="!$v.form.lastName.minlength">Invalid last name</span>
+              <md-field>
+                <label for="first-name">Imię i nazwisko studenta</label>
+                <md-input name="first-name" id="first-name" autocomplete="given-name" v-model="form.studentName" disabled />
               </md-field>
             </div>
           </div>
 
           <div class="md-layout md-gutter">
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('gender')">
-                <label for="gender">Gender</label>
-                <md-select name="gender" id="gender" v-model="form.gender" md-dense :disabled="sending">
-                  <md-option></md-option>
-                  <md-option value="M">M</md-option>
-                  <md-option value="F">F</md-option>
-                </md-select>
-                <span class="md-error">The gender is required</span>
-              </md-field>
-            </div>
-
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('age')">
-                <label for="age">Age</label>
-                <md-input type="number" id="age" name="age" autocomplete="age" v-model="form.age" :disabled="sending" />
-                <span class="md-error" v-if="!$v.form.age.required">The age is required</span>
-                <span class="md-error" v-else-if="!$v.form.age.maxlength">Invalid age</span>
+            <div class="md-layout-item md-small-size-100">          
+              <md-field>
+                <label for="last-name">Imię i nazwisko promotora</label>
+                <md-input name="last-name" id="last-name" autocomplete="family-name" v-model="form.promoterName" disabled />
               </md-field>
             </div>
           </div>
 
-          <md-field :class="getValidationClass('email')">
-            <label for="email">Email</label>
-            <md-input type="email" name="email" id="email" autocomplete="email" v-model="form.email" :disabled="sending" />
-            <span class="md-error" v-if="!$v.form.email.required">The email is required</span>
-            <span class="md-error" v-else-if="!$v.form.email.email">Invalid email</span>
+          <md-field>
+            <label for="email">Temat pracy</label>
+            <md-input type="email" name="email" id="email" autocomplete="email" v-model="form.topic" disabled />
           </md-field>
         </md-card-content>
 
         <md-progress-bar md-mode="indeterminate" v-if="sending" />
 
         <md-card-actions>
-          <md-button type="submit" class="md-primary md-raised" :disabled="sending">Create user</md-button>
+          <md-button type="submit" class="md-primary md-raised" :disabled="sending">Wyślij</md-button>
         </md-card-actions>
       </md-card>
 
-      <md-snackbar :md-active.sync="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
+      <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
     </form>
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import { validationMixin } from 'vuelidate'
   import {
     required,
     minLength,
     maxLength
   } from 'vuelidate/lib/validators'
+import Vue from 'vue';
+import InvitationService from '../services/InvitationService';
+import ProposalService from '../services/ProposalService';
+import UserService from '../services/UserService';
+import IInvitation from '../types/Invitation';
+import { Component } from "vue-property-decorator";
+import UserHelper from '../services/helpers/UserHelper';
+import IProposal from '../types/Proposal';
 
-  export default {
-    name: 'FormValidation',
-    mixins: [validationMixin],
-    data: () => ({
-      form: {
-        firstName: null,
-        lastName: null,
-        gender: null,
-        age: null,
-        email: null,
-      },
-      userSaved: false,
-      sending: false,
-      lastUser: null
-    }),
-    validations: {
-      form: {
-        firstName: {
-          required,
-          minLength: minLength(3)
-        },
-        lastName: {
-          required,
-          minLength: minLength(3)
-        },
-        age: {
-          required,
-          maxLength: maxLength(3)
-        },
-        gender: {
-          required
-        },
-        email: {
-          required
-        }
-      }
-    },
-    methods: {
-      getValidationClass (fieldName) {
-        const field = this.$v.form[fieldName]
 
-        if (field) {
-          return {
-            'md-invalid': field.$invalid && field.$dirty
-          }
-        }
-      },
-      clearForm () {
-        this.$v.$reset()
-        this.form.firstName = null
-        this.form.lastName = null
-        this.form.age = null
-        this.form.gender = null
-        this.form.email = null
-      },
-      saveUser () {
-        this.sending = true
-
-        // Instead of this timeout, here you can call your API
-        window.setTimeout(() => {
-          this.lastUser = `${this.form.firstName} ${this.form.lastName}`
-          this.userSaved = true
-          this.sending = false
-          this.clearForm()
-        }, 1500)
-      },
-      validateUser () {
-        this.$v.$touch()
-
-        if (!this.$v.$invalid) {
-          this.saveUser()
-        }
-      }
+  const proposalService = new ProposalService();
+  const userService = new UserService();
+  const invitationServive = new InvitationService();
+  const userHelper =  new UserHelper();
+  @Component({
+        name: 'Proposal',
+        components: { },
+  })
+  export default class Proposal extends Vue{
+    mixins: [validationMixin];
+    userId: string = localStorage.getItem('id');
+    invitationModel: IInvitation;
+    proposal: IProposal;
+    message = '';
+    form = {
+      studentName: null,
+      promoterName: null,
+      topic: null,
+    };
+    userSaved = false;
+    sending = false;
+    created(){
+      this.getInvitationData()
     }
-  }
+       async saveUser () {
+        try {
+          const invitationAccepted = await invitationServive.getInvitation(this.userId);
+          const proposalExist = await proposalService.getProposal(this.userId);
+          if(invitationAccepted.data.Accepted == false){
+            this.message = "Współpraca z promotorem nie została nawiązana";
+            this.sending = true;
+          }
+          else if (proposalExist!=null){
+            this.message = "wniosek został już wysłany";
+            this.sending = true;
+          }
+          else{
+            // Instead of this timeout, here you can call your API
+            this.proposal = {
+              StudentId: this.invitationModel.StudentId,
+              PromoterId: this.invitationModel.PromoterId,
+              Topic: this.invitationModel.Topic,
+              Status: 2
+            }
+            const newProposal = proposalService.postProposal(this.proposal);
+            this.message = "Wniosek został wysłany";
+            this.sending = true
+          }
+          window.setTimeout(() => {
+              this.userSaved = true
+              this.sending = false
+            }, 1500);
+            
+        } catch (error) {
+          this.message = "Wystąpił problem skontaktuj się z administratorem";
+          this.sending = true;
+        }
+      }
+      async getInvitationData(){
+        const invitation = await invitationServive.getInvitation(this.userId);
+        const invitationData= invitation.data;
+        this.invitationModel = invitationData;
+
+        const student = await userService.getUser(this.invitationModel.StudentId);
+        const promoter = await userService.getUser(this.invitationModel.PromoterId);
+        this.form.studentName = await userHelper.getUserName(student.data);
+        this.form.promoterName = await userHelper.getUserName(promoter.data);
+        this.form.topic = this.invitationModel.Topic;
+      };
+    }
 </script>
 
 <style lang="scss" scoped>

@@ -28,7 +28,7 @@ namespace ZPDSGGW.Commands
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
-            return _context.InvitationPromoter.FirstOrDefault(x => x.Id == id);
+            return _context.InvitationPromoter.FirstOrDefault(x => x.StudentId == id);
         }
 
         public IEnumerable<InvitationPromoter> GetInvitations(Guid id)

@@ -45,8 +45,7 @@ namespace ZPDSGGW.Controllers
         [HttpPost]
         public ActionResult <ProposalReadDto> CreateProposal(ProposalCreateDto proposalCreateDto)
         {
-            Guid id = new Guid();
-            Console.WriteLine(id);
+            Guid id = Guid.NewGuid();
             proposalCreateDto.Id = id;
             var proposal = _mapper.Map<Proposal>(proposalCreateDto);
             _repository.CreateProposal(proposal);
