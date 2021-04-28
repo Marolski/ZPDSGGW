@@ -11,6 +11,6 @@ namespace ZPDSGGW.DTOs.ThesisDto
         public Guid Id { get; set; }
         public Guid PromoterId { get; set; }
         public string Topic { get; set; }
-        public bool Available { get; set; }
+        public ThesisTopicStatus Available { get; set; }
     }
 }

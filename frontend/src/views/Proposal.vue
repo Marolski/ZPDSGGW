@@ -37,7 +37,6 @@
           <md-button type="submit" class="md-primary md-raised" :disabled="sending">Wyślij</md-button>
         </md-card-actions>
       </md-card>
-
       <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
     </form>
   </div>
@@ -88,11 +87,12 @@ import IProposal from '../types/Proposal';
         try {
           const invitationAccepted = await invitationServive.getInvitation(this.userId);
           const proposalExist = await proposalService.getProposal(this.userId);
+          console.log(proposalExist);
           if(invitationAccepted.data.Accepted == false){
-            this.message = "Współpraca z promotorem nie została nawiązana";
+            this.message = "Nie masz nawiązanej współpracy z promotorem";
             this.sending = true;
           }
-          else if (proposalExist!=null){
+          else if (proposalExist.data!=""){
             this.message = "wniosek został już wysłany";
             this.sending = true;
           }
@@ -111,7 +111,7 @@ import IProposal from '../types/Proposal';
           window.setTimeout(() => {
               this.userSaved = true
               this.sending = false
-            }, 1500);
+            }, 1000);
             
         } catch (error) {
           this.message = "Wystąpił problem skontaktuj się z administratorem";
@@ -119,16 +119,28 @@ import IProposal from '../types/Proposal';
         }
       }
       async getInvitationData(){
-        const invitation = await invitationServive.getInvitation(this.userId);
-        const invitationData= invitation.data;
-        this.invitationModel = invitationData;
-
-        const student = await userService.getUser(this.invitationModel.StudentId);
-        const promoter = await userService.getUser(this.invitationModel.PromoterId);
-        this.form.studentName = await userHelper.getUserName(student.data);
-        this.form.promoterName = await userHelper.getUserName(promoter.data);
-        this.form.topic = this.invitationModel.Topic;
-      };
+        try {
+          const invitation = await invitationServive.getInvitation(this.userId);
+          const invitationData= invitation.data;
+          this.invitationModel = invitationData;
+          console.log(invitationData)
+          if(invitationData==""){
+            this.form.studentName = '';
+            this.form.promoterName = '';
+            this.form.topic = '';
+          }else{
+            const student = await userService.getUser(this.invitationModel.StudentId);
+            const promoter = await userService.getUser(this.invitationModel.PromoterId);
+            this.form.studentName = await userHelper.getUserName(student.data);
+            this.form.promoterName = await userHelper.getUserName(promoter.data);
+            this.form.topic = this.invitationModel.Topic;
+          }
+        } catch (error) {
+          this.message = "Wystąpił problem skontaktuj się z administratorem";
+          this.sending = true;
+        }
+        
+      }
     }
 </script>
 

@@ -23,6 +23,7 @@
         </mdb-modal-footer>
       </mdb-modal>
     </mdb-container>
+    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 
@@ -83,6 +84,8 @@ interface Row{
         invitationDesc: any = '';
         invitationName: any = '';
         invitationPromoterName: any = '';
+        message = "";
+        userSaved = false;
         invitation: IInvitation ={
           StudentId: '',
           PromoterId: '',
@@ -154,7 +157,8 @@ interface Row{
               const user = await userService.getUser(this.userId);
               this.invitationName = userHelper.getUserName(user.data);
             } catch (error) {
-              this.showError = true
+                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+                this.userSaved = true;
             }
         }
         async sendDataToProposal(id: string){
@@ -162,10 +166,11 @@ interface Row{
             const userData = await userService.getUser(id)
             return userData.data;
           } catch (error) {
-              this.showError = true;
+                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+                this.userSaved = true;
           }
         }
-        handleClick(param: Row){
+        async handleClick(param: Row){
           if(param == undefined){
             this.invitationPromoterName = '';
             return
@@ -175,23 +180,37 @@ interface Row{
             this.onlyTopic = false;
           }
           this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
+          const promoterId = await topics.getTopicById(this.checkedTopicId);
+          this.invitation.PromoterId = promoterId.data.PromoterId;
+          this.invitation.StudentId = this.userId;
+          this.invitation.Topic = param.topic;
           this.thesisTopicName = param.topic;
           this.invitationPromoterName = param.name;
+          console.log(this.invitation)
         }
         async updateTopicStatus(){
           try {
             await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
             router.push('Profile');
           } catch (error) {
-            this.showError = true;
+              this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+              this.userSaved = true;
           }
         }
         async createInvitation(){
-          try {
-            invitationHelper.postInvitation(this.checkedTopicId,this.invitation,this.invitationDesc);
+          try {            
+            console.log(this.invitation)
+            const isExist = await invitationHelper.postInvitation(this.checkedTopicId,this.invitation,this.invitationDesc);
             this.contact = false;
+            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.invitation.Topic}])
+            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
+            if(isExist==true){
+              this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
+              this.userSaved = true;
+            }
           } catch (error) {
-            this.showError = true;
+              this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+              this.userSaved = true;
           }
         }
     }

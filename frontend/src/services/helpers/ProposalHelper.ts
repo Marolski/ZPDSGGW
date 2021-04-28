@@ -3,7 +3,7 @@ import ProposalService from '../ProposalService';
 
 const proposalService = new ProposalService();
 export default class ProposalHelper{
-    async createEmptyProposal(idStudent: string, idPromoter: string){
+    async createProposalWithPromotorId(idStudent: string, idPromoter: string){
         const emptyProposal: IProposal = {
             Status : 1,
             Topic: '',

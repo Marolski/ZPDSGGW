@@ -41,14 +41,13 @@ namespace ZPDSGGW.Controllers
             return NotFound();
         }
         //Get api/invitation/{id}
+        //get by student id
         [Authorize(Roles = Roles.Student)]
         [HttpGet("{id}", Name = "GetInvitation")]       
         public ActionResult<InvitationPromoterReadDto> GetInvitationByUserId(Guid id) 
         {
             var invitation = _repository.GetInvitation(id);
-            if(invitation!=null)
-                return Ok(_mapper.Map<InvitationPromoterReadDto>(invitation));
-            return NotFound();
+            return Ok(_mapper.Map<InvitationPromoterReadDto>(invitation));
         }
         //POST api/anvitation
         [Authorize(Roles = Roles.Student + "," + Roles.Promoter)]
@@ -62,7 +61,7 @@ namespace ZPDSGGW.Controllers
             _repository.SaveChanges();
 
             var invitationPromoterReadDto = _mapper.Map<InvitationPromoterReadDto>(newInvitation);
-            return CreatedAtRoute(nameof(GetInvitationByUserId), new {Id = invitationPromoterReadDto.Id}, invitationPromoterReadDto);
+            return CreatedAtRoute("GetInvitation", new { Id = invitationPromoterReadDto.StudentId }, invitationPromoterReadDto);
         }
         //PATCH api/invitation/{id}
         [Authorize(Roles = Roles.Student)]

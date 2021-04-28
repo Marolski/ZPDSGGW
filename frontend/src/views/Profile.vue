@@ -49,6 +49,7 @@
             </mdb-modal-footer>
         </mdb-modal>
     </mdb-container>
+    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 
@@ -105,6 +106,8 @@ import IInvitation from '../types/Invitation';
         studentName = '';
         invitationDesc = '';
         contact = false;
+        userSaved = false;
+        message = '';
         myProfile: IUser = {
             Id: '',
             name: '',
@@ -140,46 +143,91 @@ import IInvitation from '../types/Invitation';
         }
         async getData() {
             try {
+                //pobranie danych usera i ustawienie imienia 
                 const userdata = await userService.getUser(this.userId);
-                const promoterList = await userService.getAllUsers('Promoter');        
                 this.myProfile = userdata.data;
-                this.promotersList = promoterList.data;
                 this.studentName = userHelper.getUserName(userdata.data);
+
+                //pobranie listy promotorów
+                const promoterList = await userService.getAllUsers('Promoter');             
+                this.promotersList = promoterList.data;
+              
                 const proposalData = await proposalService.getProposal(this.userId);
+
                 if(proposalData.data!=""){
+                    //tworzenie zaproszenia promotora w zmiennej invitation
                     this.proposal = proposalData.data;
+                    this.invitation.StudentId = this.proposal.StudentId;
+                    this.invitation.PromoterId = this.proposal.PromoterId;
+                    this.invitation.Topic = this.proposal.Topic;
+
+                    //ustawienie imienia pormotora
                     const promoterUserData = await userService.getUser(this.proposal.PromoterId);
                     this.promoterName = userHelper.getUserName(promoterUserData.data)
                 }
-                //jest zamulona zmaina imion promotórów=====do sprawdzenia
             } catch (error) {
-                this.showError = true;
+                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+                this.userSaved = true;
             }
         }
-        async updatePromoter(user: IUser){
+        //aktualizowanie promotora z listy promotorów
+        async updatePromoter(promoter: IUser){
             try {
-                let proposalDataUser = await proposalService.getProposal(this.userId);
+                //pobranie wniosku
+                const proposalDataUser = await proposalService.getProposal(this.userId);
                 if(proposalDataUser.data != '')
-                    await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": user.Id}]);
+                //jesli wniosek istanieje to tylko zmiana promotora
+                    await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": promoter.Id}]);
                 else {
-                    await proposalHelper.createEmptyProposal(this.userId, user.Id);
-                    proposalDataUser = await proposalService.getProposal(this.userId);
+                    //jesli wniosek nie istanieje to utworzenie wniosku z id studenta(usera) i id promotora, przypisanie do zmiennej proposal
+                    await proposalHelper.createProposalWithPromotorId(this.userId, promoter.Id);
+                    const newProposal = await proposalService.getProposal(this.userId);
+                    this.proposal = newProposal.data;
                 }
-                this.proposal.PromoterId = proposalDataUser.data.PromoterId;
-                const promoterFromProposal = await userService.getUser(proposalDataUser.data.PromoterId)
-                this.promoterName = userHelper.getUserName(promoterFromProposal.data);
+                //podmiana id promotora 
+                this.proposal.PromoterId = promoter.Id;
+
+                //atuaizacja zaproszenia
+                this.invitation.StudentId = this.proposal.StudentId;
+                this.invitation.PromoterId = this.proposal.PromoterId;
+                this.invitation.Topic = this.proposal.Topic;
+
+                //pobranie obiektu promotora z tabeli user i ustawienie wyswietlanego imienia
+                const promoterObj = await userService.getUser(this.proposal.PromoterId)
+                this.promoterName = userHelper.getUserName(promoterObj.data);
                 this.modal = false;
+                //rerender komponentu
+                this.getData();
             } catch (error) {
-                this.showError = true;
+                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+                this.userSaved = true;
             }
         }
         async createInvitation(){
-          try {
-            invitationHelper.postInvitation('',this.invitation,this.invitationDesc);
-            this.contact = false;
-          } catch (error) {
-            this.showError = true;
-          }
+          try { 
+              console.log(this.invitation);
+              console.log(this.proposal)
+              //jeśli zmienna zaproszenia jest pusta pokaz błąd
+              if(this.invitation.PromoterId ==''|| this.invitation.Topic==''){
+                    this.message = "Nie można wysłać zaproszenia do współpracy. Brak danych";
+                    this.userSaved = true;
+                    return;
+                }
+                console.log(this.invitation)
+                const isExist = await invitationHelper.postInvitationIfNotExist('',this.invitation,this.invitationDesc);
+                if(isExist==true){
+                    this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
+                    this.userSaved = true;
+                }
+                else{
+                    this.message = "Wysłałeś zaproszenie do promotora";
+                    this.userSaved = true;
+                }
+                this.contact = false;
+            } catch (error) {
+                    this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+                    this.userSaved = true;
+            }
         }
         //watchers
     }
