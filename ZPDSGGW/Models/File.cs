@@ -17,5 +17,7 @@ namespace ZPDSGGW.Models
         public DocumentKind DocumentKind {get; set;}
         [Required]
         public bool Accepted { get; set; }
+        [Required]
+        public Guid UserId { get; set; }
     }
 }

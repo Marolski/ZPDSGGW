@@ -18,7 +18,7 @@ namespace ZPDSGGW.Commands
         }
         public string GetPathById(Guid id)
         {
-            var file = _context.File.FirstOrDefault(x => x.Id == id);
+            var file = _context.File.FirstOrDefault(x => x.UserId == id);
             if (file == null)
                 throw new KeyNotFoundException();
             return file.Path;
@@ -37,6 +37,6 @@ namespace ZPDSGGW.Commands
         }
         public bool SaveChanges() => (_context.SaveChanges() >= 0);
 
-        public File GetFileById(Guid id) => _context.File.FirstOrDefault(x => x.Id == id);
+        public File GetFileById(Guid id) => _context.File.FirstOrDefault(x => x.UserId == id);
     }
 }

@@ -15,7 +15,7 @@
     <div>
         <router-link to="/proposal"><md-button class="md-primary md-raised">Wyślij wniosek</md-button></router-link>
         <md-button @click.native="contact = true" class="md-primary md-raised">Wyślij zaproszenie do promotora</md-button>
-        <md-button class="md-primary md-raised">Dokumenty</md-button>
+        <md-button to="/documents" class="md-primary md-raised">Dokumenty</md-button>
     </div>
     <div>
         <mdb-modal :show="modal" @close="modal = false">
@@ -214,6 +214,7 @@ import IInvitation from '../types/Invitation';
                     return;
                 }
                 console.log(this.invitation)
+                //tworzy zaproszenie albo zwraca false
                 const isExist = await invitationHelper.postInvitationIfNotExist('',this.invitation,this.invitationDesc);
                 if(isExist==true){
                     this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";

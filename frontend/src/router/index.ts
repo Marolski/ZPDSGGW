@@ -4,6 +4,7 @@ import Profile from '../views/Profile.vue'
 import Proposal from '../views/Proposal.vue'
 import TopicList from '../views/ThesisTopicList.vue'
 import LoginPage from '../views/LoginPage.vue'
+import Documents from '../views/Documents.vue'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,11 @@ const routes: Array<RouteConfig> = [
     path: '/topics',
     name: 'ThesisTopic',
     component: TopicList
+  },
+  {
+    path: '/documents',
+    name: 'Documents',
+    component: Documents
   }
 ]
 

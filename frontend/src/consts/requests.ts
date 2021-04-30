@@ -1,4 +1,5 @@
 import axios from "axios";
+import { use } from "vue/types/umd";
 require('dotenv');
 
 export default class Requests{
@@ -33,5 +34,8 @@ export default class Requests{
 
     public async patch(endpoint = '', param = '', body: Array<object>): Promise<any>{
         return await axios.patch(`${this.API_URL}/${endpoint}/${param}`, body, this.config)
+    }
+    public async upload(endpoint = '', documentKind: number,accepted: boolean,userId: string, body: object): Promise<any>{
+        return await axios.post(`${this.API_URL}/${endpoint}?documentKind=${documentKind}&accepted=${accepted}&userId=${userId}`,body,this.config)
     }
 }
