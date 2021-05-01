@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- To jest elektroniczny wniosek o rejestracje podmiotu w systemie eZamowienia.
+ Wizualizacja wniosku możliwa jest na stronie 'www.ezamowienia.gov.pl' przycisk 'Podgląd wniosku' -->
+<ns2:Organization xmlns:ns2="http://uzp.gov.pl/ezamowienia/podmiot/wniosek/v20200702">
+    <officialName>mbrzoskawykonawca</officialName>
+    <identifier schema="PL-NIP">7620482356</identifier>
+    <identifier schema="PL-REGON">479543583</identifier>
+    <address>
+        <addressType>ADDRESS_OF_THE_ORGANIZATION</addressType>
+        <addressPostal>wąska</addressPostal>
+        <postalCode>02569</postalCode>
+        <country>PL</country>
+        <nutsCode>PL415</nutsCode>
+        <town>Poznań</town>
+        <voivodeship>Wielkopolskie</voivodeship>
+    </address>
+    <contact>
+        <email>asfd@a.pl</email>
+        <phone>+48 123456798</phone>
+    </contact>
+    <smallAndMediumEnterprises>NOT_APPLICABLE</smallAndMediumEnterprises>
+    <urlGeneral>asd.pl</urlGeneral>
+    <organizationRole>SUPPLIER</organizationRole>
+</ns2:Organization>

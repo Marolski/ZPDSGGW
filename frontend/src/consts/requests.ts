@@ -8,6 +8,9 @@ export default class Requests{
         config = {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         };
+        configUpload = {
+            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
         
 
     public async get(endpoint = '', param = ''): Promise<any>{
@@ -36,6 +39,6 @@ export default class Requests{
         return await axios.patch(`${this.API_URL}/${endpoint}/${param}`, body, this.config)
     }
     public async upload(endpoint = '', documentKind: number,accepted: boolean,userId: string, body: object): Promise<any>{
-        return await axios.post(`${this.API_URL}/${endpoint}?documentKind=${documentKind}&accepted=${accepted}&userId=${userId}`,body,this.config)
+        return await axios.post(`${this.API_URL}/${endpoint}?documentKind=${documentKind}&accepted=${accepted}&userId=${userId}`,body,this.configUpload)
     }
 }
