@@ -45,11 +45,11 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpGet]
-        public ActionResult<FileReadDto> GetFileModel(Guid id)
+        public ActionResult<IEnumerable<FileReadDto>> GetFileModel(Guid id)
         {
             var file = _repository.GetFileById(id);
             if (file != null)
-                return Ok(_mapper.Map<FileReadDto>(file));
+                return Ok(_mapper.Map<IEnumerable<FileReadDto>>(file));
             return NotFound();
         }
 
@@ -64,7 +64,9 @@ namespace ZPDSGGW.Controllers
                 Path = path.Result,
                 DocumentKind = documentKind,
                 Accepted = accepted,
-                UserId = userId
+                UserId = userId,
+                Date = DateTime.Now,
+                FileName = objFile.file.FileName
             };
             _repository.SavePath(fileModel);
             _repository.SaveChanges();
@@ -72,9 +74,9 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpPatch("{id}")]
-        public ActionResult UpdateFileModel(Guid id, JsonPatchDocument<FileUpdateDto> json)
+        public ActionResult UpdateFileModel(string path, JsonPatchDocument<FileUpdateDto> json)
         {
-            var fileModel = _repository.GetFileById(id);
+            var fileModel = _repository.GetFileByPathToFile(path);
             if (fileModel == null)
                 return NotFound();
             var fileToPatch = _mapper.Map<FileUpdateDto>(fileModel);
@@ -86,6 +88,15 @@ namespace ZPDSGGW.Controllers
             _repository.SaveChanges();
             return NoContent();
 
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteFile(Guid id)
+        {
+            _repository.DeleteFile(id);
+            _repository.SaveChanges();
+
+            return NoContent();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace ZPDSGGW.Commands
         }
         public string GetPathById(Guid id)
         {
-            var file = _context.File.FirstOrDefault(x => x.UserId == id);
+            var file = _context.File.FirstOrDefault(x => x.Id == id);
             if (file == null)
                 throw new KeyNotFoundException();
             return file.Path;
@@ -37,6 +37,21 @@ namespace ZPDSGGW.Commands
         }
         public bool SaveChanges() => (_context.SaveChanges() >= 0);
 
-        public File GetFileById(Guid id) => _context.File.FirstOrDefault(x => x.UserId == id);
+        public IEnumerable<File> GetFileById(Guid id) => _context.File.Where(x => x.UserId == id).OrderBy(o => o.Date);
+        public File GetFileByPathToFile(string path)
+        {
+            var fileFromRepo =_context.File.FirstOrDefault(x => x.Path == path);
+            if (fileFromRepo == null)
+                throw new ArgumentNullException(path);
+            return fileFromRepo;
+        } 
+        public void DeleteFile(Guid id)
+        {
+            var file = _context.File.FirstOrDefault(x => x.Id == id);
+            if (file == null)
+                throw new NullReferenceException();
+            _context.File.Remove(file);
+            
+        }
     }
 }

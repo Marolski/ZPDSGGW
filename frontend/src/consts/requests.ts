@@ -9,7 +9,9 @@ export default class Requests{
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         };
         configUpload = {
-            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}`,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE", 'Access-Control-Allow-Headers': 'X-Requested-With'
+         }
         }
         
 
@@ -40,5 +42,8 @@ export default class Requests{
     }
     public async upload(endpoint = '', documentKind: number,accepted: boolean,userId: string, body: object): Promise<any>{
         return await axios.post(`${this.API_URL}/${endpoint}?documentKind=${documentKind}&accepted=${accepted}&userId=${userId}`,body,this.configUpload)
+    }
+    public async getFileList(endpoint = '', param = ''): Promise<any>{
+        return await axios.get(`${this.API_URL}/${endpoint}?id=${param}`, this.config)
     }
 }

@@ -13,5 +13,6 @@ namespace ZPDSGGW.DTOs.FileDto
         public DocumentKind DocumentKind { get; set; }
         public bool Accepted { get; set; }
         public Guid UserId { get; set; }
+        public string FileName { get; set; }
     }
 }

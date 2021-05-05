@@ -19,5 +19,9 @@ namespace ZPDSGGW.Models
         public bool Accepted { get; set; }
         [Required]
         public Guid UserId { get; set; }
+        [Required]
+        public DateTime Date { get; set; }
+        [Required]
+        public string FileName { get; set; }
     }
 }
