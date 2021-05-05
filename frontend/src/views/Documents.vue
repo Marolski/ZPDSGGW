@@ -1,11 +1,24 @@
 <template>
   <div class="container">
     <div class="large-12 medium-12 small-12 cell">
-      <label>File</label>
-      <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
-      <button v-on:click="submitFile()">Zapisz plik</button>
+      <div class="fatherDiv">
+        <blockquote class="blockquote text-center padding">
+          <p class="mb-0">Wybierz rodzaj dokumentu</p>
+          <a-select default-value="wybierz" style="width: 250px" @change="handleChange">
+            <a-select-option v-for="item in documentKindList" :key="item.value" :value="item.value">
+              {{item.value}}
+            </a-select-option>
+          </a-select>
+        </blockquote>
+        <div class="file-input">
+          <input type="file" id="file" class="file" ref="file" v-on:change="submitFile()">
+          <label for="file">Select file</label>
+        </div><div style="clear:both;"></div>
+      </div>
       <mdb-list-group>
-        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.key}} <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></mdb-list-group-item>
+        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.key}} 
+          <a-popconfirm title="Czy na pewno chcesz usunąć plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)">
+            <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></a-popconfirm></mdb-list-group-item>
       </mdb-list-group>
     </div>
     <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
@@ -17,7 +30,6 @@ import Component from "vue-class-component";
 import DocumentService from '../services/DocumentService'
 import PathHelper from '../services/helpers/PathHelper'
 import { mdbListGroup, mdbListGroupItem, mdbBtn } from 'mdbvue';
-import { message } from 'ant-design-vue';
 import IFile from "../types/File";
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
@@ -32,31 +44,37 @@ export default class Documents extends Vue {
     message = "";
     userSaved = false;
     fileListDict: object[] =[];
+    clickedItemId = '';
+    selectedKindOfDocs = 0;
+    documentKindList: object[] =[{value: '1'}, {value: '2'}, {value: '3'}];
     hover = false;
-    buttonWidth: 70;
-    text: 'Are you sure to delete this task?';
     created(){
       this.getFiles();
+    }
+
+    handleChange(e){
+      this.selectedKindOfDocs = e;
+    }
+    async confirm(e) {
+      this.$message.success('Plik został usunięty');
+      await documentService.deleteFile(this.clickedItemId).catch((error)=> console.log(error))
+      this.getFiles()
     }
 
     async getFiles(){
       try {
         const documentsList = await documentService.getDocumentList(this.userId);
         const documentsListData = documentsList.data;
-        console.log(documentsList)
         this.fileListDict = pathHelper.getPathList(documentsListData);
       } catch (error) {
         this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
         this.userSaved = true;
       }
     }
-    handleFileUpload() {
-      this.file = this.$refs.file.files[0];
-      console.log(this.file)
-    }
     
     async submitFile() {
       try {
+        this.file = this.$refs.file.files[0];
         if(this.file==''){
           this.message = "Plik nie został wybrany";
           this.userSaved = true;
@@ -64,7 +82,8 @@ export default class Documents extends Vue {
         }
         const formData = new FormData();
         formData.append('file',this.file)
-        await documentService.uploadDocument(1,false,this.userId,formData);
+        console.log(this.selectedKindOfDocs)
+        await documentService.uploadDocument(this.selectedKindOfDocs,false,this.userId,formData);
         this.getFiles();
       } catch (error) {
         this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
@@ -72,25 +91,19 @@ export default class Documents extends Vue {
       }
     }
 
-    async downloadFile(value: IFile, event){
+    async downloadFile(value: IFile, e){
       try {
-        console.log(event.target.type)
-        if(event.target.type == 'button'){
-          await documentService.deleteFile(value.Id).catch((error)=> console.log(error))
-          console.log('ile razy')
-          this.getFiles()
-        }
+        this.clickedItemId = value.Id;
+        if(e.target.type=='button') return false;
         else{
-          console.log('jajajajajjaja')
           await documentService.getDocumentByUserId(value.Id)
           .then((response) => {
-                const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                const fileURL = window.URL.createObjectURL(new Blob([response.data], {type: 'application/png'}));
                 const fileLink = document.createElement('a');
 
                 fileLink.href = fileURL;
                 fileLink.setAttribute('download', value.FileName);
                 document.body.appendChild(fileLink);
-                console.log(value)
                 fileLink.click();
           });
         }
@@ -103,7 +116,38 @@ export default class Documents extends Vue {
 </script>
 
 <style scoped>
-.removeStyle{
-  z-index: 4 !important;
+.file {
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+  position: absolute;
 }
+.file-input label {
+  float: left;
+  margin-left: 50px;
+  margin-bottom: 15px;
+  display: block;
+  position: relative;
+  width: 200px;
+  height: 50px;
+  border-radius: 25px;
+  background: linear-gradient(40deg, #3381F6, #7873f5);
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform .2s ease-out;
+  justify-content: center;
+}
+.padding{
+  float: left;
+  width: 70%;
+}
+.fatherDiv{
+  margin-top: 50px;
+}
+
 </style>

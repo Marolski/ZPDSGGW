@@ -40,10 +40,10 @@ namespace ZPDSGGW.Services
 
                 if (objFile.file.Length > 0)
                 {
-                    var path = _environment.WebRootPath + "\\" + DocumentKind.thesis.ToString() + "\\" + objFile.file.FileName;
                     switch (documentKind)
                     {
                         case DocumentKind.thesis:
+                            var path = _environment.WebRootPath + "\\" + DocumentKind.thesis.ToString() + "\\" + objFile.file.FileName;
                             if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString()))
                                 Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString());
                             if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.thesis.ToString() + "\\" + objFile.file.FileName))
@@ -57,42 +57,45 @@ namespace ZPDSGGW.Services
                             }
                             break;
                         case DocumentKind.proposal:
+                            var path2 = _environment.WebRootPath + "\\" + DocumentKind.proposal.ToString() + "\\" + objFile.file.FileName;
                             if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString()))
                                 Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString());
                             if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.proposal.ToString() + "\\" + objFile.file.FileName))
                                 Console.WriteLine("plik został nadpisany");
                             //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(path))
+                            using (FileStream fs = System.IO.File.Create(path2))
                             {
                                 objFile.file.CopyTo(fs);
                                 fs.Flush();
-                               return path;
+                               return path2;
                             }
                             break;
                         case DocumentKind.paymentConfirmation:
+                            var path3 = _environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString() + "\\" + objFile.file.FileName;
                             if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString()))
                                 Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString());
                             if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.paymentConfirmation.ToString() + "\\" + objFile.file.FileName))
                                 Console.WriteLine("plik został nadpisany");
                             //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(path))
+                            using (FileStream fs = System.IO.File.Create(path3))
                             {
                                 objFile.file.CopyTo(fs);
                                 fs.Flush();
-                                return path;
+                                return path3;
                             }
                             break;
                         default:
+                            var path4 = _environment.WebRootPath + "\\" + DocumentKind.Inne.ToString() + "\\" + objFile.file.FileName;
                             if (!Directory.Exists(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString()))
                                 Directory.CreateDirectory(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString());
                             if (System.IO.File.Exists(_environment.WebRootPath + "\\" + DocumentKind.Inne.ToString() + "\\" + objFile.file.FileName))
                                 Console.WriteLine("plik został nadpisany");
                             //walidacja nazwy pliku
-                            using (FileStream fs = System.IO.File.Create(path))
+                            using (FileStream fs = System.IO.File.Create(path4))
                             {
                                 objFile.file.CopyTo(fs);
                                 fs.Flush();
-                                return path;
+                                return path4;
                             }
                             break;
                     }
