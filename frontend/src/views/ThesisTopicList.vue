@@ -41,6 +41,7 @@ import IInvitation from '../types/Invitation';
 import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, mdbModal, mdbModalHeader, mdbModalTitle, mdbModalBody, mdbModalFooter } from 'mdbvue';
 import UserHelper from "../services/helpers/UserHelper";
 import InvitationHelper from "../services/helpers/InvitationHelper";
+import IProposal from "../types/Proposal";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
@@ -97,6 +98,12 @@ interface Row{
           rows: [],
           
         }
+        proposal: IProposal = {
+        Status:1,
+        StudentId: '',
+        PromoterId: '',
+        Topic: ''
+        };
         public get setRows(){
           return this.data
         }
@@ -132,15 +139,17 @@ interface Row{
                 }],
                 rows
               };
-
+              console.log(this.topicsArray)
               this.topicsArray.forEach(element => {
                 const row ={
                   name: element.PromoterId,
                   topic: element.Topic,
                   available: '',
-                };           
+                };  
+                console.log(row)         
                 const name = promotersData.filter(function(elem){
-                  if(elem.Id === element.Id){
+                  console.log(elem)
+                  if(elem.Id === element.PromoterId){
                     return elem
                   }
                 })
@@ -181,17 +190,27 @@ interface Row{
           }
           this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
           const promoterId = await topics.getTopicById(this.checkedTopicId);
+          console.log(promoterId.data.PromoterId)
           this.invitation.PromoterId = promoterId.data.PromoterId;
           this.invitation.StudentId = this.userId;
           this.invitation.Topic = param.topic;
           this.thesisTopicName = param.topic;
           this.invitationPromoterName = param.name;
-          console.log(this.invitation)
+          console.log(param)
         }
         async updateTopicStatus(){
           try {
-            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
-            router.push('Profile');
+            const proposalData = await proposalService.getProposal(this.userId);
+            if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
+              if(proposalData.data==""){
+                this.proposal.PromoterId = this.invitation.PromoterId;
+                this.proposal.StudentId = this.userId;
+                this.proposal.Topic = this.thesisTopicName;
+                proposalService.postProposal(this.proposal);
+              }
+              await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
+              router.push('Profile');
+            }
           } catch (error) {
               this.message = "Wystąpił problem, skontaktuj się z Administratorem";
               this.userSaved = true;
@@ -199,15 +218,17 @@ interface Row{
         }
         async createInvitation(){
           try {            
-            console.log(this.invitation)
-            const isExist = await invitationHelper.postInvitation(this.checkedTopicId,this.invitation,this.invitationDesc);
+            const isExist = await invitationHelper.postInvitationIfNotExist(this.checkedTopicId,this.invitation);
             this.contact = false;
             await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.invitation.Topic}])
             await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
             if(isExist==true){
               this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
               this.userSaved = true;
+              return;
             }
+            this.message = "Wysłano zaproszenie do promotora";
+            this.userSaved = true;
           } catch (error) {
               this.message = "Wystąpił problem, skontaktuj się z Administratorem";
               this.userSaved = true;

@@ -16,7 +16,7 @@ export default class InvitationHelper{
         PromoterId: '',
         Topic: ''
     };
-    async postInvitationIfNotExist(checkedTopicId: string, invitation: IInvitation, invitationDesc: string){
+    async postInvitationIfNotExist(checkedTopicId: string, invitation: IInvitation){
         const invitationExist = await invitationservice.getInvitation(this.userId)
         console.log(invitationExist.data)
         //sprawdzam czy zaproszenie juz istanieje

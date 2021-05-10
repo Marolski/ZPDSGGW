@@ -4,7 +4,7 @@
       <div class="fatherDiv">
         <blockquote class="blockquote text-center padding">
           <p class="mb-0">Wybierz rodzaj dokumentu</p>
-          <a-select default-value="wybierz" style="width: 250px" @change="handleChange">
+          <a-select default-value="wybierz" style="width: 250px" @change="handleChange" id="validate" class="required">
             <a-select-option v-for="item in documentKindList" :key="item.value" :value="item.value">
               {{item.value}}
             </a-select-option>
@@ -12,12 +12,12 @@
         </blockquote>
         <div class="file-input">
           <input type="file" id="file" class="file" ref="file" v-on:change="submitFile()">
-          <label for="file">Select file</label>
+          <label for="file">Wybierz plik</label>
         </div><div style="clear:both;"></div>
       </div>
-      <mdb-list-group>
-        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.key}} 
-          <a-popconfirm title="Czy na pewno chcesz usunąć plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)">
+      <mdb-list-group>        
+        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{item.key}} 
+          <a-popconfirm title="Czy na pewno chcesz usunąć plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
             <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></a-popconfirm></mdb-list-group-item>
       </mdb-list-group>
     </div>
@@ -29,13 +29,13 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import DocumentService from '../services/DocumentService'
 import PathHelper from '../services/helpers/PathHelper'
-import { mdbListGroup, mdbListGroupItem, mdbBtn } from 'mdbvue';
+import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
 import IFile from "../types/File";
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
 @Component({
     name: "Documents",
-    components:{mdbListGroup, mdbListGroupItem, mdbBtn}
+    components:{mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer }
 })
 export default class Documents extends Vue {
     fileList: Array<object> =[]
@@ -72,8 +72,19 @@ export default class Documents extends Vue {
       }
     }
     
-    async submitFile() {
+    async submitFile(event) {
       try {
+        if(this.selectedKindOfDocs==0){
+          const elementToValidate = document.getElementById('validate');
+          elementToValidate.style.borderColor = 'red';
+          elementToValidate.style.borderStyle = 'solid';
+          elementToValidate.style.borderWidth = '1px';
+          elementToValidate.style.borderRadius = '4px'
+          console.log(elementToValidate)
+          this.message = 'Wybierz rodzaj dokumentu'
+          this.userSaved = true;
+          return
+        }
         this.file = this.$refs.file.files[0];
         if(this.file==''){
           this.message = "Plik nie został wybrany";
@@ -82,7 +93,6 @@ export default class Documents extends Vue {
         }
         const formData = new FormData();
         formData.append('file',this.file)
-        console.log(this.selectedKindOfDocs)
         await documentService.uploadDocument(this.selectedKindOfDocs,false,this.userId,formData);
         this.getFiles();
       } catch (error) {
@@ -98,10 +108,9 @@ export default class Documents extends Vue {
         else{
           await documentService.getDocumentByUserId(value.Id)
           .then((response) => {
-                const fileURL = window.URL.createObjectURL(new Blob([response.data], {type: 'application/png'}));
                 const fileLink = document.createElement('a');
 
-                fileLink.href = fileURL;
+                fileLink.href = response.config.url;
                 fileLink.setAttribute('download', value.FileName);
                 document.body.appendChild(fileLink);
                 fileLink.click();
@@ -149,5 +158,4 @@ export default class Documents extends Vue {
 .fatherDiv{
   margin-top: 50px;
 }
-
 </style>

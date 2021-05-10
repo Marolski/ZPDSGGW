@@ -8,8 +8,8 @@
         <mdb-card-text>Imie: {{myProfile.Name}}</mdb-card-text>
         <mdb-card-text>Nazwisko:{{myProfile.Surname}}</mdb-card-text>
         <mdb-card-text>Numer indeksu: {{myProfile.StudentNumber}}</mdb-card-text>
-        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="proposal.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" >Znajdź promotora</mdb-btn></div>
-        <mdb-card-text >Temat pracy: <a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary">Przeglądaj propozycje</mdb-btn></router-link></mdb-card-text>
+        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="proposal.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" >Znajdź promotora</mdb-btn></div><div style="clear: both;"></div>
+        <mdb-card-text class="cardText">Temat pracy: </mdb-card-text><div class="cardText"><a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary">Przeglądaj propozycje</mdb-btn></router-link></div>
         </mdb-card-body>
     </mdb-card>
     <div>
@@ -160,7 +160,8 @@ import IInvitation from '../types/Invitation';
                     this.invitation.StudentId = this.proposal.StudentId;
                     this.invitation.PromoterId = this.proposal.PromoterId;
                     this.invitation.Topic = this.proposal.Topic;
-
+                    console.log(this.proposal.PromoterId)
+                    
                     //ustawienie imienia pormotora
                     const promoterUserData = await userService.getUser(this.proposal.PromoterId);
                     this.promoterName = userHelper.getUserName(promoterUserData.data)
