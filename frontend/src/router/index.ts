@@ -5,6 +5,7 @@ import Proposal from '../views/Proposal.vue'
 import TopicList from '../views/ThesisTopicList.vue'
 import LoginPage from '../views/LoginPage.vue'
 import Documents from '../views/Documents.vue'
+import Conversation from '../views/ConversationWithPromoter.vue'
 
 Vue.use(VueRouter)
 
@@ -41,7 +42,13 @@ const routes: Array<RouteConfig> = [
     path: '/documents',
     name: 'Documents',
     component: Documents
-  }
+  },
+  {
+    path: '/conversation',
+    name: 'Conversation',
+    component: Conversation
+  },
+  
 ]
 
 const router = new VueRouter({

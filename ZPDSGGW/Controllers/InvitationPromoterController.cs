@@ -65,7 +65,7 @@ namespace ZPDSGGW.Controllers
         }
         //PATCH api/invitation/{id}
         [Authorize(Roles = Roles.Student)]
-        [HttpPatch]
+        [HttpPatch("{id}")]
         public ActionResult PartialUpdateInvitation(Guid id, JsonPatchDocument<InvitationPromoterUpdateDto> json)
         {
             var invitationFromRepo = _repository.GetInvitation(id);

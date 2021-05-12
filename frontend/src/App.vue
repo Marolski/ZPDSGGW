@@ -34,6 +34,10 @@
           <md-list-item>
             <span id="nav" class="md-list-item-text"><router-link to="/topics">Topics</router-link></span>
           </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text"><router-link to="/conversation">Praca</router-link></span>
+          </md-list-item>
         </md-list>
       </md-drawer>
     </div>

@@ -5,8 +5,8 @@
         <blockquote class="blockquote text-center padding">
           <p class="mb-0">Wybierz rodzaj dokumentu</p>
           <a-select default-value="wybierz" style="width: 250px" @change="handleChange" id="validate" class="required">
-            <a-select-option v-for="item in documentKindList" :key="item.value" :value="item.value">
-              {{item.value}}
+            <a-select-option v-for="item in documentKindList" :key="item" :value="item">
+              {{item}}
             </a-select-option>
           </a-select>
         </blockquote>
@@ -31,6 +31,8 @@ import DocumentService from '../services/DocumentService'
 import PathHelper from '../services/helpers/PathHelper'
 import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
 import IFile from "../types/File";
+import {DocumentKind} from "../enums/Enum";
+
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
 @Component({
@@ -46,9 +48,11 @@ export default class Documents extends Vue {
     fileListDict: object[] =[];
     clickedItemId = '';
     selectedKindOfDocs = 0;
-    documentKindList: object[] =[{value: '1'}, {value: '2'}, {value: '3'}];
+    documentKindList: Array<string>;
     hover = false;
     created(){
+      this.documentKindList = Object.keys(DocumentKind).filter(key => !isNaN(Number(DocumentKind[key])));
+      console.log(this.documentKindList)
       this.getFiles();
     }
 

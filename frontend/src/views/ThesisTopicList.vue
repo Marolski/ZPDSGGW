@@ -92,7 +92,7 @@ interface Row{
           PromoterId: '',
           Topic: '',
           Description: '',
-          Accepted: false
+          Accepted: 1
         }
         data = {
           rows: [],
@@ -112,6 +112,7 @@ interface Row{
         }
         created(){
           this.populate();
+          this.invitation.StudentId = this.userId;
         }
         
         async populate(){
@@ -139,16 +140,13 @@ interface Row{
                 }],
                 rows
               };
-              console.log(this.topicsArray)
               this.topicsArray.forEach(element => {
                 const row ={
                   name: element.PromoterId,
                   topic: element.Topic,
                   available: '',
-                };  
-                console.log(row)         
+                };          
                 const name = promotersData.filter(function(elem){
-                  console.log(elem)
                   if(elem.Id === element.PromoterId){
                     return elem
                   }
@@ -190,27 +188,27 @@ interface Row{
           }
           this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
           const promoterId = await topics.getTopicById(this.checkedTopicId);
-          console.log(promoterId.data.PromoterId)
+
           this.invitation.PromoterId = promoterId.data.PromoterId;
           this.invitation.StudentId = this.userId;
           this.invitation.Topic = param.topic;
           this.thesisTopicName = param.topic;
           this.invitationPromoterName = param.name;
-          console.log(param)
         }
         async updateTopicStatus(){
           try {
-            const proposalData = await proposalService.getProposal(this.userId);
+            const invitation = await invitationservice.getInvitation(this.userId);
             if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
-              if(proposalData.data==""){
-                this.proposal.PromoterId = this.invitation.PromoterId;
-                this.proposal.StudentId = this.userId;
-                this.proposal.Topic = this.thesisTopicName;
-                proposalService.postProposal(this.proposal);
-              }
-              await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}])
+              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
               router.push('Profile');
             }
+            else if(this.thesisTopicName!=''){
+                this.invitation.Topic = this.thesisTopicName;
+                await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+                router.push('Profile');
+            }
+            else return;
           } catch (error) {
               this.message = "Wystąpił problem, skontaktuj się z Administratorem";
               this.userSaved = true;
@@ -218,10 +216,8 @@ interface Row{
         }
         async createInvitation(){
           try {            
-            const isExist = await invitationHelper.postInvitationIfNotExist(this.checkedTopicId,this.invitation);
+            const isExist = await invitationHelper.updateInvitationStatus(this.checkedTopicId);
             this.contact = false;
-            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.invitation.Topic}])
-            await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
             if(isExist==true){
               this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
               this.userSaved = true;

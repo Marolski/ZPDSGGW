@@ -3,5 +3,5 @@ export default interface IInvitation{
     PromoterId: string,
     Topic: string,
     Description: string,
-    Accepted: boolean
+    Accepted: number
 }

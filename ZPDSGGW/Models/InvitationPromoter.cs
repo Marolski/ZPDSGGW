@@ -14,14 +14,11 @@ namespace ZPDSGGW.Models
         public Guid Id { get; set; }
         [Required]
         public Guid StudentId { get; set; }
-        [Required]
         public Guid PromoterId { get; set; }
-        [Required]
         public string Topic { get; set; }
-        [Required]
         public string Description { get; set; }
         [Required]
-        public bool Accepted { get; set; }
+        public InvitationStatus Accepted { get; set; }
 
     }
 }

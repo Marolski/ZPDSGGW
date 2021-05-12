@@ -8,8 +8,8 @@
         <mdb-card-text>Imie: {{myProfile.Name}}</mdb-card-text>
         <mdb-card-text>Nazwisko:{{myProfile.Surname}}</mdb-card-text>
         <mdb-card-text>Numer indeksu: {{myProfile.StudentNumber}}</mdb-card-text>
-        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="proposal.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" >Znajdź promotora</mdb-btn></div><div style="clear: both;"></div>
-        <mdb-card-text class="cardText">Temat pracy: </mdb-card-text><div class="cardText"><a v-if="proposal.Topic && proposal.PromoterId">{{proposal.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary">Przeglądaj propozycje</mdb-btn></router-link></div>
+        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="invitation.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" >Znajdź promotora</mdb-btn></div><div style="clear: both;"></div>
+        <mdb-card-text class="cardText">Temat pracy: </mdb-card-text><div class="cardText"><a v-if="invitation.Topic">{{invitation.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary">Przeglądaj propozycje</mdb-btn></router-link></div>
         </mdb-card-body>
     </mdb-card>
     <div>
@@ -41,7 +41,7 @@
             <mdb-modal-body class="mx-3 grey-text">
             <mdb-input v-model="studentName" disabled label="Student" />
             <mdb-input v-model="promoterName" disabled label="Promotor"/>
-            <mdb-input v-model="proposal.Topic" disabled label="Temat"/>
+            <mdb-input v-model="invitation.Topic" disabled label="Temat"/>
             <mdb-textarea v-model="invitationDesc" label="Wiadomość"/>
             </mdb-modal-body>
             <mdb-modal-footer center>
@@ -66,12 +66,14 @@ import Alert from  '../components/Alert.vue';
 import ProposalHelper from '../services/helpers/ProposalHelper';
 import InvitationHelper from "../services/helpers/InvitationHelper";
 import IInvitation from '../types/Invitation';
+import InvitationService from "../services/InvitationService";
 
     const userService = new UserService();
     const proposalService = new ProposalService();
     const userHelper = new UserHelper();
     const proposalHelper = new ProposalHelper();
-    const invitationHelper = new InvitationHelper()
+    const invitationHelper = new InvitationHelper();
+    const invitationservice = new InvitationService();
     @Component({
         name: 'MyProfile',
         components: { mdbModal,
@@ -129,7 +131,7 @@ import IInvitation from '../types/Invitation';
           PromoterId: '',
           Topic: '',
           Description: '',
-          Accepted: false
+          Accepted: 1
         }
         //computed properties
         get userCount(){
@@ -152,19 +154,24 @@ import IInvitation from '../types/Invitation';
                 const promoterList = await userService.getAllUsers('Promoter');             
                 this.promotersList = promoterList.data;
               
-                const proposalData = await proposalService.getProposal(this.userId);
-
-                if(proposalData.data!=""){
+                const invitation = await invitationservice.getInvitation(this.userId);
+                console.log(invitation)
+                if(invitation.data!=""){
                     //tworzenie zaproszenia promotora w zmiennej invitation
-                    this.proposal = proposalData.data;
-                    this.invitation.StudentId = this.proposal.StudentId;
-                    this.invitation.PromoterId = this.proposal.PromoterId;
-                    this.invitation.Topic = this.proposal.Topic;
-                    console.log(this.proposal.PromoterId)
+                    this.invitation.StudentId = invitation.data.StudentId
+                    this.invitation.PromoterId = invitation.data.PromoterId;
+                    this.invitation.Topic = invitation.data.Topic;
                     
                     //ustawienie imienia pormotora
-                    const promoterUserData = await userService.getUser(this.proposal.PromoterId);
-                    this.promoterName = userHelper.getUserName(promoterUserData.data)
+                    if(this.invitation.PromoterId!='00000000-0000-0000-0000-000000000000'){
+                        const promoterUserData = await userService.getUser(this.invitation.PromoterId);
+                        this.promoterName = userHelper.getUserName(promoterUserData.data)
+                    }    
+                }
+                else{
+                    this.invitation.StudentId = this.userId;
+                    this.invitation.PromoterId = '00000000-0000-0000-0000-000000000000';
+                    await invitationservice.postInvitation(this.invitation);
                 }
             } catch (error) {
                 this.message = "Wystąpił problem, skontaktuj się z Administratorem";
@@ -174,27 +181,16 @@ import IInvitation from '../types/Invitation';
         //aktualizowanie promotora z listy promotorów
         async updatePromoter(promoter: IUser){
             try {
-                //pobranie wniosku
-                const proposalDataUser = await proposalService.getProposal(this.userId);
-                if(proposalDataUser.data != '')
-                //jesli wniosek istanieje to tylko zmiana promotora
-                    await proposalService.patchProposal(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": promoter.Id}]);
-                else {
-                    //jesli wniosek nie istanieje to utworzenie wniosku z id studenta(usera) i id promotora, przypisanie do zmiennej proposal
-                    await proposalHelper.createProposalWithPromotorId(this.userId, promoter.Id);
-                    const newProposal = await proposalService.getProposal(this.userId);
-                    this.proposal = newProposal.data;
-                }
+                //pobranie zaproszenia
+                const invitation = await invitationservice.getInvitation(this.userId);
+                if(invitation.data != '')
+                //jesli zaproszenie istanieje to tylko zmiana promotora
+                    await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": promoter.Id}]);
                 //podmiana id promotora 
                 this.proposal.PromoterId = promoter.Id;
 
-                //atuaizacja zaproszenia
-                this.invitation.StudentId = this.proposal.StudentId;
-                this.invitation.PromoterId = this.proposal.PromoterId;
-                this.invitation.Topic = this.proposal.Topic;
-
                 //pobranie obiektu promotora z tabeli user i ustawienie wyswietlanego imienia
-                const promoterObj = await userService.getUser(this.proposal.PromoterId)
+                const promoterObj = await userService.getUser(promoter.Id)
                 this.promoterName = userHelper.getUserName(promoterObj.data);
                 this.modal = false;
                 //rerender komponentu
@@ -206,17 +202,14 @@ import IInvitation from '../types/Invitation';
         }
         async createInvitation(){
           try { 
-              console.log(this.invitation);
-              console.log(this.proposal)
               //jeśli zmienna zaproszenia jest pusta pokaz błąd
               if(this.invitation.PromoterId ==''|| this.invitation.Topic==''){
                     this.message = "Nie można wysłać zaproszenia do współpracy. Brak danych";
                     this.userSaved = true;
                     return;
                 }
-                console.log(this.invitation)
                 //tworzy zaproszenie albo zwraca false
-                const isExist = await invitationHelper.postInvitationIfNotExist('',this.invitation,this.invitationDesc);
+                const isExist = await invitationHelper.updateInvitationStatus('');
                 if(isExist==true){
                     this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
                     this.userSaved = true;
