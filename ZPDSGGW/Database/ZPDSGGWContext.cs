@@ -14,5 +14,6 @@ namespace ZPDSGGW.Database
         public DbSet<File> File { get; set; }
         public DbSet<ThesisTopic> ThesisTopics { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Message> Message { get; set; }
     }
 }

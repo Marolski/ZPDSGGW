@@ -46,4 +46,7 @@ export default class Requests{
     public async getFileList(endpoint = '', param = ''): Promise<any>{
         return await axios.get(`${this.API_URL}/${endpoint}?id=${param}`, this.config)
     }
+    public async postMessage(endpoint = '', file: object, body: object): Promise<any>{
+        return await axios.post(`${this.API_URL}/${endpoint}`, body, this.configUpload)
+    }
 }

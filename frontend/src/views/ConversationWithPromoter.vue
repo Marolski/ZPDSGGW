@@ -1,15 +1,14 @@
 <template>
-  <div>
+  <div style="width: 70%; margin:auto;">
     <a-list
       v-if="comments.length"
       :data-source="comments"
-      :header="`${comments.length} ${comments.length > 1 ? 'replies' : 'reply'}`"
+      :header="`${comments.length} ${comments.length > 1 ? 'wiadomości' : 'wiadomość'}`"
       item-layout="horizontal"
     >
       <a-list-item slot="renderItem" slot-scope="item">
         <a-comment
           :author="item.author"
-          :avatar="item.avatar"
           :content="item.content"
           :datetime="item.datetime"
         />
@@ -18,49 +17,62 @@
     <a-comment>
       <div slot="content">
         <a-form-item>
-          <a-textarea :rows="4" v-model="value" />
+          <a-textarea :rows="4" :value="value" @change="handleChange" />
         </a-form-item>
         <a-form-item>
-          <a-button html-type="submit" :loading="submitting" type="primary" @click.native="handleSubmit">
-            Add Comment
+          <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
+            Wyślij wiadomość
           </a-button>
         </a-form-item>
       </div>
     </a-comment>
   </div>
 </template>
-<script lang="ts">
+<script>
 import moment from 'moment';
-import Vue from 'vue';
-export default class Conversation extends Vue {
-    comments: Array<object> = [];
-    submitting = false;
-    value = '';
-    moment;
-
+const 
+export default {
+  data() {
+    return {
+      comments: [],
+      submitting: false,
+      value: '',
+      moment,
+    };
+  },
+  methods: {
     created(){
-        console.log('jaja')
-    }
+      console.log('jaj')
+    },
+
+    getMessages(){
+      const messages = await 
+    },
 
     handleSubmit() {
-        if (!this.value)
-            return;
-        this.submitting = true;
-        console.log(this.value)
-        setTimeout(() => {
-            console.log('chuj ci na')
-            this.submitting = false;
-            this.comments = [
-                {
-                    author: 'Han Solo',
-                    avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-                    content: this.value,
-                    datetime: moment().fromNow(),
-                },
-                ...this.comments
-            ];
+      if (!this.value) {
+        return;
+      }
+
+      this.submitting = true;
+
+      setTimeout(() => {
+        this.submitting = false;
+        this.comments = [
+          {
+            author: 'Han Solo',
+            avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+            content: this.value,
+            datetime: moment().fromNow(),
+          },
+          ...this.comments,
+        ];
         this.value = '';
-      },100);
-    }
-}
+      }, 1000);
+    },
+    handleChange(e) {
+      this.value = e.target.value;
+    },
+  },
+};
 </script>

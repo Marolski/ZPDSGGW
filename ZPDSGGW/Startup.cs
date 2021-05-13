@@ -46,6 +46,7 @@ namespace ZPDSGGW
             services.AddScoped<IRepositoryThesisTopic, ThesisTopicCommands>();
             services.AddScoped<IRepositoryUser, UserCommands>();
             services.AddScoped<IAuthenticationManager, AuthenticationManager>();
+            services.AddScoped<IRepositoryMessage, MessageCommands>();
 
             // configure strongly typed settings objects
             var keySection = Configuration.GetSection("Key");
@@ -72,7 +73,10 @@ namespace ZPDSGGW
                 };
             });
             //swagger
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
