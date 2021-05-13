@@ -30,6 +30,14 @@ namespace ZPDSGGW.Commands
             return messages;
         }
 
+        public string GetPathFromMessage(Guid id)
+        {
+            var file = _context.Message.FirstOrDefault(x => x.SendTo == id);
+            if (file == null)
+                throw new KeyNotFoundException();
+            return file.Path;
+        }
+
         public bool SaveChanges() => (_context.SaveChanges() >= 0);
 
         public void SaveMessage(Message message)

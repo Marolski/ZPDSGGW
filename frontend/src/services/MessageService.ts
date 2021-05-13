@@ -6,7 +6,7 @@ require('dotenv');
 
 const request = new Request();
 export default class MessageService{
-    getAllRecivierMessage = (id: string) => request.get(endpoints.message, id)
+    getAllRecivierMessage = (id: string) => request.getFileList(endpoints.message, id)
     getMessage = (id: string) => request.get(endpoints.message, id)
-    postMessage = (file: object, body: IMessage) => request.postMessage(endpoints.message, file, body);
+    postMessage = (file: object, body: IMessage, sendTo: string, sendFrom: string, description: string) => request.postMessage(endpoints.message,file,sendTo,sendFrom,description);
 }

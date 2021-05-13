@@ -12,5 +12,6 @@ namespace ZPDSGGW.Repository
         void SaveMessage(Message message);
         Message GetMessageById(Guid id);
         bool SaveChanges();
+        string GetPathFromMessage(Guid id);
     }
 }
