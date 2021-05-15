@@ -26,13 +26,13 @@ namespace ZPDSGGW.Commands
 
         public IEnumerable<Message> GetMessagesByUserId(Guid id)
         {
-            var messages = _context.Message.Where(x => x.SendTo == id);
+            var messages = _context.Message.Where(x => x.SendTo == id).OrderByDescending(x => x.Date);
             return messages;
         }
 
         public string GetPathFromMessage(Guid id)
         {
-            var file = _context.Message.FirstOrDefault(x => x.SendTo == id);
+            var file = _context.Message.FirstOrDefault(x => x.Id == id);
             if (file == null)
                 throw new KeyNotFoundException();
             return file.Path;

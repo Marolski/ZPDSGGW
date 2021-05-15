@@ -30,14 +30,14 @@ namespace ZPDSGGW.Controllers
             _environment = environment;
         }
 
-        [HttpGet(Name ="GetAllMessagesFromRecivier")]
+        [HttpGet("userId")]
         public ActionResult<IEnumerable<MessageReadDto>> GetRecivierMessage(Guid id)
         {
             var messages = _repository.GetMessagesByUserId(id);
             return Ok(_mapper.Map<IEnumerable<MessageReadDto>>(messages));
         }
 
-        [HttpGet("id", Name = "GetFileMessageById")]
+        [HttpGet(Name = "GetFileMessageById")]
         public async Task<ActionResult> GetFileMessageById(Guid id)
         {
             var pathToFile = _repository.GetPathFromMessage(id);
@@ -58,16 +58,33 @@ namespace ZPDSGGW.Controllers
         public ActionResult<MessageReadDto> CreateMessage([FromForm] FormFile objFile,Guid sendFrom, Guid sendTo, string description)
         {
             FileService service = new FileService(_environment);
-            var path = service.Uploadfile(objFile, Enums.DocumentKind.thesis);
-            var messageModel = new Message
+            Task<string> path = null;
+            var messageModel = new Message();
+            if (objFile.file != null)
             {
-                Id = Guid.NewGuid(),
-                Path = path.Result,
-                Date = DateTime.Now,
-                Description = description,
-                SendFrom = sendFrom,
-                SendTo = sendTo
-            };
+                path = service.Uploadfile(objFile, Enums.DocumentKind.thesis);
+                messageModel = new Message
+                {
+                    Id = Guid.NewGuid(),
+                    Path = path.Result,
+                    Date = DateTime.Now,
+                    Description = description,
+                    SendFrom = sendFrom,
+                    SendTo = sendTo
+                };
+            }
+            else
+            {
+                messageModel = new Message
+                {
+                    Id = Guid.NewGuid(),
+                    Date = DateTime.Now,
+                    Description = description,
+                    SendFrom = sendFrom,
+                    SendTo = sendTo,
+                    Path = "/"
+                };
+            }
             _repository.SaveMessage(messageModel);
             _repository.SaveChanges();
             return Ok();

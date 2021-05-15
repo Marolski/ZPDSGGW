@@ -25,4 +25,9 @@ export default class PathHelepr{
         });
         return fileDict;
     }
+    getName(path: string){
+        if(path.length<5) return ""
+        const arrayName = path.split("\\");
+        return arrayName[arrayName.length-1];
+    }
 }

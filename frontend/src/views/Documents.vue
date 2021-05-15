@@ -52,7 +52,6 @@ export default class Documents extends Vue {
     hover = false;
     created(){
       this.documentKindList = Object.keys(DocumentKind).filter(key => !isNaN(Number(DocumentKind[key])));
-      console.log(this.documentKindList)
       this.getFiles();
     }
 
@@ -60,9 +59,14 @@ export default class Documents extends Vue {
       this.selectedKindOfDocs = e;
     }
     async confirm(e) {
-      this.$message.success('Plik został usunięty');
-      await documentService.deleteFile(this.clickedItemId).catch((error)=> console.log(error))
-      this.getFiles()
+      try {
+        this.$message.success('Plik został usunięty');
+        await documentService.deleteFile(this.clickedItemId).catch((error)=> console.log(error))
+        this.getFiles()
+      } catch (error) {
+        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
+        this.userSaved = true;
+      }
     }
 
     async getFiles(){
@@ -117,6 +121,7 @@ export default class Documents extends Vue {
                 fileLink.href = response.config.url;
                 fileLink.setAttribute('download', value.FileName);
                 document.body.appendChild(fileLink);
+                console.log(fileLink)
                 fileLink.click();
           });
         }

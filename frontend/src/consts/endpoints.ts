@@ -7,5 +7,6 @@ export default {
     uploadFile: 'upload',
     user: 'user',
     users: 'user?role=',
-    message: 'message'
+    message: 'message',
+    allMessage: 'message/userId'
 }
