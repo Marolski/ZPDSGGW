@@ -1,5 +1,15 @@
 <template>
   <div style="width: 70%; margin:auto; margin-bottom: 10%">
+    <div>
+      <blockquote class="blockquote text-center padding">
+          <p class="mb-0">Lista studentów</p>
+          <a-select default-value="wybierz" style="width: 250px" @change="getMessages" id="validate" class="required">
+            <a-select-option v-for="item in studentList" :key="item.Id" :value="item.Id">
+              {{item.Name}} {{item.Surname}}
+            </a-select-option>
+          </a-select>
+        </blockquote>
+    </div>
     <h1 style="margin-top: 5%">Wiadomości</h1>
     <a-comment>
       <div slot="content">
@@ -50,26 +60,27 @@
 import moment from 'moment';
 import { Button } from 'ant-design-vue';
 import Vue from 'vue';
+import {mdbBtn, mdbBadge} from 'mdbvue';
 import MessageService from '../services/MessageService';
 import Component from 'vue-class-component';
-import IMessage from '../types/IMessage';
 import UserHelper from '../services/helpers/UserHelper';
 import UserService from '../services/UserService';
 import DateHelper from '../services/helpers/DateHelper'
 import PathHelepr from '../services/helpers/PathHelper';
-import IProposal from '../types/Proposal';
 import ProposalService from '../services/ProposalService';
+import IUser from '../types/User';
+import InvitationService from '../services/InvitationService';
 const messageService = new MessageService();
 const userService = new UserService();
 const userHelper = new UserHelper();
 const dateHelper = new DateHelper();
 const pathHelper = new PathHelepr();
-const proposalService = new ProposalService();
+const invitationService = new InvitationService();
 @Component({
-    name: "Messages",
-    components:{Button }
+    name: "PromoterMessages",
+    components:{Button,mdbBtn, mdbBadge }
 })
-export default class Messages extends Vue{
+export default class PromoterMessages extends Vue{
   comments: Array<object> =[]
   submitting = false;
   value = '';
@@ -79,13 +90,28 @@ export default class Messages extends Vue{
   userId = localStorage.getItem('id');
   file= '';
   fileName = '';
-  proposal: IProposal;
   pathDictionary = new Map();
   collapsed = false;
+  studentId = '';
+  studentList: Array<IUser> = [];
     created(){
-      this.getMessages();
+      this.getStudentList()
     }
 
+    async getStudentList(){
+      const invitations = await invitationService.getAllInvitations(this.userId);
+      const studentIdList = [];
+      console.log(invitations.data)
+      invitations.data.forEach(element => {
+        studentIdList.push(element.StudentId)
+      });
+      const allUsers = await userService.getAllUsers('Student');
+      for(const element of studentIdList){
+        const user  = await userService.getUser(element);
+        this.studentList.push(user.data);
+      }
+      console.log(this.studentList);
+    }
 
     async downloadFile(e){
       try {
@@ -108,11 +134,13 @@ export default class Messages extends Vue{
       this.file = this.$refs.file.files[0];
       this.fileName = this.file.name;
     }
-    async getMessages(){
+    async getMessages(e){
       try {
-        const proposal = await proposalService.getProposal(this.userId);
-        this.proposal = proposal.data;
-        const messages = await messageService.getAllRecivierMessage(this.proposal.PromoterId);
+        this.studentId = e;
+        console.log(e)
+        this.comments = [];
+        const messages = await messageService.getAllRecivierMessage(this.studentId);
+        console.log(messages.data)
         for(const element of messages.data){
           const receiver = await userService.getUser(element.SendFrom);
           const name = pathHelper.getName(element.Path);
@@ -131,8 +159,9 @@ export default class Messages extends Vue{
       }
     }
 
-    async createMessage() {
+    async createMessage(user: IUser) {
       try {
+        console.log(user)
         if (!this.value) {
         return;
         }

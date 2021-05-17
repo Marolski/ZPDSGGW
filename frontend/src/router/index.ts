@@ -6,6 +6,7 @@ import TopicList from '../views/ThesisTopicList.vue'
 import LoginPage from '../views/LoginPage.vue'
 import Documents from '../views/Documents.vue'
 import Conversation from '../views/ConversationWithPromoter.vue'
+import PromoterMessages from '../views/PromoterConversation.vue'
 
 Vue.use(VueRouter)
 
@@ -47,6 +48,11 @@ const routes: Array<RouteConfig> = [
     path: '/conversation',
     name: 'Conversation',
     component: Conversation
+  },
+  {
+    path: '/promoterConversation',
+    name: 'PromoterMessages',
+    component: PromoterMessages
   },
   
 ]

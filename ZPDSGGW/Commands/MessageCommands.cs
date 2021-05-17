@@ -26,7 +26,7 @@ namespace ZPDSGGW.Commands
 
         public IEnumerable<Message> GetMessagesByUserId(Guid id)
         {
-            var messages = _context.Message.Where(x => x.SendTo == id).OrderByDescending(x => x.Date);
+            var messages = _context.Message.Where(x => x.SendTo == id || x.SendFrom == id).OrderByDescending(x => x.Date);
             return messages;
         }
 

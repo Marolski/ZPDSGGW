@@ -5,7 +5,7 @@
         <md-button class="md-icon-button" @click="showNavigation = true">
           <md-icon>menu</md-icon>
         </md-button>
-        <span class="md-title">My Title</span>
+        <span class="md-title">System zarządzania pracą dyplomową</span>
 
       </md-toolbar>
 
@@ -14,29 +14,43 @@
           <span class="md-title">Menu</span>
         </md-toolbar>
 
-        <md-list>
+        <md-list v-if="userRole == 'Student'">
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/">Home</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/profile">Profil</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/about">About</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/proposal">Wniosek</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/profile">Profile</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/topics">Tematy</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/proposal">Proposal</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/conversation">Komunikacja</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/topics">Topics</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/promoterConversation">promoterConversation</router-link></span>
+          </md-list-item>
+        </md-list>
+
+        <md-list v-if="userRole == 'Promoter'">
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/profile">Profil</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text"><router-link to="/conversation">Praca</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/proposal">Wniosek</router-link></span>
+          </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/topics">Tematy</router-link></span>
+          </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/conversation">Komunikacja</router-link></span>
           </md-list-item>
         </md-list>
       </md-drawer>
@@ -50,7 +64,8 @@
     name: 'Temporary',
     data: () => ({
       showNavigation: false,
-      showSidepanel: false
+      showSidepanel: false,
+      userRole: localStorage.getItem('role')
     })
   }
 </script>

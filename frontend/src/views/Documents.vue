@@ -101,7 +101,7 @@ export default class Documents extends Vue {
         }
         const formData = new FormData();
         formData.append('file',this.file)
-        await documentService.uploadDocument(this.selectedKindOfDocs,false,this.userId,formData);
+        await documentService.uploadDocument(this.selectedKindOfDocs.valueOf(),false,this.userId,formData);
         this.getFiles();
       } catch (error) {
         this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
