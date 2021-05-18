@@ -215,6 +215,7 @@ import InvitationService from "../services/InvitationService";
                     this.userSaved = true;
                 }
                 else{
+                    await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
                     this.message = "Wysłałeś zaproszenie do promotora";
                     this.userSaved = true;
                 }

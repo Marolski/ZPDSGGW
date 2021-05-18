@@ -18,17 +18,19 @@ export default class InvitationHelper{
     };
     async updateInvitationStatus(checkedTopicId: string){
         const invitationExist = await invitationservice.getInvitation(this.userId)
-
+        console.log(invitationExist.data)
+        console.log(InvitationStatus.InProgress)
+        if(checkedTopicId == ''){
+            await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Send}]);
+            return false;
+        }
         if(invitationExist.data.Accepted==InvitationStatus.InProgress){
             if(checkedTopicId!='')
                 await topics.patchTopic(checkedTopicId,[{ "op":"replace", "path":"/Available", "value": ThesisTopicStatus.reserved}])
 
             await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Send}]);
-            console.log(InvitationStatus.Send)
+            return false;
         }
-        else{
-            return true;
-        }
-        return false;
+        else return true;
       }
 }

@@ -64,7 +64,7 @@ namespace ZPDSGGW.Controllers
             return CreatedAtRoute("GetInvitation", new { Id = invitationPromoterReadDto.StudentId }, invitationPromoterReadDto);
         }
         //PATCH api/invitation/{id}
-        [Authorize(Roles = Roles.Student)]
+        [Authorize(Roles = Roles.Student + "," + Roles.Promoter)]
         [HttpPatch("{id}")]
         public ActionResult PartialUpdateInvitation(Guid id, JsonPatchDocument<InvitationPromoterUpdateDto> json)
         {

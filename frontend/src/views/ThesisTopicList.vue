@@ -42,6 +42,7 @@ import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, md
 import UserHelper from "../services/helpers/UserHelper";
 import InvitationHelper from "../services/helpers/InvitationHelper";
 import IProposal from "../types/Proposal";
+import {InvitationStatus, ThesisTopicStatus} from "../enums/Enum";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
@@ -178,22 +179,32 @@ interface Row{
           }
         }
         async handleClick(param: Row){
-          if(param == undefined){
+          try {
+            if(param == undefined){
             this.invitationPromoterName = '';
             return
-          }
-          else if(typeof(param)!=typeof("")){
-            this.contact = true;
-            this.onlyTopic = false;
-          }
-          this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
-          const promoterId = await topics.getTopicById(this.checkedTopicId);
+            }
+            if(param.available != 'TAK'){
+              this.message = "Wybrany temat nie jest dostępny";
+              this.userSaved = true;
+              return;
+            }
+            else if(typeof(param)!=typeof("")){
+              this.contact = true;
+              this.onlyTopic = false;
+            }
+            this.checkedTopicId = this.topicsArray.find(element => element.Topic == param.topic).Id;
+            const promoterId = await topics.getTopicById(this.checkedTopicId);
 
-          this.invitation.PromoterId = promoterId.data.PromoterId;
-          this.invitation.StudentId = this.userId;
-          this.invitation.Topic = param.topic;
-          this.thesisTopicName = param.topic;
-          this.invitationPromoterName = param.name;
+            this.invitation.PromoterId = promoterId.data.PromoterId;
+            this.invitation.StudentId = this.userId;
+            this.invitation.Topic = param.topic;
+            this.thesisTopicName = param.topic;
+            this.invitationPromoterName = param.name;
+          } catch (error) {
+            this.message = "Wystąpił problem, skontaktuj się z Administratorem";
+            this.userSaved = true;
+          }
         }
         async updateTopicStatus(){
           try {
@@ -223,8 +234,13 @@ interface Row{
               this.userSaved = true;
               return;
             }
-            this.message = "Wysłano zaproszenie do promotora";
-            this.userSaved = true;
+            if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
+              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
+              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
+              this.message = "Wysłano zaproszenie do promotora";
+              this.userSaved = true;
+            }
           } catch (error) {
               this.message = "Wystąpił problem, skontaktuj się z Administratorem";
               this.userSaved = true;

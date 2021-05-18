@@ -101,16 +101,15 @@ export default class PromoterMessages extends Vue{
     async getStudentList(){
       const invitations = await invitationService.getAllInvitations(this.userId);
       const studentIdList = [];
-      console.log(invitations.data)
       invitations.data.forEach(element => {
-        studentIdList.push(element.StudentId)
+        if(element.Accepted == 3)
+          studentIdList.push(element.StudentId)
       });
       const allUsers = await userService.getAllUsers('Student');
       for(const element of studentIdList){
         const user  = await userService.getUser(element);
         this.studentList.push(user.data);
       }
-      console.log(this.studentList);
     }
 
     async downloadFile(e){
@@ -136,11 +135,11 @@ export default class PromoterMessages extends Vue{
     }
     async getMessages(e){
       try {
+        const elementToValidate = document.getElementById('validate');
+        elementToValidate.classList.remove('validate');
         this.studentId = e;
-        console.log(e)
         this.comments = [];
         const messages = await messageService.getAllRecivierMessage(this.studentId);
-        console.log(messages.data)
         for(const element of messages.data){
           const receiver = await userService.getUser(element.SendFrom);
           const name = pathHelper.getName(element.Path);
@@ -159,11 +158,15 @@ export default class PromoterMessages extends Vue{
       }
     }
 
-    async createMessage(user: IUser) {
+    async createMessage() {
       try {
-        console.log(user)
-        if (!this.value) {
-        return;
+        if (!this.value) return;
+        if(this.studentId==''){
+          const elementToValidate = document.getElementById('validate');
+          elementToValidate.classList.add('validate');
+          this.message = 'Wybierz studenta do którego chcesz wysłać wiadomość.'
+          this.userSaved = true;
+          return
         }
         this.submitting = true;
         const author = await userService.getUser(this.userId);
@@ -178,12 +181,14 @@ export default class PromoterMessages extends Vue{
           };
           this.comments.unshift(newComment);
           this.value = '';
-                  this.collapsed = true;
+          this.collapsed = true;
+          this.fileName = '';
         }, 1000);
         const formData = new FormData();
         formData.append('file',this.file)
-        await messageService.postMessage(formData, this.proposal.PromoterId, this.userId, this.value);
-        this.appendDict();
+        console.log(this.studentId)
+        await messageService.postMessage(formData, this.studentId, this.userId, this.value);
+        this.appendDict(this.studentId);
       } catch (error) {
         this.message = "Nie udało się wysłać wiadomości. Skontaktuj się z administratorem";
         this.userSaved = true;
@@ -192,8 +197,8 @@ export default class PromoterMessages extends Vue{
     handleChange(e) {
       this.value = e.target.value;
     }
-    async appendDict(){
-      const messages = await messageService.getAllRecivierMessage(this.proposal.PromoterId);
+    async appendDict(id: string){
+      const messages = await messageService.getAllRecivierMessage(id);
         for(const element of messages.data){
           const name = pathHelper.getName(element.Path);
           this.pathDictionary.set(name,element.Id);
@@ -257,5 +262,11 @@ export default class PromoterMessages extends Vue{
 }
 .pointer{
   cursor: pointer;
+}
+.validate{
+  border-color: red !important;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
 }
 </style>

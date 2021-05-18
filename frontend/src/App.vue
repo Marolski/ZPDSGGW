@@ -30,27 +30,16 @@
           <md-list-item>
             <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/conversation">Komunikacja</router-link></span>
           </md-list-item>
-
-          <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/promoterConversation">promoterConversation</router-link></span>
-          </md-list-item>
         </md-list>
 
         <md-list v-if="userRole == 'Promoter'">
+
           <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/profile">Profil</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/promoterConversation">Komunikacja</router-link></span>
           </md-list-item>
 
           <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/proposal">Wniosek</router-link></span>
-          </md-list-item>
-
-          <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/topics">Tematy</router-link></span>
-          </md-list-item>
-
-          <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/conversation">Komunikacja</router-link></span>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/promoterInvitations">Zaproszenia</router-link></span>
           </md-list-item>
         </md-list>
       </md-drawer>
