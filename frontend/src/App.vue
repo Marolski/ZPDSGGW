@@ -41,7 +41,25 @@
           <md-list-item>
             <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/promoterInvitations">Zaproszenia</router-link></span>
           </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryPromoter">Dziekanat</router-link></span>
+          </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryView">Dokumenty</router-link></span>
+          </md-list-item>
+
         </md-list>
+
+        <md-list v-if="userRole == 'Deanery'">
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryView">Dokumenty</router-link></span>
+          </md-list-item>
+          
+        </md-list>
+
       </md-drawer>
     </div>
     <router-view/>

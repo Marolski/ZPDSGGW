@@ -37,12 +37,12 @@ namespace ZPDSGGW.Commands
         }
         public bool SaveChanges() => (_context.SaveChanges() >= 0);
 
-        public IEnumerable<File> GetFileById(Guid id) => _context.File.Where(x => x.UserId == id).OrderBy(o => o.Date);
-        public File GetFileByPathToFile(string path)
+        public IEnumerable<File> GetFilesById(Guid id) => _context.File.Where(x => x.UserId == id).OrderBy(o => o.Date);
+        public File GetFileById(Guid id)
         {
-            var fileFromRepo =_context.File.FirstOrDefault(x => x.Path == path);
+            var fileFromRepo =_context.File.FirstOrDefault(x => x.Id == id);
             if (fileFromRepo == null)
-                throw new ArgumentNullException(path);
+                throw new ArgumentNullException();
             return fileFromRepo;
         } 
         public void DeleteFile(Guid id)

@@ -47,7 +47,7 @@ namespace ZPDSGGW.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<FileReadDto>> GetFileModel(Guid id)
         {
-            var file = _repository.GetFileById(id);
+            var file = _repository.GetFilesById(id);
             if (file != null)
                 return Ok(_mapper.Map<IEnumerable<FileReadDto>>(file));
             return NotFound();
@@ -74,9 +74,9 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpPatch("{id}")]
-        public ActionResult UpdateFileModel(string path, JsonPatchDocument<FileUpdateDto> json)
+        public ActionResult UpdateFileModel(Guid id, JsonPatchDocument<FileUpdateDto> json)
         {
-            var fileModel = _repository.GetFileByPathToFile(path);
+            var fileModel = _repository.GetFileById(id);
             if (fileModel == null)
                 return NotFound();
             var fileToPatch = _mapper.Map<FileUpdateDto>(fileModel);

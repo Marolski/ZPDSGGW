@@ -12,8 +12,8 @@ namespace ZPDSGGW.Repository
         void SavePath(File file);
         bool SaveChanges();
         void UpdateProposal(File file);
-        IEnumerable<File> GetFileById(Guid id);
-        File GetFileByPathToFile(string path);
+        IEnumerable<File> GetFilesById(Guid id);
+        File GetFileById(Guid id);
         void DeleteFile(Guid id);
     }
 }

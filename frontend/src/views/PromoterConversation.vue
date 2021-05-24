@@ -32,16 +32,15 @@
         </div>
       </div>
     </a-comment>
-    <div style="margin-bottom: 10%">
+    <div style="margin-bottom: 10%" @click="checkElement">
       <a-list
       v-if="comments.length"
       :data-source="comments"
-      @click="collapsed = !collapsed"
       :header="`${comments.length} ${comments.length > 1 ? 'wiadomości' : 'wiadomość'}`"
       item-layout="horizontal"
       class="pointer"
       >
-        <a-list-item  v-if="collapsed" slot="renderItem" slot-scope="item">
+        <a-list-item  v-if="collapsed" slot="renderItem" slot-scope="item" style="width:250px;">
           <a-comment :author="item.author" :avatar="item.avatar" :datetime="item.datetime">
             <template slot="actions">
               <span v-for="action in item.actions" :key="action" @click="downloadFile">{{ action }}</span>
@@ -96,6 +95,11 @@ export default class PromoterMessages extends Vue{
   studentList: Array<IUser> = [];
     created(){
       this.getStudentList()
+    }
+
+    checkElement(e){
+      if(e.target.className == 'ant-list-header')
+        this.collapsed = !this.collapsed;
     }
 
     async getStudentList(){

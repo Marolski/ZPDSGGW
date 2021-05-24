@@ -1,0 +1,171 @@
+<template>
+  <div class="container">
+    <div class="large-12 medium-12 small-12 cell">
+      <div class="fatherDiv">
+        <blockquote class="blockquote text-center padding">
+          <p class="mb-0">Wybierz rodzaj dokumentu</p>
+          <a-select default-value="wybierz" style="width: 250px" @change="handleChange" id="validate" class="required">
+            <a-select-option v-for="item in documentKindList" :key="item" :value="item">
+              {{item}}
+            </a-select-option>
+          </a-select>
+        </blockquote>
+        <div class="file-input">
+          <input type="file" id="file" class="file" ref="file" v-on:change="submitFile()">
+          <label for="file">Wybierz plik</label>
+        </div><div style="clear:both;"></div>
+      </div>
+      <mdb-list-group>        
+        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{item.key}} 
+          <a-popconfirm title="Czy na pewno chcesz usunąć plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
+            <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></a-popconfirm></mdb-list-group-item>
+      </mdb-list-group>
+    </div>
+    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
+  </div>
+</template>
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import DocumentService from '../services/DocumentService'
+import PathHelper from '../services/helpers/PathHelper'
+import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
+import IFile from "../types/File";
+import {DocumentKind} from "../enums/Enum";
+
+const documentService = new DocumentService;
+const pathHelper = new PathHelper;
+@Component({
+    name: "DeaneryPromoterVue",
+    components:{mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer }
+})
+export default class DeaneryPromoterVue extends Vue {
+    fileList: Array<object> =[]
+    userId: string = localStorage.getItem('id');
+    file = '';
+    message = "";
+    userSaved = false;
+    fileListDict: object[] =[];
+    clickedItemId = '';
+    selectedKindOfDocs = 0;
+    documentKindList: Array<string>;
+    hover = false;
+    created(){
+      this.documentKindList = Object.keys(DocumentKind).filter(key => !isNaN(Number(DocumentKind[key])));
+      this.getFiles();
+    }
+
+    handleChange(e){
+      this.selectedKindOfDocs = e;
+    }
+    async confirm(e) {
+      try {
+        this.$message.success('Plik został usunięty');
+        await documentService.deleteFile(this.clickedItemId).catch((error)=> console.log(error))
+        this.getFiles()
+      } catch (error) {
+        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
+        this.userSaved = true;
+      }
+    }
+
+    async getFiles(){
+      try {
+        const documentsList = await documentService.getDocumentList(this.userId);
+        const documentsListData = documentsList.data;
+        this.fileListDict = pathHelper.getPathList(documentsListData);
+      } catch (error) {
+        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
+        this.userSaved = true;
+      }
+    }
+    
+    async submitFile(event) {
+      try {
+        if(this.selectedKindOfDocs==0){
+          const elementToValidate = document.getElementById('validate');
+          elementToValidate.style.borderColor = 'red';
+          elementToValidate.style.borderStyle = 'solid';
+          elementToValidate.style.borderWidth = '1px';
+          elementToValidate.style.borderRadius = '4px'
+          console.log(elementToValidate)
+          this.message = 'Wybierz rodzaj dokumentu'
+          this.userSaved = true;
+          return
+        }
+        this.file = this.$refs.file.files[0];
+        if(this.file==''){
+          this.message = "Plik nie został wybrany";
+          this.userSaved = true;
+          return;
+        }
+        const formData = new FormData();
+        formData.append('file',this.file)
+        console.log(this.selectedKindOfDocs.valueOf())
+        await documentService.uploadDocument(this.selectedKindOfDocs.valueOf(),false,this.userId,formData);
+        this.getFiles();
+      } catch (error) {
+        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
+        this.userSaved = true;
+      }
+    }
+
+    async downloadFile(value: IFile, e){
+      try {
+        this.clickedItemId = value.Id;
+        if(e.target.type=='button') return false;
+        else{
+          await documentService.getDocumentByUserId(value.Id)
+          .then((response) => {
+                const fileLink = document.createElement('a');
+
+                fileLink.href = response.config.url;
+                fileLink.setAttribute('download', value.FileName);
+                document.body.appendChild(fileLink);
+                console.log(fileLink)
+                fileLink.click();
+          });
+        }
+      } catch (error) {
+        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
+        this.userSaved = true;
+      }
+    }
+}
+</script>
+
+<style scoped>
+.file {
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+  position: absolute;
+}
+.file-input label {
+  float: left;
+  margin-left: 50px;
+  margin-bottom: 15px;
+  display: block;
+  position: relative;
+  width: 200px;
+  height: 50px;
+  border-radius: 25px;
+  background: linear-gradient(40deg, #3381F6, #7873f5);
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform .2s ease-out;
+  justify-content: center;
+}
+.padding{
+  float: left;
+  width: 70%;
+}
+.fatherDiv{
+  margin-top: 50px;
+}
+</style>

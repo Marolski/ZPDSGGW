@@ -8,6 +8,8 @@ import Documents from '../views/Documents.vue'
 import Conversation from '../views/ConversationWithPromoter.vue'
 import PromoterMessages from '../views/PromoterConversation.vue'
 import PromoterInvitations from '../views/PromoterInvitations.vue'
+import DeaneryPromoterVue from '../views/DeaneryPromoter.vue'
+import DeaneryView from '../views/DeaneryView.vue'
 
 Vue.use(VueRouter)
 
@@ -59,6 +61,16 @@ const routes: Array<RouteConfig> = [
     path: '/promoterInvitations',
     name: 'PromoterMessages',
     component: PromoterInvitations
+  },
+  {
+    path: '/deaneryPromoter',
+    name: 'DeaneryPromoterVue',
+    component: DeaneryPromoterVue
+  },
+  {
+    path: '/deaneryView',
+    name: 'DeaneryView',
+    component: DeaneryView
   },
 ]
 

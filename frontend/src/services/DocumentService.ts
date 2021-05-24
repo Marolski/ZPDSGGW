@@ -1,7 +1,5 @@
 import Request from '../consts/requests';
-import enpoints from '../consts/endpoints';
 import endpoints from '../consts/endpoints';
-import IInvitation from '@/types/Invitation';
 
 const request = new Request();
 export default class DocumentService{
@@ -9,4 +7,5 @@ export default class DocumentService{
     getDocumentByUserId = (userId: string) => request.get(endpoints.uploadFile,userId);
     getDocumentList = (userId: string) => request.getFileList(endpoints.uploadFile,userId);
     deleteFile =(id: string) => request.delete(endpoints.uploadFile,id);
+    patchDocument = (id: string, body: object[]) => request.patch(endpoints.uploadFile,id,body);
 }

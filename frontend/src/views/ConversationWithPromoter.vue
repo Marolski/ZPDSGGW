@@ -22,11 +22,10 @@
         </div>
       </div>
     </a-comment>
-    <div style="margin-bottom: 10%">
+    <div style="margin-bottom: 10%" @click="checkElement">
       <a-list
       v-if="comments.length"
       :data-source="comments"
-      @click="collapsed = !collapsed"
       :header="`${comments.length} ${comments.length > 1 ? 'wiadomości' : 'wiadomość'}`"
       item-layout="horizontal"
       class="pointer"
@@ -57,14 +56,16 @@ import UserHelper from '../services/helpers/UserHelper';
 import UserService from '../services/UserService';
 import DateHelper from '../services/helpers/DateHelper'
 import PathHelepr from '../services/helpers/PathHelper';
-import IProposal from '../types/Proposal';
 import ProposalService from '../services/ProposalService';
+import IInvitation from '../types/Invitation';
+import InvitationService from '../services/InvitationService';
 const messageService = new MessageService();
 const userService = new UserService();
 const userHelper = new UserHelper();
 const dateHelper = new DateHelper();
 const pathHelper = new PathHelepr();
 const proposalService = new ProposalService();
+const invitationService = new InvitationService();
 @Component({
     name: "Messages",
     components:{Button }
@@ -79,13 +80,17 @@ export default class Messages extends Vue{
   userId = localStorage.getItem('id');
   file= '';
   fileName = '';
-  proposal: IProposal;
+  invitation: IInvitation;
   pathDictionary = new Map();
   collapsed = false;
     created(){
       this.getMessages();
     }
 
+    checkElement(e){
+      if(e.target.className == 'ant-list-header')
+        this.collapsed = !this.collapsed;
+    }
 
     async downloadFile(e){
       try {
@@ -110,21 +115,21 @@ export default class Messages extends Vue{
     }
     async getMessages(){
       try {
-        const proposal = await proposalService.getProposal(this.userId);
-        this.proposal = proposal.data;
-        const messages = await messageService.getAllRecivierMessage(this.proposal.PromoterId);
+        const invitation = await invitationService.getInvitation(this.userId);
+        this.invitation = invitation.data;
+        const messages = await messageService.getAllRecivierMessage(this.userId);
         for(const element of messages.data){
-          const receiver = await userService.getUser(element.SendFrom);
-          const name = pathHelper.getName(element.Path);
-          this.pathDictionary.set(name,element.Id);
-          const newComment = {
-            author: userHelper.getUserName(receiver.data),
-            content: element.Description,
-            actions: [name],
-            datetime: dateHelper.cutDate(element.Date),
+            const receiver = await userService.getUser(element.SendFrom);
+            const name = pathHelper.getName(element.Path);
+            this.pathDictionary.set(name,element.Id);
+            const newComment = {
+              author: userHelper.getUserName(receiver.data),
+              content: element.Description,
+              actions: [name],
+              datetime: dateHelper.cutDate(element.Date),
+            }
+            this.comments.push(newComment)
           }
-          this.comments.push(newComment)
-        }
       } catch (error) {
         this.message = "Nie udało się załadowac wiadomości. Skontaktuj się z administratorem";
         this.userSaved = true;
@@ -153,7 +158,7 @@ export default class Messages extends Vue{
         }, 1000);
         const formData = new FormData();
         formData.append('file',this.file)
-        await messageService.postMessage(formData, this.proposal.PromoterId, this.userId, this.value);
+        await messageService.postMessage(formData, this.invitation.PromoterId, this.userId, this.value);
         this.appendDict();
       } catch (error) {
         this.message = "Nie udało się wysłać wiadomości. Skontaktuj się z administratorem";
@@ -164,7 +169,7 @@ export default class Messages extends Vue{
       this.value = e.target.value;
     }
     async appendDict(){
-      const messages = await messageService.getAllRecivierMessage(this.proposal.PromoterId);
+      const messages = await messageService.getAllRecivierMessage(this.invitation.PromoterId);
         for(const element of messages.data){
           const name = pathHelper.getName(element.Path);
           this.pathDictionary.set(name,element.Id);
