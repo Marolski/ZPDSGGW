@@ -58,6 +58,7 @@ import DateHelper from '../services/helpers/DateHelper'
 import PathHelepr from '../services/helpers/PathHelper';
 import ProposalService from '../services/ProposalService';
 import IInvitation from '../types/Invitation';
+import { message } from 'ant-design-vue'
 import InvitationService from '../services/InvitationService';
 const messageService = new MessageService();
 const userService = new UserService();
@@ -105,8 +106,7 @@ export default class Messages extends Vue{
                 fileLink.click();
           });
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }
     }
     submitFile(e){
@@ -131,8 +131,7 @@ export default class Messages extends Vue{
             this.comments.push(newComment)
           }
       } catch (error) {
-        this.message = "Nie udało się załadowac wiadomości. Skontaktuj się z administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }
     }
 
@@ -161,19 +160,22 @@ export default class Messages extends Vue{
         await messageService.postMessage(formData, this.invitation.PromoterId, this.userId, this.value);
         this.appendDict();
       } catch (error) {
-        this.message = "Nie udało się wysłać wiadomości. Skontaktuj się z administratorem";
-        this.userSaved = true;
+        message.error("Nie udało się wysłać wiadomości, skontaktuj się z administratorem");
       }
     }
     handleChange(e) {
       this.value = e.target.value;
     }
     async appendDict(){
-      const messages = await messageService.getAllRecivierMessage(this.invitation.PromoterId);
+      try {
+        const messages = await messageService.getAllRecivierMessage(this.invitation.PromoterId);
         for(const element of messages.data){
           const name = pathHelper.getName(element.Path);
           this.pathDictionary.set(name,element.Id);
         }
+      } catch (error) {
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
+      }
     }
 
 }

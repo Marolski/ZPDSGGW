@@ -3,9 +3,8 @@
     <md-content class="md-elevation-3">
 
       <div class="title">
-        <img src="https://vuematerial.io/assets/logo-color.png">
-        <div class="md-title">Vue Material</div>
-        <div class="md-body-1">Build beautiful apps with Material Design and Vue.js</div>
+        <img src="books.png">
+        <div class="md-title">System zarządzania pracami dyplomowymi</div>
       </div>
 
       <div class="form">
@@ -15,14 +14,14 @@
         </md-field>
 
         <md-field md-has-password>
-          <label>Password</label>
+          <label>Hasło</label>
           <md-input v-model="login.Password" type="password"></md-input>
         </md-field>
       </div>
 
       <div class="actions md-layout md-alignment-center-space-between">
-        <a href="/resetpassword">Reset password</a>
-        <md-button class="md-raised md-primary" @click="auth">Log in</md-button>
+        <a href="/resetpassword">Zresetuj hasło</a>
+        <md-button class="md-raised md-primary" @click="auth">Zaloguj</md-button>
       </div>
 
       <div class="loading-overlay" v-if="loading">
@@ -63,7 +62,12 @@
             console.log(res);
             setTimeout(() => {
                 this.loading = false;
-                router.push('/profile')
+                if(localStorage.getItem('role') == 'Deanery')
+                  router.push('/deaneryView')
+                else if(localStorage.getItem('rol') == 'Promoter')
+                  router.push('/promoterInvitations')
+                else
+                  router.push('/profile')
             }, 500);
         }
     }

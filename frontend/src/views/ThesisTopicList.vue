@@ -23,13 +23,13 @@
         </mdb-modal-footer>
       </mdb-modal>
     </mdb-container>
-    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 
 <script lang='ts'>
 import Vue from "vue";
 import Component from "vue-class-component";
+import { message } from 'ant-design-vue'
 import ThesisTopicService from '../services/ThesisTopicService';
 import ITopic from '../types/ThesisTopic';
 import UserService from '../services/UserService';
@@ -42,7 +42,7 @@ import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, md
 import UserHelper from "../services/helpers/UserHelper";
 import InvitationHelper from "../services/helpers/InvitationHelper";
 import IProposal from "../types/Proposal";
-import {InvitationStatus, ThesisTopicStatus} from "../enums/Enum";
+import {thesisTopicStatus} from "../enums/Enum";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
@@ -86,8 +86,6 @@ interface Row{
         invitationDesc: any = '';
         invitationName: any = '';
         invitationPromoterName: any = '';
-        message = "";
-        userSaved = false;
         invitation: IInvitation ={
           StudentId: '',
           PromoterId: '',
@@ -153,20 +151,14 @@ interface Row{
                   }
                 })
                 row.name = userHelper.getUserName(name[0]);
-                if (element.Available == 1)
-                  row.available = 'TAK';
-                else if(element.Available == 2)
-                  row.available = 'NIE';
-                else if(element.Available == 3)
-                  row.available = "ZAREZERWOWANE";
+                row.available = thesisTopicStatus[element.Available]
                 rows.push(row)
               });
               this.setRows = newDataObject;
               const user = await userService.getUser(this.userId);
               this.invitationName = userHelper.getUserName(user.data);
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z administratorem");
             }
         }
         async sendDataToProposal(id: string){
@@ -174,19 +166,18 @@ interface Row{
             const userData = await userService.getUser(id)
             return userData.data;
           } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+              message.error("Wystąpił błąd, skontaktuj się z administratorem");
           }
         }
         async handleClick(param: Row){
           try {
+            console.log(param)
             if(param == undefined){
             this.invitationPromoterName = '';
             return
             }
-            if(param.available != 'TAK'){
-              this.message = "Wybrany temat nie jest dostępny";
-              this.userSaved = true;
+            if(param.available != thesisTopicStatus[1]){
+              message.info("Wybrany temat nie jest dostępny");
               return;
             }
             else if(typeof(param)!=typeof("")){
@@ -202,8 +193,7 @@ interface Row{
             this.thesisTopicName = param.topic;
             this.invitationPromoterName = param.name;
           } catch (error) {
-            this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-            this.userSaved = true;
+              message.error("Wystąpił błąd, skontaktuj się z administratorem");
           }
         }
         async updateTopicStatus(){
@@ -221,8 +211,7 @@ interface Row{
             }
             else return;
           } catch (error) {
-              this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-              this.userSaved = true;
+              message.error("Wystąpił błąd, skontaktuj się z administratorem");
           }
         }
         async createInvitation(){
@@ -230,20 +219,17 @@ interface Row{
             const isExist = await invitationHelper.updateInvitationStatus(this.checkedTopicId);
             this.contact = false;
             if(isExist==true){
-              this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
-              this.userSaved = true;
+              message.info("Przesłałeś już zaproszenie do współpracy z promotorem");
               return;
             }
             if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
               await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
               await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
               await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
-              this.message = "Wysłano zaproszenie do promotora";
-              this.userSaved = true;
+              message.info("Wysłano zaproszenie do promotora");
             }
           } catch (error) {
-              this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-              this.userSaved = true;
+              message.error("Wystąpił błąd, skontaktuj się z administratorem");
           }
         }
     }

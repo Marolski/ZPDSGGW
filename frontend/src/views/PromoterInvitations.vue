@@ -16,7 +16,6 @@
         <p>Imie i Nazwisko: {{ name }} <br>Temat pracy: {{topic}} <br> {{description}}</p>
         </a-modal>
     </div>
-    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 
@@ -28,11 +27,14 @@ import InvitationService from "../services/InvitationService";
 import IInvitation from '../types/Invitation';
 import { mdbDatatable2} from 'mdbvue';
 import UserHelper from "../services/helpers/UserHelper";
-import {InvitationStatus, ThesisTopicStatus} from "../enums/Enum";
+import {InvitationStatus} from "../enums/Enum";
+import { message } from 'ant-design-vue'
+import ThesisTopicService from "../services/ThesisTopicService";
 
 const userService = new UserService();
 const invitationservice = new InvitationService();
 const userHelper = new UserHelper();
+const thesisTopics = new ThesisTopicService();
 interface Row{
   name: string;
   topic: string;
@@ -51,9 +53,7 @@ interface Row{
         topic: any = '';
         description: any = '';
         checkedStudentId = '';
-        name: any = '';
-        message = "";
-        userSaved = false;
+        name = '';
         data = {
           rows: [],    
         }
@@ -129,8 +129,7 @@ interface Row{
               });
               this.setRows = newDataObject;
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async handleClick(param: Row){
@@ -146,27 +145,29 @@ interface Row{
                 this.description = param.description;
                 this.visible = true;
             } catch (error) {
-                console.log(error)
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async handleOk(e) {
             try {
                 await invitationservice.patchInvitation(this.checkedStudentId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Accepted}]);
+                const promoterTopics = await thesisTopics.getPromoterTopics(this.userId);
+                console.log(promoterTopics.data)
+                message.success('Wniosek o współprace został zaakceptowany')
                 this.visible = false;
                 this.populate();
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true; 
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async handleCancel(e) {
             try {
                 await invitationservice.patchInvitation(this.checkedStudentId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Rejected}]);
+                message.error("Wniosek o współprace został odrzucony.")
                 this.visible = false;
                 this.populate();
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true; 
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
 

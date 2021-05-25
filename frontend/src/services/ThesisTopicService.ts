@@ -6,6 +6,7 @@ require('dotenv');
 const request = new Request();
 export default class ThesisTopicService{
     getTopics = () => request.get(endpoints.thesisTopic);
+    getPromoterTopics = (id: string) => request.getFileList(endpoints.thesisTopic, id)
     getTopicById = (id: string) => request.get(endpoints.thesisTopic, id);
     patchTopic = (id: string, body: Array<object>) => request.patch(endpoints.thesisTopic,id,body)
 }

@@ -6,7 +6,7 @@
           <md-icon>menu</md-icon>
         </md-button>
         <span class="md-title">System zarządzania pracą dyplomową</span>
-
+        <a-button style="margin: 0;position:absolute; right: 50px" type="default" shape="circle" icon="poweroff" @click="logout" />
       </md-toolbar>
 
       <md-drawer :md-active.sync="showNavigation" md-swipeable>
@@ -67,13 +67,23 @@
 </template>
 
 <script>
+import router from './router';
   export default {
     name: 'Temporary',
+    components: { },
     data: () => ({
       showNavigation: false,
       showSidepanel: false,
       userRole: localStorage.getItem('role')
-    })
+    }),
+    methods: {
+      logout(){
+        setTimeout(() => {
+                localStorage.clear();
+                router.push('/')
+            }, 500);
+      }
+    }
   }
 </script>
 
@@ -117,5 +127,9 @@
 
   .md-content {
     padding: 8px;
+  }
+  .logout{
+    position: absolute;
+    right: 10px;
   }
 </style>

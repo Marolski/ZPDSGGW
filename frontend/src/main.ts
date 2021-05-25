@@ -12,11 +12,12 @@ import 'bootstrap-css-only/css/bootstrap.min.css';
 import 'mdbvue/lib/mdbvue.css';
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
-Vue.config.productionTip = false;
+import { message } from 'ant-design-vue'
 
 Vue.use(Antd);
 
 Vue.config.productionTip = false
+Vue.prototype.$message = message;
 Vue.use(VueMaterial)
 Vue.use(VModal)
 

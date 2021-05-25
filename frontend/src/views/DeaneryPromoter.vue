@@ -21,7 +21,6 @@
             <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></a-popconfirm></mdb-list-group-item>
       </mdb-list-group>
     </div>
-    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 <script lang="ts">
@@ -32,6 +31,7 @@ import PathHelper from '../services/helpers/PathHelper'
 import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
 import IFile from "../types/File";
 import {DocumentKind} from "../enums/Enum";
+import { message } from 'ant-design-vue'
 
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
@@ -43,8 +43,6 @@ export default class DeaneryPromoterVue extends Vue {
     fileList: Array<object> =[]
     userId: string = localStorage.getItem('id');
     file = '';
-    message = "";
-    userSaved = false;
     fileListDict: object[] =[];
     clickedItemId = '';
     selectedKindOfDocs = 0;
@@ -60,12 +58,11 @@ export default class DeaneryPromoterVue extends Vue {
     }
     async confirm(e) {
       try {
-        this.$message.success('Plik został usunięty');
+        message.success('Plik został usunięty');
         await documentService.deleteFile(this.clickedItemId).catch((error)=> console.log(error))
         this.getFiles()
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z Administratorem");
       }
     }
 
@@ -75,8 +72,7 @@ export default class DeaneryPromoterVue extends Vue {
         const documentsListData = documentsList.data;
         this.fileListDict = pathHelper.getPathList(documentsListData);
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z Administratorem");
       }
     }
     
@@ -89,14 +85,12 @@ export default class DeaneryPromoterVue extends Vue {
           elementToValidate.style.borderWidth = '1px';
           elementToValidate.style.borderRadius = '4px'
           console.log(elementToValidate)
-          this.message = 'Wybierz rodzaj dokumentu'
-          this.userSaved = true;
+          message.info('Wybierz rodzaj dokumentu');
           return
         }
         this.file = this.$refs.file.files[0];
         if(this.file==''){
-          this.message = "Plik nie został wybrany";
-          this.userSaved = true;
+           message.info("Plik nie został wybrany");
           return;
         }
         const formData = new FormData();
@@ -105,8 +99,7 @@ export default class DeaneryPromoterVue extends Vue {
         await documentService.uploadDocument(this.selectedKindOfDocs.valueOf(),false,this.userId,formData);
         this.getFiles();
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z Administratorem");
       }
     }
 
@@ -127,8 +120,7 @@ export default class DeaneryPromoterVue extends Vue {
           });
         }
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z Administratorem");
       }
     }
 }

@@ -18,8 +18,6 @@ export default class InvitationHelper{
     };
     async updateInvitationStatus(checkedTopicId: string){
         const invitationExist = await invitationservice.getInvitation(this.userId)
-        console.log(invitationExist.data)
-        console.log(InvitationStatus.InProgress)
         if(checkedTopicId == ''){
             await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Send}]);
             return false;
