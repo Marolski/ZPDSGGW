@@ -37,7 +37,6 @@
           <md-button type="submit" class="md-primary md-raised" :disabled="sending">Wyślij</md-button>
         </md-card-actions>
       </md-card>
-      <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
     </form>
   </div>
 </template>
@@ -57,6 +56,8 @@ import IInvitation from '../types/Invitation';
 import { Component } from "vue-property-decorator";
 import UserHelper from '../services/helpers/UserHelper';
 import IProposal from '../types/Proposal';
+import { InvitationStatus, ProposalStatus, ThesisTopicStatus } from '../enums/Enum';
+import { message } from 'ant-design-vue'
 
 
   const proposalService = new ProposalService();
@@ -69,9 +70,9 @@ import IProposal from '../types/Proposal';
   })
   export default class Proposal extends Vue{
     mixins: [validationMixin];
-    userId: string = localStorage.getItem('id');
     invitationModel: IInvitation;
     proposal: IProposal;
+    fakeGuid = '00000000-0000-0000-0000-000000000000';
     message = '';
     form = {
       studentName: null,
@@ -85,16 +86,13 @@ import IProposal from '../types/Proposal';
     }
        async saveUser () {
         try {
-          const invitationAccepted = await invitationServive.getInvitation(this.userId);
-          const proposalExist = await proposalService.getProposal(this.userId);
-          console.log(proposalExist);
-          if(invitationAccepted.data.Accepted == false){
-            this.message = "Nie masz nawiązanej współpracy z promotorem";
-            this.sending = true;
+          const invitationAccepted = await invitationServive.getInvitation(localStorage.getItem('id'));
+          const proposalExist = await proposalService.getProposal(localStorage.getItem('id'));
+          if(invitationAccepted.data.Accepted != InvitationStatus.Accepted){
+            message.info("Nie masz nawiązanej współpracy z promotorem");
           }
           else if (proposalExist.data!=""){
-            this.message = "wniosek został już wysłany";
-            this.sending = true;
+            message.info("wniosek został już wysłany");
           }
           else{
             // Instead of this timeout, here you can call your API
@@ -102,11 +100,10 @@ import IProposal from '../types/Proposal';
               StudentId: this.invitationModel.StudentId,
               PromoterId: this.invitationModel.PromoterId,
               Topic: this.invitationModel.Topic,
-              Status: 2
+              Status: ProposalStatus.Send
             }
             const newProposal = proposalService.postProposal(this.proposal);
-            this.message = "Wniosek został wysłany";
-            this.sending = true
+            message.success("Wniosek został wysłany");
           }
           window.setTimeout(() => {
               this.userSaved = true
@@ -114,21 +111,19 @@ import IProposal from '../types/Proposal';
             }, 1000);
             
         } catch (error) {
-          this.message = "Wystąpił problem skontaktuj się z administratorem";
-          this.sending = true;
+          message.error("Wystąpił problem skontaktuj się z administratorem");
         }
       }
       async getInvitationData(){
         try {
-          const invitation = await invitationServive.getInvitation(this.userId);
+          const invitation = await invitationServive.getInvitation(localStorage.getItem('id'));
           const invitationData= invitation.data;
           this.invitationModel = invitationData;
-          console.log(invitationData)
           if(invitationData==""){
             this.form.studentName = '';
             this.form.promoterName = '';
             this.form.topic = '';
-          }else{
+          }else if(this.invitationModel.PromoterId != this.fakeGuid){
             const student = await userService.getUser(this.invitationModel.StudentId);
             const promoter = await userService.getUser(this.invitationModel.PromoterId);
             this.form.studentName = await userHelper.getUserName(student.data);
@@ -136,8 +131,7 @@ import IProposal from '../types/Proposal';
             this.form.topic = this.invitationModel.Topic;
           }
         } catch (error) {
-          this.message = "Wystąpił problem skontaktuj się z administratorem";
-          this.sending = true;
+           message.error("Wystąpił problem skontaktuj się z administratorem");
         }
         
       }

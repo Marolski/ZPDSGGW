@@ -38,6 +38,7 @@
     import { Component } from "vue-property-decorator";
     import Authenticate from '../services/AuthenticateService';
     import router from '../router/index'
+    import { message } from 'ant-design-vue';
     const auth = new Authenticate();
 @Component({
         name: 'LoginPage',
@@ -53,19 +54,23 @@
             // your code to login user
             // this is only for example of loading
             this.loading = true;
-            const res = await auth.authorization(this.login)
-            localStorage.clear();
-            localStorage.setItem('token', res.data.Token)
-            localStorage.setItem('id', res.data.Id)
-            localStorage.setItem('role', res.data.Role)
-            console.log(localStorage.getItem('role'));
-            console.log(res);
+            const res = await auth.authorization(this.login).catch(response =>{
+            setTimeout(() =>{
+                message.error("Zły login lub hasło, spróbuj ponownie");
+                this.loading = false;
+              },500)
+            })
             setTimeout(() => {
                 this.loading = false;
-                if(localStorage.getItem('role') == 'Deanery')
-                  router.push('/deaneryView')
-                else if(localStorage.getItem('rol') == 'Promoter')
+                localStorage.setItem('token', res.data.Token)
+                localStorage.setItem('id', res.data.Id)
+                localStorage.setItem('role', res.data.Role)
+                if(localStorage.getItem('role') == 'Deanery'){
+                  router.push('/deaneryView') 
+                }
+                else if(localStorage.getItem('role') == 'Promoter'){
                   router.push('/promoterInvitations')
+                }              
                 else
                   router.push('/profile')
             }, 500);

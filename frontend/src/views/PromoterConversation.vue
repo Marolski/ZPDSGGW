@@ -85,7 +85,6 @@ export default class PromoterMessages extends Vue{
   moment;
   message = "";
   userSaved = false;
-  userId = localStorage.getItem('id');
   file= '';
   fileName = '';
   pathDictionary = new Map();
@@ -103,7 +102,7 @@ export default class PromoterMessages extends Vue{
 
     async getStudentList(){
       try {
-        const invitations = await invitationService.getAllInvitations(this.userId);
+        const invitations = await invitationService.getAllInvitations(localStorage.getItem('id'));
         const studentIdList = [];
         invitations.data.forEach(element => {
           if(element.Accepted == 3)
@@ -173,7 +172,7 @@ export default class PromoterMessages extends Vue{
           return
         }
         this.submitting = true;
-        const author = await userService.getUser(this.userId);
+        const author = await userService.getUser(localStorage.getItem('id'));
         const authorName = userHelper.getUserName(author.data)
         setTimeout(() => {
           this.submitting = false;
@@ -191,7 +190,7 @@ export default class PromoterMessages extends Vue{
         const formData = new FormData();
         formData.append('file',this.file)
         console.log(this.studentId)
-        await messageService.postMessage(formData, this.studentId, this.userId, this.value);
+        await messageService.postMessage(formData, this.studentId, localStorage.getItem('id'), this.value);
         this.appendDict(this.studentId);
       } catch (error) {
         message.error("Nie udało się wysłać wiadomości. Skontaktuj się z administratorem");

@@ -15,10 +15,17 @@ export enum ProposalStatus{
 }
 
 export enum DocumentKind{
-    praca =1,
-    wniosek,
+    thesis =1,
+    proposal,
     paymentConfirmation,
     Inne
+}
+
+export const documentKind = {
+    1: "Praca ",
+    2: "Wniosek",
+    3: "Potwierdzenie płatności",
+    4: "Inne"
 }
 
 export enum Roles{
@@ -50,12 +57,7 @@ export const invitationProposalStatus = {
     4: "Odrzucony"
 }
 
-export const documentKind = {
-    1: "Praca ",
-    2: "Wniosek",
-    3: "Potwierdzenie płatności",
-    4: "Inne"
-}
+
 
 export const degrees = {
     1: "inż.",

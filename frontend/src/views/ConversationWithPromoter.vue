@@ -18,7 +18,7 @@
           </a-form-item>
         </div>
         <div style="margin:0 0 10% 0%; width:50%">
-          <a v-if="fileName!=''" >{{fileName}}</a>
+          <a v-if="fileName!=''">{{fileName}}</a>
         </div>
       </div>
     </a-comment>
@@ -60,6 +60,7 @@ import ProposalService from '../services/ProposalService';
 import IInvitation from '../types/Invitation';
 import { message } from 'ant-design-vue'
 import InvitationService from '../services/InvitationService';
+import { InvitationStatus } from '../enums/Enum';
 const messageService = new MessageService();
 const userService = new UserService();
 const userHelper = new UserHelper();
@@ -78,7 +79,6 @@ export default class Messages extends Vue{
   moment;
   message = "";
   userSaved = false;
-  userId = localStorage.getItem('id');
   file= '';
   fileName = '';
   invitation: IInvitation;
@@ -115,9 +115,9 @@ export default class Messages extends Vue{
     }
     async getMessages(){
       try {
-        const invitation = await invitationService.getInvitation(this.userId);
+        const invitation = await invitationService.getInvitation(localStorage.getItem('id'));
         this.invitation = invitation.data;
-        const messages = await messageService.getAllRecivierMessage(this.userId);
+        const messages = await messageService.getAllRecivierMessage(localStorage.getItem('id'));
         for(const element of messages.data){
             const receiver = await userService.getUser(element.SendFrom);
             const name = pathHelper.getName(element.Path);
@@ -140,8 +140,16 @@ export default class Messages extends Vue{
         if (!this.value) {
         return;
         }
+        const invitation = await invitationService.getInvitation(localStorage.getItem('id'));
         this.submitting = true;
-        const author = await userService.getUser(this.userId);
+        if(invitation.data.Accepted != InvitationStatus.Accepted){
+          setTimeout(()=>{
+            this.submitting = false;
+            message.info('Nie nawiązałeś współpracy z promotorem');
+          },1000)
+          return;
+        }
+        const author = await userService.getUser(localStorage.getItem('id'));
         const authorName = userHelper.getUserName(author.data)
         setTimeout(() => {
           this.submitting = false;
@@ -153,11 +161,11 @@ export default class Messages extends Vue{
           };
           this.comments.unshift(newComment);
           this.value = '';
-                  this.collapsed = true;
+          this.collapsed = true;
         }, 1000);
         const formData = new FormData();
         formData.append('file',this.file)
-        await messageService.postMessage(formData, this.invitation.PromoterId, this.userId, this.value);
+        await messageService.postMessage(formData, this.invitation.PromoterId, localStorage.getItem('id'), this.value);
         this.appendDict();
       } catch (error) {
         message.error("Nie udało się wysłać wiadomości, skontaktuj się z administratorem");

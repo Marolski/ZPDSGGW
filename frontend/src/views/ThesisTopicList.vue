@@ -42,7 +42,7 @@ import { mdbContainer, mdbInput, mdbTextarea, mdbDatatable2, mdbBtn, mdbIcon, md
 import UserHelper from "../services/helpers/UserHelper";
 import InvitationHelper from "../services/helpers/InvitationHelper";
 import IProposal from "../types/Proposal";
-import {thesisTopicStatus} from "../enums/Enum";
+import {InvitationStatus, thesisTopicStatus} from "../enums/Enum";
 
 const topics = new ThesisTopicService();
 const userService = new UserService();
@@ -74,7 +74,6 @@ interface Row{
         }
     })
     export default class TopicList extends Vue {
-        userId: string = localStorage.getItem('id');
         inputValue: string;
         topicsArray: Array<ITopic> = [];
         showError: boolean | any = false;
@@ -111,11 +110,12 @@ interface Row{
         }
         created(){
           this.populate();
-          this.invitation.StudentId = this.userId;
+          this.invitation.StudentId = localStorage.getItem('id');
         }
         
         async populate(){
             try {
+              this.data = {rows:[]};
               const allTopics = await topics.getTopics();
               const allPromoters = await userService.getAllUsers('Promoter');
               const promotersData = allPromoters.data;
@@ -155,7 +155,7 @@ interface Row{
                 rows.push(row)
               });
               this.setRows = newDataObject;
-              const user = await userService.getUser(this.userId);
+              const user = await userService.getUser(localStorage.getItem('id'));
               this.invitationName = userHelper.getUserName(user.data);
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z administratorem");
@@ -171,7 +171,6 @@ interface Row{
         }
         async handleClick(param: Row){
           try {
-            console.log(param)
             if(param == undefined){
             this.invitationPromoterName = '';
             return
@@ -188,7 +187,7 @@ interface Row{
             const promoterId = await topics.getTopicById(this.checkedTopicId);
 
             this.invitation.PromoterId = promoterId.data.PromoterId;
-            this.invitation.StudentId = this.userId;
+            this.invitation.StudentId = localStorage.getItem('id');
             this.invitation.Topic = param.topic;
             this.thesisTopicName = param.topic;
             this.invitationPromoterName = param.name;
@@ -198,15 +197,20 @@ interface Row{
         }
         async updateTopicStatus(){
           try {
-            const invitation = await invitationservice.getInvitation(this.userId);
+            const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
+            if(invitation.data.Accepted == InvitationStatus.Send || invitation.data.Accepted == InvitationStatus.Accepted){
+              message.info('Przesłałeś już zaproszenie do współpracy, nie możesz zmienić tematu')
+              router.push('Profile');
+              return;
+            }
             if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
-              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
-              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
+              await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+              await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
               router.push('Profile');
             }
             else if(this.thesisTopicName!=''){
                 this.invitation.Topic = this.thesisTopicName;
-                await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+                await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
                 router.push('Profile');
             }
             else return;
@@ -223,10 +227,11 @@ interface Row{
               return;
             }
             if(this.invitation.PromoterId!='' && this.thesisTopicName!=''){
-              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
-              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
-              await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
+              await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/Topic", "value": this.thesisTopicName}]);
+              await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/PromoterId", "value": this.invitation.PromoterId}])
+              await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
               message.info("Wysłano zaproszenie do promotora");
+              this.populate();
             }
           } catch (error) {
               message.error("Wystąpił błąd, skontaktuj się z administratorem");

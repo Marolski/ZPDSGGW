@@ -31,7 +31,7 @@ namespace ZPDSGGW.Controllers
         }
 
         //Get api/invitation
-        [Authorize(Roles = Roles.Admin+","+Roles.Promoter)]
+        [Authorize(Roles = Roles.Promoter)]
         [HttpGet]
         public ActionResult<IEnumerable<InvitationPromoterReadDto>> GetAllInvitations(Guid id)
         {

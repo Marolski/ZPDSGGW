@@ -46,10 +46,6 @@
             <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryPromoter">Dziekanat</router-link></span>
           </md-list-item>
 
-          <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryView">Dokumenty</router-link></span>
-          </md-list-item>
-
         </md-list>
 
         <md-list v-if="userRole == 'Deanery'">
@@ -78,8 +74,8 @@ import router from './router';
     }),
     methods: {
       logout(){
+        localStorage.clear();
         setTimeout(() => {
-                localStorage.clear();
                 router.push('/')
             }, 500);
       }

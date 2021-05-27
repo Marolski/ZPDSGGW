@@ -16,7 +16,7 @@
         <div class="container">
             <div class="large-12 medium-12 small-12 cell">
                 <mdb-list-group>        
-                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{item.key}} 
+                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___  '}}{{item.key}} 
                         <a-popconfirm title="Czy na pewno chcesz zatwierdzić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
                             <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
                         </a-popconfirm>
@@ -58,7 +58,6 @@ interface Row{
         components:{mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  }
     })
     export default class UserList extends Vue {
-        userId: string = localStorage.getItem('id');
         visible = false;
         confirmLoading = false;
         topic: any = '';
@@ -136,7 +135,7 @@ interface Row{
 
         async getFiles(userId){
             try {
-                const documentsList = await documentService.getDocumentList(userId);
+                const documentsList = await documentService.getDocumentList(localStorage.getItem('id'));
                 const documentsListData = documentsList.data;
                 this.fileListDict = pathHelper.getPathList(documentsListData);
             } catch (error) {

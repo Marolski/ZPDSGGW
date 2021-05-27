@@ -1,6 +1,7 @@
 <template>
   <div class="tableStyle">
     <div style="padding-top: 50px;"></div>
+    <h2>Zaproszenia do współpracy</h2>
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
     <div>
         <a-modal
@@ -11,6 +12,7 @@
         @cancel="handleCancel"
         cancelText="Odrzuć"
         okText="Zaakceptuj"
+        closable
         :width="700"
         >
         <p>Imie i Nazwisko: {{ name }} <br>Temat pracy: {{topic}} <br> {{description}}</p>
@@ -27,7 +29,7 @@ import InvitationService from "../services/InvitationService";
 import IInvitation from '../types/Invitation';
 import { mdbDatatable2} from 'mdbvue';
 import UserHelper from "../services/helpers/UserHelper";
-import {InvitationStatus} from "../enums/Enum";
+import {InvitationStatus, ThesisTopicStatus} from "../enums/Enum";
 import { message } from 'ant-design-vue'
 import ThesisTopicService from "../services/ThesisTopicService";
 
@@ -46,11 +48,11 @@ interface Row{
         components:{mdbDatatable2 }
     })
     export default class TopicList extends Vue {
-        userId: string = localStorage.getItem('id');
         sendInvitations: Array<IInvitation> = [];
         visible = false;
         confirmLoading = false;
         topic: any = '';
+        checkedTopicId = '';
         description: any = '';
         checkedStudentId = '';
         name = '';
@@ -94,7 +96,7 @@ interface Row{
             try {
                 this.sendInvitations = [];
                 const studentList = await userService.getAllUsers('Student');
-                const Invitations = await invitationservice.getAllInvitations(this.userId).then(response => {
+                const Invitations = await invitationservice.getAllInvitations(localStorage.getItem('id')).then(response => {
                     response.data.forEach(element => {
                         if(element.Accepted != 1)
                             this.sendInvitations.push(element);
@@ -133,36 +135,60 @@ interface Row{
             }
         }
         async handleClick(param: Row){
-            try {
-                const invitation = this.sendInvitations.filter(function(invitation){
-                    if(invitation.Topic === param.topic){
-                        return invitation;
-                    }
-                })
-                this.checkedStudentId = invitation[0].StudentId;
-                this.name = param.name;
-                this.topic = param.topic;
-                this.description = param.description;
-                this.visible = true;
-            } catch (error) {
-                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
-            }
+            const invitation = this.sendInvitations.filter(function(invitation){
+                if(invitation.Topic === param.topic){
+                    return invitation;
+                }
+            })
+            this.checkedStudentId = invitation[0].StudentId;
+            this.name = param.name;
+            this.topic = param.topic;
+            this.description = param.description;
+            this.visible = true;
         }
         async handleOk(e) {
             try {
+                if(e.target.value!=''){ 
+                    this.visible = false;
+                    return;
+                }
+                this.confirmLoading = true;
+                setTimeout(() => {
+                  this.confirmLoading = false;
+                  message.success('Wniosek o współprace został zaakceptowany')
+                  this.visible = false;
+                  this.populate();
+                }, 1000);
+                let topictoUpdate = false;
                 await invitationservice.patchInvitation(this.checkedStudentId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Accepted}]);
-                const promoterTopics = await thesisTopics.getPromoterTopics(this.userId);
-                console.log(promoterTopics.data)
-                message.success('Wniosek o współprace został zaakceptowany')
-                this.visible = false;
-                this.populate();
+                const promoterTopics = await thesisTopics.getPromoterTopics(localStorage.getItem('id'));
+                promoterTopics.data.forEach(element => {
+                  if(element.Topic == this.topic){
+                    topictoUpdate = true;
+                    this.checkedTopicId = element.Id;
+                  }  
+                });
+                await thesisTopics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": ThesisTopicStatus.unavailable}])
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async handleCancel(e) {
             try {
+                if(e.target.value!=''){ 
+                  this.visible = false;
+                  return;
+                }
+                let topictoUpdate = false;
                 await invitationservice.patchInvitation(this.checkedStudentId,[{ "op":"replace", "path":"/Accepted", "value": InvitationStatus.Rejected}]);
+                const promoterTopics = await thesisTopics.getPromoterTopics(localStorage.getItem('id'));
+                promoterTopics.data.forEach(element => {
+                  if(element.Topic == this.topic){
+                    topictoUpdate = true;
+                    this.checkedTopicId = element.Id;
+                  }  
+                });
+                await thesisTopics.patchTopic(this.checkedTopicId,[{ "op":"replace", "path":"/Available", "value": ThesisTopicStatus.available}])
                 message.error("Wniosek o współprace został odrzucony.")
                 this.visible = false;
                 this.populate();

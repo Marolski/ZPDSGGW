@@ -16,7 +16,7 @@
         </div><div style="clear:both;"></div>
       </div>
       <mdb-list-group>        
-        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{item.key}} 
+        <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___ '}} {{item.key}} 
           <a-popconfirm title="Czy na pewno chcesz usunąć plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
             <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Usuń</mdb-btn></a-popconfirm></mdb-list-group-item>
       </mdb-list-group>
@@ -30,7 +30,7 @@ import DocumentService from '../services/DocumentService'
 import PathHelper from '../services/helpers/PathHelper'
 import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
 import IFile from "../types/File";
-import {DocumentKind} from "../enums/Enum";
+import {documentKind, DocumentKind} from "../enums/Enum";
 import { message } from 'ant-design-vue'
 
 const documentService = new DocumentService;
@@ -41,20 +41,20 @@ const pathHelper = new PathHelper;
 })
 export default class DeaneryPromoterVue extends Vue {
     fileList: Array<object> =[]
-    userId: string = localStorage.getItem('id');
     file = '';
     fileListDict: object[] =[];
     clickedItemId = '';
-    selectedKindOfDocs = 0;
+    selectedKindOfDocs = '';
     documentKindList: Array<string>;
     hover = false;
     created(){
-      this.documentKindList = Object.keys(DocumentKind).filter(key => !isNaN(Number(DocumentKind[key])));
+      this.documentKindList = Object.keys(documentKind).map(x=>{return documentKind[x]})
       this.getFiles();
     }
 
     handleChange(e){
-      this.selectedKindOfDocs = e;
+      const number = Object.keys(documentKind).filter(x=>{return e == documentKind[x]})[0];
+      this.selectedKindOfDocs = number;
     }
     async confirm(e) {
       try {
@@ -68,7 +68,7 @@ export default class DeaneryPromoterVue extends Vue {
 
     async getFiles(){
       try {
-        const documentsList = await documentService.getDocumentList(this.userId);
+        const documentsList = await documentService.getDocumentList(localStorage.getItem('id'));
         const documentsListData = documentsList.data;
         this.fileListDict = pathHelper.getPathList(documentsListData);
       } catch (error) {
@@ -78,7 +78,7 @@ export default class DeaneryPromoterVue extends Vue {
     
     async submitFile(event) {
       try {
-        if(this.selectedKindOfDocs==0){
+        if(this.selectedKindOfDocs==''){
           const elementToValidate = document.getElementById('validate');
           elementToValidate.style.borderColor = 'red';
           elementToValidate.style.borderStyle = 'solid';
@@ -96,7 +96,7 @@ export default class DeaneryPromoterVue extends Vue {
         const formData = new FormData();
         formData.append('file',this.file)
         console.log(this.selectedKindOfDocs.valueOf())
-        await documentService.uploadDocument(this.selectedKindOfDocs.valueOf(),false,this.userId,formData);
+        await documentService.uploadDocument(this.selectedKindOfDocs,false,localStorage.getItem('id'),formData);
         this.getFiles();
       } catch (error) {
         message.error("Wystąpił błąd, skontaktuj się z Administratorem");
