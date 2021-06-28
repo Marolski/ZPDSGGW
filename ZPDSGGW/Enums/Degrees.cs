@@ -7,7 +7,8 @@ namespace ZPDSGGW.Enums
 {
     public enum Degrees
     {
-        inz =1,
+        student = 1,
+        inz,
         mgr,
         dr,
         prof,

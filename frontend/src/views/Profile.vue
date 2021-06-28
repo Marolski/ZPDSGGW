@@ -110,17 +110,17 @@ import { InvitationStatus } from "../enums/Enum";
         invitationDesc = '';
         fakeGuid = '00000000-0000-0000-0000-000000000000';
         contact = false;
-        canChangePromoter = false;
+        canChangePromoter = true;
         userSaved = false;
         message = '';
         myProfile: IUser = {
             Id: '',
-            name: '',
-            surname: '',
-            studentNumber: '',
-            degrees: 0,
-            availability: 0,
-            role: '',
+            Name: '',
+            Surname: '',
+            StudentNumber: '',
+            Degrees: 0,
+            Availability: 0,
+            Role: '',
 
         };
         proposal: IProposal = {
@@ -144,12 +144,17 @@ import { InvitationStatus } from "../enums/Enum";
         //methods
         //lifecycles hooks
         created(){
+            console.log(localStorage.getItem('role'));
             this.getData();
         }
         async getData() {
             try {
                 //pobranie danych usera i ustawienie imienia 
-                const userdata = await userService.getUser(localStorage.getItem('id'));
+                const userdata = await userService.getUser(localStorage.getItem('id')).catch(repsonse =>{
+                    console.log(localStorage.getItem('id'))
+                    console.log(localStorage.getItem('token'))
+                    console.log(localStorage.getItem('role'))
+                })
                 this.myProfile = userdata.data;
                 this.studentName = userHelper.getUserName(userdata.data);
 
@@ -158,12 +163,14 @@ import { InvitationStatus } from "../enums/Enum";
                 this.promotersList = promoterList.data;
                 const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
                 if(invitation.data!=""){
+                    console.log(invitation)
                     //tworzenie zaproszenia promotora w zmiennej invitation
                     this.invitation.StudentId = invitation.data.StudentId
                     this.invitation.PromoterId = invitation.data.PromoterId;
                     this.invitation.Topic = invitation.data.Topic;
                     if(invitation.data.Accepted == InvitationStatus.InProgress || invitation.data.Accepted == InvitationStatus.Rejected)
                         this.canChangePromoter = true;
+                    else this.canChangePromoter = false;
                     
                     //ustawienie imienia pormotora
                     if(this.invitation.PromoterId!=this.fakeGuid){
@@ -208,9 +215,16 @@ import { InvitationStatus } from "../enums/Enum";
         }
         async createInvitation(){
           try { 
+              const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
+                if(invitation.data.Accepted == InvitationStatus.Accepted){
+                    message.info('Współpraca z promotorem została już nawiązana.');
+                    this.contact = false;
+                    return;
+                }
               //jeśli zmienna zaproszenia jest pusta pokaz błąd
-              if(this.invitation.PromoterId ==''|| this.invitation.Topic==''){
+              if(this.invitation.PromoterId ==''|| this.invitation.Topic=='' || this.invitation.PromoterId == this.fakeGuid){
                     message.error("Nie można wysłać zaproszenia do współpracy. Brak danych");
+                    this.contact = false;
                     return;
                 }
                 //tworzy zaproszenie albo zwraca false

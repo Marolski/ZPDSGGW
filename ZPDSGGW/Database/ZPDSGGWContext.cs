@@ -15,5 +15,15 @@ namespace ZPDSGGW.Database
         public DbSet<ThesisTopic> ThesisTopics { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Message> Message { get; set; }
+
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Proposal>().ToTable("Proposal");
+        //    modelBuilder.Entity<InvitationPromoter>().ToTable("InvitationPromoter");
+        //    modelBuilder.Entity<File>().ToTable("File");
+        //    modelBuilder.Entity<ThesisTopic>().ToTable("ThesisTopic");
+        //    modelBuilder.Entity<User>().ToTable("User");
+        //    modelBuilder.Entity<Message>().ToTable("Message");
+        //}
     }
 }

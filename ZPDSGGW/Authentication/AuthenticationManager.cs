@@ -15,11 +15,6 @@ namespace ZPDSGGW.Authentication
 {
     public class AuthenticationManager : IAuthenticationManager
     {
-        private List<User> _users = new List<User>
-        {
-            new User{Id = Guid.NewGuid(), Name= "Marcin", Surname="Brzoska", Username="test", Password="1qaz@WSX", Role=Roles.Student},
-            new User{Id = Guid.NewGuid(), Name= "Andrzej", Surname="Ogarniacz", Username="test2", Password="1qaz@WSX", Role=Roles.Promoter}
-        };
         private readonly Key _key;
         private readonly IRepositoryUser _repository;
 

@@ -80,6 +80,7 @@ interface Row{
         onlyTopic: boolean;
         checkedTopicId: string;
         thesisTopicName: any = '';
+        fakeGuid = '00000000-0000-0000-0000-000000000000';
         myTopic: boolean;
         contact: any = false;
         invitationDesc: any = '';
@@ -219,7 +220,11 @@ interface Row{
           }
         }
         async createInvitation(){
-          try {            
+          try {   
+            if(this.invitation.PromoterId ==''|| this.invitation.Topic=='' || this.invitation.PromoterId == this.fakeGuid){
+                message.error("Nie można wysłać zaproszenia do współpracy. Brak danych");
+                return;
+            }         
             const isExist = await invitationHelper.updateInvitationStatus(this.checkedTopicId);
             this.contact = false;
             if(isExist==true){
