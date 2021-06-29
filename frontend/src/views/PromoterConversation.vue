@@ -52,7 +52,6 @@
         </a-list-item>
       </a-list>
     </div>
-    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 <script lang="ts">
@@ -66,7 +65,7 @@ import UserHelper from '../services/helpers/UserHelper';
 import UserService from '../services/UserService';
 import DateHelper from '../services/helpers/DateHelper'
 import PathHelepr from '../services/helpers/PathHelper';
-import ProposalService from '../services/ProposalService';
+import { message } from 'ant-design-vue'
 import IUser from '../types/User';
 import InvitationService from '../services/InvitationService';
 const messageService = new MessageService();
@@ -86,7 +85,6 @@ export default class PromoterMessages extends Vue{
   moment;
   message = "";
   userSaved = false;
-  userId = localStorage.getItem('id');
   file= '';
   fileName = '';
   pathDictionary = new Map();
@@ -103,16 +101,20 @@ export default class PromoterMessages extends Vue{
     }
 
     async getStudentList(){
-      const invitations = await invitationService.getAllInvitations(this.userId);
-      const studentIdList = [];
-      invitations.data.forEach(element => {
-        if(element.Accepted == 3)
-          studentIdList.push(element.StudentId)
-      });
-      const allUsers = await userService.getAllUsers('Student');
-      for(const element of studentIdList){
-        const user  = await userService.getUser(element);
-        this.studentList.push(user.data);
+      try {
+        const invitations = await invitationService.getAllInvitations(localStorage.getItem('id'));
+        const studentIdList = [];
+        invitations.data.forEach(element => {
+          if(element.Accepted == 3)
+            studentIdList.push(element.StudentId)
+        });
+        const allUsers = await userService.getAllUsers('Student');
+        for(const element of studentIdList){
+          const user  = await userService.getUser(element);
+          this.studentList.push(user.data);
+        }
+      } catch (error) {
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }
     }
 
@@ -129,8 +131,7 @@ export default class PromoterMessages extends Vue{
                 fileLink.click();
           });
       } catch (error) {
-        this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }
     }
     submitFile(e){
@@ -157,8 +158,7 @@ export default class PromoterMessages extends Vue{
           this.comments.push(newComment)
         }
       } catch (error) {
-        this.message = "Nie udało się załadowac wiadomości. Skontaktuj się z administratorem";
-        this.userSaved = true;
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }
     }
 
@@ -168,12 +168,11 @@ export default class PromoterMessages extends Vue{
         if(this.studentId==''){
           const elementToValidate = document.getElementById('validate');
           elementToValidate.classList.add('validate');
-          this.message = 'Wybierz studenta do którego chcesz wysłać wiadomość.'
-          this.userSaved = true;
+          message.error('Wybierz studenta do którego chcesz wysłać wiadomość.');
           return
         }
         this.submitting = true;
-        const author = await userService.getUser(this.userId);
+        const author = await userService.getUser(localStorage.getItem('id'));
         const authorName = userHelper.getUserName(author.data)
         setTimeout(() => {
           this.submitting = false;
@@ -191,22 +190,25 @@ export default class PromoterMessages extends Vue{
         const formData = new FormData();
         formData.append('file',this.file)
         console.log(this.studentId)
-        await messageService.postMessage(formData, this.studentId, this.userId, this.value);
+        await messageService.postMessage(formData, this.studentId, localStorage.getItem('id'), this.value);
         this.appendDict(this.studentId);
       } catch (error) {
-        this.message = "Nie udało się wysłać wiadomości. Skontaktuj się z administratorem";
-        this.userSaved = true;
+        message.error("Nie udało się wysłać wiadomości. Skontaktuj się z administratorem");
       }
     }
     handleChange(e) {
       this.value = e.target.value;
     }
     async appendDict(id: string){
-      const messages = await messageService.getAllRecivierMessage(id);
+      try {
+        const messages = await messageService.getAllRecivierMessage(id);
         for(const element of messages.data){
           const name = pathHelper.getName(element.Path);
           this.pathDictionary.set(name,element.Id);
         }
+      } catch (error) {
+        message.error("Wystąpił błąd, skontaktuj się z administratorem");
+      }
     }
 
 }

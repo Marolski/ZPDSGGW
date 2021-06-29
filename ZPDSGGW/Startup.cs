@@ -18,6 +18,9 @@ using ZPDSGGW.Commands;
 using ZPDSGGW.Database;
 using ZPDSGGW.Repository;
 using System.Linq;
+using ZPDSGGW.Data;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ZPDSGGW
 {
@@ -29,11 +32,21 @@ namespace ZPDSGGW
         }
 
         public IConfiguration Configuration { get; }
+        string allowSpecificOrigins = "_allowSpecificOrigins";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy(allowSpecificOrigins, builder =>
+                 {
+                     builder.WithOrigins("http://localhost:8081")
+                     .AllowAnyHeader()
+                     .AllowAnyMethod();
+                 });
+            });
             services.AddControllers().AddNewtonsoftJson(s =>
             {
                 s.SerializerSettings.ContractResolver = new DefaultContractResolver();
@@ -62,6 +75,15 @@ namespace ZPDSGGW
             })
             .AddJwtBearer(x =>
             {
+                x.Events = new JwtBearerEvents()
+                {
+                    OnTokenValidated = opt =>
+                    {
+                        var appIdentity = new ClaimsIdentity(JwtBearerDefaults.AuthenticationScheme);
+                        opt.Principal.AddIdentity(appIdentity);
+                        return Task.CompletedTask;
+                    }
+                };
                 x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
@@ -91,20 +113,20 @@ namespace ZPDSGGW
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
+
+            app.UseHttpsRedirection();
 
             app.UseAuthentication();
 
             app.UseAuthorization();
-
-            app.UseCors(
-                builder => builder
-                .WithOrigins("http://localhost:8080")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                );
 
             IdentityModelEventSource.ShowPII = true;
 
@@ -114,6 +136,13 @@ namespace ZPDSGGW
             {
                 endpoints.MapControllers();
             });
+
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var services = serviceScope.ServiceProvider;
+                var context = serviceScope.ServiceProvider.GetRequiredService<ZPDSGGWContext>();
+                DbInitializer.Initialize(context, services);
+            }
 
             app.UseSwagger();
 

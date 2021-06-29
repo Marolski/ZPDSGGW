@@ -1,27 +1,35 @@
 <template>
   <div class="tableStyle">
+      <div style="padding-top: 50px;">
+      <a-radio-group default-value="a" size="large" @change="chngeUserList">
+        <a-radio-button value="Promoter">
+          Promotorzy
+        </a-radio-button>
+        <a-radio-button value="Student">
+          Studenci
+        </a-radio-button>
+      </a-radio-group>
+    </div>
     <div style="padding-top: 50px;"></div>
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
     <template>
         <div class="container">
             <div class="large-12 medium-12 small-12 cell">
                 <mdb-list-group>        
-                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{item.key}} 
+                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___  '}}{{item.key}} 
                         <a-popconfirm title="Czy na pewno chcesz zatwierdzić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
                             <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
                         </a-popconfirm>
 
-                        <a-popconfirm title="Czy na pewno chcesz odrzucić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
+                        <a-popconfirm title="Czy na pewno chcesz odrzucić plik?" ok-text="Tak" cancel-text="Nie" @confirm="reject(item.value)" style="z-index: 60;">
                             <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Odrzuć</mdb-btn>
                         </a-popconfirm>
                         
                         </mdb-list-group-item>
                 </mdb-list-group>
             </div>
-            <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
         </div>
     </template>
-    <md-snackbar :md-active.sync="userSaved">{{message}}</md-snackbar>
   </div>
 </template>
 
@@ -34,10 +42,13 @@ import IUser from "../types/User";
 import DocumentService from "../services/DocumentService";
 import PathHelper from "../services/helpers/PathHelper";
 import IFile from '../types/File'
+import { message } from 'ant-design-vue'
+import UserHelper from "../services/helpers/UserHelper";
 
 const userService = new UserService();
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
+const userHelper = new UserHelper;
 interface Row{
   name: string;
   studentNumber: string;
@@ -47,7 +58,6 @@ interface Row{
         components:{mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  }
     })
     export default class UserList extends Vue {
-        userId: string = localStorage.getItem('id');
         visible = false;
         confirmLoading = false;
         topic: any = '';
@@ -56,9 +66,7 @@ interface Row{
         name: any = '';
         fileListDict: object[] =[];
         checkedUser = {};
-        message = "";
         file = '';
-        userSaved = false;
         userList: Array<IUser> = [];
         data = {
           rows: [],    
@@ -83,12 +91,17 @@ interface Row{
           this.data = newdata
         }
         created(){
-          this.getUsers();
+          this.getUsers("Student");
+        }
+
+        chngeUserList(e){
+            this.getUsers(e.target.value);
         }
         
-        async getUsers(){
+        async getUsers(users){
             try {
-                const userList = await userService.getAllUsers('Student');
+                this.fileListDict = [];
+                const userList = await userService.getAllUsers(users);
                 this.userList = userList.data;
                 const rows = [];
                 const columns = this.colums;
@@ -98,37 +111,35 @@ interface Row{
                 };
                 this.userList.forEach(element => {
                     const row ={
-                        name: `${element.Name} ${element.Surname}`,
+                        name: userHelper.getUserName(element),
                         studentNumber: element.StudentNumber
                     };
                     rows.push(row)
               });
               this.setRows = newDataObject;
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async handleClick(param: Row){
             try {
                 this.userList.forEach(element => {
-                    if(`${element.Name} ${element.Surname}` == param.name && element.StudentNumber == param.studentNumber)
+                    if(userHelper.getUserName(element) == param.name && element.StudentNumber == param.studentNumber)
                         this.checkedUserId = element.Id
                 });
                 this.getFiles(this.checkedUserId)
             } catch (error) {
-                console.log(error)
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
 
         async getFiles(userId){
             try {
-                const documentsList = await documentService.getDocumentList(userId);
+                const documentsList = await documentService.getDocumentList(localStorage.getItem('id'));
                 const documentsListData = documentsList.data;
                 this.fileListDict = pathHelper.getPathList(documentsListData);
             } catch (error) {
-                this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         
@@ -150,19 +161,26 @@ interface Row{
                 });
                 }
             } catch (error) {
-                this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
         async confirm(e) {
             try {
-                console.log(e)
                 await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": 1}])
-                this.$message.success('Plik został usunięty');
+                message.success('Plik został zaakceptowany');
                 this.getFiles(this.checkedUserId)
             } catch (error) {
-                this.message = "Wystąpił błąd, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
+            }
+        }
+
+        async reject(e) {
+            try {
+                await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": 0}])
+                message.error('Plik został odrzucony');
+                this.getFiles(this.checkedUserId)
+            } catch (error) {
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
         }
 

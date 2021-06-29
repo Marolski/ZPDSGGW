@@ -15,10 +15,17 @@ export enum ProposalStatus{
 }
 
 export enum DocumentKind{
-    praca =1,
-    wniosek,
+    thesis =1,
+    proposal,
     paymentConfirmation,
     Inne
+}
+
+export const documentKind = {
+    1: "Praca ",
+    2: "Wniosek",
+    3: "Potwierdzenie płatności",
+    4: "Inne"
 }
 
 export enum Roles{
@@ -42,4 +49,32 @@ export enum ThesisTopicStatus{
     available =1,
     unavailable,
     reserved
+}
+export const invitationProposalStatus = {
+    1: "W przygotowaniu", 
+    2: "Wysłany", 
+    3: "Zaakceptowany",
+    4: "Odrzucony"
+}
+
+
+
+export const degrees = {
+    1: "inż.",
+    2: "mgr",
+    3: "dr",
+    4: "prof.",
+    5: "dr inż.",
+    6: "dr hab.",
+    7: "dr hab. inż.",
+    8: "mgr inż.",
+    9: "dr hab. prof. nadzw. SGGW",
+    10: "dr hab. prof. SGGW",
+    11: "prof. dr hab.",
+}
+
+export const thesisTopicStatus = {
+    1: "Dostępny",
+    2: "Niedostępny",
+    3: "Zarezerwowany",
 }

@@ -6,7 +6,7 @@
           <md-icon>menu</md-icon>
         </md-button>
         <span class="md-title">System zarządzania pracą dyplomową</span>
-
+        <a-button style="margin: 0;position:absolute; right: 50px" type="default" shape="circle" icon="poweroff" @click="logout" />
       </md-toolbar>
 
       <md-drawer :md-active.sync="showNavigation" md-swipeable>
@@ -46,10 +46,6 @@
             <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryPromoter">Dziekanat</router-link></span>
           </md-list-item>
 
-          <md-list-item>
-            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/deaneryView">Dokumenty</router-link></span>
-          </md-list-item>
-
         </md-list>
 
         <md-list v-if="userRole == 'Deanery'">
@@ -67,13 +63,23 @@
 </template>
 
 <script>
+import router from './router';
   export default {
     name: 'Temporary',
+    components: { },
     data: () => ({
       showNavigation: false,
       showSidepanel: false,
       userRole: localStorage.getItem('role')
-    })
+    }),
+    methods: {
+      logout(){
+        localStorage.clear();
+        setTimeout(() => {
+                router.push('/')
+            }, 500);
+      }
+    }
   }
 </script>
 
@@ -117,5 +123,9 @@
 
   .md-content {
     padding: 8px;
+  }
+  .logout{
+    position: absolute;
+    right: 10px;
   }
 </style>

@@ -1,4 +1,5 @@
 import IModel from '../../types/File';
+import {documentKind, DocumentKind} from '../../enums/Enum'
 export default class PathHelepr{
     getPathList(fileList: Array<IModel>){
         const fileDict: object[] = [];
@@ -20,7 +21,7 @@ export default class PathHelepr{
             fileDict.push({
                 key: nameStrictly,
                 value: element,
-                kind: kind
+                kind: documentKind[DocumentKind[kind]]
             })        
         });
         return fileDict;

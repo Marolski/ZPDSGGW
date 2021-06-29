@@ -16,13 +16,10 @@ namespace ZPDSGGW.Models
         public string Name { get; set; }
         [Required]
         public string Surname { get; set; }
-        [Required]
         [AllowNull]
         public string StudentNumber { get; set; }
-        [Required]
         [AllowNull]
         public Degrees Degrees { get; set; }
-        [Required]
         [AllowNull]
         public int Availability { get; set; }
         [Required]

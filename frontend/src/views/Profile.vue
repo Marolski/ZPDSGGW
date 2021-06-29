@@ -8,8 +8,8 @@
         <mdb-card-text>Imie: {{myProfile.Name}}</mdb-card-text>
         <mdb-card-text>Nazwisko:{{myProfile.Surname}}</mdb-card-text>
         <mdb-card-text>Numer indeksu: {{myProfile.StudentNumber}}</mdb-card-text>
-        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="invitation.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" >Znajdź promotora</mdb-btn></div><div style="clear: both;"></div>
-        <mdb-card-text class="cardText">Temat pracy: </mdb-card-text><div class="cardText"><a v-if="invitation.Topic">{{invitation.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary">Przeglądaj propozycje</mdb-btn></router-link></div>
+        <mdb-card-text class="cardText">Promotor: </mdb-card-text><div class="cardText"><a v-if="invitation.PromoterId!=''">{{promoterName}}</a><br/><mdb-btn color="primary" @click.native="modal = true" v-if="canChangePromoter">Znajdź promotora</mdb-btn></div><div style="clear: both;"></div>
+        <mdb-card-text class="cardText">Temat pracy: </mdb-card-text><div class="cardText"><a v-if="invitation.Topic">{{invitation.Topic}}</a><br/><router-link to="/topics"><mdb-btn color="primary" v-if="canChangePromoter">Znajdź temat</mdb-btn></router-link></div>
         </mdb-card-body>
     </mdb-card>
     <div>
@@ -67,6 +67,8 @@ import ProposalHelper from '../services/helpers/ProposalHelper';
 import InvitationHelper from "../services/helpers/InvitationHelper";
 import IInvitation from '../types/Invitation';
 import InvitationService from "../services/InvitationService";
+import { message } from 'ant-design-vue'
+import { InvitationStatus } from "../enums/Enum";
 
     const userService = new UserService();
     const proposalService = new ProposalService();
@@ -100,24 +102,25 @@ import InvitationService from "../services/InvitationService";
     })
     export default class MyProfile extends Vue{
         //data
-        userId: string = localStorage.getItem('id');
         showError: boolean | any = false;
         promotersList: Array<IUser> = [];
         modal: any = false;
         promoterName = '';
         studentName = '';
         invitationDesc = '';
+        fakeGuid = '00000000-0000-0000-0000-000000000000';
         contact = false;
+        canChangePromoter = true;
         userSaved = false;
         message = '';
         myProfile: IUser = {
             Id: '',
-            name: '',
-            surname: '',
-            studentNumber: '',
-            degrees: 0,
-            availability: 0,
-            role: '',
+            Name: '',
+            Surname: '',
+            StudentNumber: '',
+            Degrees: 0,
+            Availability: 0,
+            Role: '',
 
         };
         proposal: IProposal = {
@@ -141,51 +144,62 @@ import InvitationService from "../services/InvitationService";
         //methods
         //lifecycles hooks
         created(){
+            console.log(localStorage.getItem('role'));
             this.getData();
         }
         async getData() {
             try {
                 //pobranie danych usera i ustawienie imienia 
-                const userdata = await userService.getUser(this.userId);
+                const userdata = await userService.getUser(localStorage.getItem('id')).catch(repsonse =>{
+                    console.log(localStorage.getItem('id'))
+                    console.log(localStorage.getItem('token'))
+                    console.log(localStorage.getItem('role'))
+                })
                 this.myProfile = userdata.data;
                 this.studentName = userHelper.getUserName(userdata.data);
 
                 //pobranie listy promotorów
                 const promoterList = await userService.getAllUsers('Promoter');             
                 this.promotersList = promoterList.data;
-              
-                const invitation = await invitationservice.getInvitation(this.userId);
-                console.log(invitation)
+                const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
                 if(invitation.data!=""){
+                    console.log(invitation)
                     //tworzenie zaproszenia promotora w zmiennej invitation
                     this.invitation.StudentId = invitation.data.StudentId
                     this.invitation.PromoterId = invitation.data.PromoterId;
                     this.invitation.Topic = invitation.data.Topic;
+                    if(invitation.data.Accepted == InvitationStatus.InProgress || invitation.data.Accepted == InvitationStatus.Rejected)
+                        this.canChangePromoter = true;
+                    else this.canChangePromoter = false;
                     
                     //ustawienie imienia pormotora
-                    if(this.invitation.PromoterId!='00000000-0000-0000-0000-000000000000'){
+                    if(this.invitation.PromoterId!=this.fakeGuid){
                         const promoterUserData = await userService.getUser(this.invitation.PromoterId);
                         this.promoterName = userHelper.getUserName(promoterUserData.data)
                     }    
                 }
                 else{
-                    this.invitation.StudentId = this.userId;
-                    this.invitation.PromoterId = '00000000-0000-0000-0000-000000000000';
+                    this.invitation.StudentId = localStorage.getItem('id');
+                    this.invitation.PromoterId = this.fakeGuid;
                     await invitationservice.postInvitation(this.invitation);
                 }
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z administratorem");
             }
         }
         //aktualizowanie promotora z listy promotorów
         async updatePromoter(promoter: IUser){
             try {
                 //pobranie zaproszenia
-                const invitation = await invitationservice.getInvitation(this.userId);
+                const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
+                if(invitation.data.Accepted == InvitationStatus.Send){
+                    message.info('Aktualnie nie możesz zmienić promotora');
+                    this.modal = false;
+                    return;
+                }
                 if(invitation.data != '')
                 //jesli zaproszenie istanieje to tylko zmiana promotora
-                    await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/PromoterId", "value": promoter.Id}]);
+                    await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/PromoterId", "value": promoter.Id}]);
                 //podmiana id promotora 
                 this.proposal.PromoterId = promoter.Id;
 
@@ -196,33 +210,35 @@ import InvitationService from "../services/InvitationService";
                 //rerender komponentu
                 this.getData();
             } catch (error) {
-                this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                this.userSaved = true;
+                message.error("Wystąpił błąd, skontaktuj się z administratorem");
             }
         }
         async createInvitation(){
           try { 
+              const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
+                if(invitation.data.Accepted == InvitationStatus.Accepted){
+                    message.info('Współpraca z promotorem została już nawiązana.');
+                    this.contact = false;
+                    return;
+                }
               //jeśli zmienna zaproszenia jest pusta pokaz błąd
-              if(this.invitation.PromoterId ==''|| this.invitation.Topic==''){
-                    this.message = "Nie można wysłać zaproszenia do współpracy. Brak danych";
-                    this.userSaved = true;
+              if(this.invitation.PromoterId ==''|| this.invitation.Topic=='' || this.invitation.PromoterId == this.fakeGuid){
+                    message.error("Nie można wysłać zaproszenia do współpracy. Brak danych");
+                    this.contact = false;
                     return;
                 }
                 //tworzy zaproszenie albo zwraca false
                 const isExist = await invitationHelper.updateInvitationStatus('');
                 if(isExist==true){
-                    this.message = "Przesłałeś już zaproszenie do współpracy z promotorem";
-                    this.userSaved = true;
+                    message.info("Przesłałeś już zaproszenie do współpracy z promotorem");
                 }
                 else{
-                    await invitationservice.patchInvitation(this.userId,[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
-                    this.message = "Wysłałeś zaproszenie do promotora";
-                    this.userSaved = true;
+                    await invitationservice.patchInvitation(localStorage.getItem('id'),[{ "op":"replace", "path":"/Description", "value": this.invitationDesc}])
+                    message.success("Wysłałeś zaproszenie do promotora");
                 }
                 this.contact = false;
             } catch (error) {
-                    this.message = "Wystąpił problem, skontaktuj się z Administratorem";
-                    this.userSaved = true;
+                    message.error("Wystąpił błąd, skontaktuj się z administratorem");
             }
         }
         //watchers
