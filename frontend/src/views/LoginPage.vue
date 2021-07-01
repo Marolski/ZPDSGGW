@@ -39,20 +39,28 @@
     import Authenticate from '../services/AuthenticateService';
     import router from '../router/index'
     import { message } from 'ant-design-vue';
+    import { sha256 } from 'js-sha256';
     const auth = new Authenticate();
+    interface Login{
+      Username: string;
+      Password: string;
+    }
 @Component({
         name: 'LoginPage',
         components:{}
     })
     export default class LoginPage extends Vue{
         loading: any = false;
-        login: object = {
+        login: Login = {
             Username: "",
             Password: "",
         }
         async auth() {
             // your code to login user
             // this is only for example of loading
+            console.log(this.login)
+            const hashedPass = sha256(this.login.Password);
+            this.login.Password = hashedPass;
             this.loading = true;
             const res = await auth.authorization(this.login).catch(response =>{
             setTimeout(() =>{
