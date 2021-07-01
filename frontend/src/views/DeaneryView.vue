@@ -1,3 +1,4 @@
+@ts-ignore
 <template>
   <div class="tableStyle">
       <div style="padding-top: 50px;">
@@ -87,7 +88,7 @@ interface Row{
         public get setRows(){
           return this.data
         }
-        public set setRows(newdata: object){
+        public set setRows(newdata: {rows}){
           this.data = newdata
         }
         created(){

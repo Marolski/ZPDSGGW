@@ -11,7 +11,6 @@ export default class InvitationHelper{
 
     async updateInvitationStatus(checkedTopicId: string){
         const invitationExist = await invitationservice.getInvitation(this.userId)
-        console.log(this.userId);
         if(invitationExist.data.Accepted==InvitationStatus.InProgress || invitationExist.data.Accepted==InvitationStatus.Rejected){
             if(checkedTopicId!='')
                 await topics.patchTopic(checkedTopicId,[{ "op":"replace", "path":"/Available", "value": ThesisTopicStatus.reserved}])

@@ -1,3 +1,4 @@
+@ts-ignore
 <template>
   <div class="container">
     <div class="large-12 medium-12 small-12 cell">
@@ -11,7 +12,7 @@
           </a-select>
         </blockquote>
         <div class="file-input">
-          <input type="file" id="file" class="file" ref="file" v-on:change="submitFile()">
+          <input type="file" id="file" class="file" ref="file" @change="submitFile">
           <label for="file">Wybierz plik</label>
         </div><div style="clear:both;"></div>
       </div>
@@ -84,11 +85,10 @@ export default class Documents extends Vue {
           elementToValidate.style.borderStyle = 'solid';
           elementToValidate.style.borderWidth = '1px';
           elementToValidate.style.borderRadius = '4px'
-          console.log(elementToValidate)
           message.info('Wybierz rodzaj dokumentu')
           return
         }
-        this.file = this.$refs.file.files[0];
+        this.file = event.target.files[0];
         if(this.file==''){
           message.info("Plik nie został wybrany");
           return;

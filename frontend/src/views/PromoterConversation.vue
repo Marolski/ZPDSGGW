@@ -18,7 +18,7 @@
         </a-form-item>
         <div style="float: left">
           <div class="ant-btn ant-btn-primary">
-            <input type="file" id="file" class="file" ref="file" v-on:change="submitFile()">
+            <input type="file" id="file" class="file" ref="file" @change="submitFile">
             <label for="file" style="cursor: pointer; padding-top:4px">Załącz plik</label>
           </div>
           <a-form-item>
@@ -135,8 +135,8 @@ export default class PromoterMessages extends Vue{
       }
     }
     submitFile(e){
-      this.file = this.$refs.file.files[0];
-      this.fileName = this.file.name;
+      this.file = e.target.files[0];
+      this.fileName = e.target.files[0];
     }
     async getMessages(e){
       try {
