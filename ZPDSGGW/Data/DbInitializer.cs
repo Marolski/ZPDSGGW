@@ -14,6 +14,21 @@ namespace ZPDSGGW.Data
 {
     public class DbInitializer
     {
+        public static String sha256_hash(string value)
+        {
+            StringBuilder Sb = new StringBuilder();
+
+            using (var hash = SHA256.Create())
+            {
+                Encoding enc = Encoding.UTF8;
+                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+
+                foreach (Byte b in result)
+                    Sb.Append(b.ToString("x2"));
+            }
+
+            return Sb.ToString();
+        }
         public static void Initialize(ZPDSGGWContext context, IServiceProvider services)
         {
             var logger = services.GetRequiredService<ILogger<DbInitializer>>();
@@ -28,38 +43,34 @@ namespace ZPDSGGW.Data
 
             var users = new User[]
             {
-            new User{Id= Guid.Parse("a06c28f0-829b-481a-9ade-a10fa74a63b8"), Name ="Marcin", Surname="Student1", StudentNumber="123456", Username="student1", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("89e40023-1a9a-41b0-b290-28762d19b5d8"), Name ="Kacper", Surname="Student2", StudentNumber="145823", Username="student2", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("37b17861-bae6-4708-a007-bb5e3461c19b"), Name ="Maciek", Surname="Student3", StudentNumber="156985", Username="student3", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("bef9224e-1e52-4fda-b50a-3f4c0e94986b"), Name ="Bartosz", Surname="Student4", StudentNumber="236985", Username="student4", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("d5a848b3-5d2e-4b90-b920-35512d868aff"), Name ="Jan", Surname="Student5", StudentNumber="269843", Username="student5", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("1f2868a9-f14c-425b-847f-7e731ac3dacc"), Name ="Antoni", Surname="Student6", StudentNumber="232694", Username="student6", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("1a131ef5-3ce9-462e-9b45-c6817dccd7e8"), Name ="Michał", Surname="Student7", StudentNumber="129658", Username="student7", Password="1qaz@WSX", Role="Student" },
-            new User{Id= Guid.Parse("6891709b-9c35-4b47-bcb5-a2f917466705"), Name ="Marek", Surname="Student8", StudentNumber="369517", Username="student8", Password="1qaz@WSX", Role="Student" }
+            new User{Id= Guid.Parse("a06c28f0-829b-481a-9ade-a10fa74a63b8"), Name ="Marcin", Surname="Student1", StudentNumber="123456", Username="student1",   Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("89e40023-1a9a-41b0-b290-28762d19b5d8"), Name ="Kacper", Surname="Student2", StudentNumber="145823", Username="student2",   Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("37b17861-bae6-4708-a007-bb5e3461c19b"), Name ="Maciek", Surname="Student3", StudentNumber="156985", Username="student3",   Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("bef9224e-1e52-4fda-b50a-3f4c0e94986b"), Name ="Bartosz", Surname="Student4", StudentNumber="236985", Username="student4",  Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("d5a848b3-5d2e-4b90-b920-35512d868aff"), Name ="Jan", Surname="Student5", StudentNumber="269843", Username="student5",      Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("1f2868a9-f14c-425b-847f-7e731ac3dacc"), Name ="Antoni", Surname="Student6", StudentNumber="232694", Username="student6",   Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("1a131ef5-3ce9-462e-9b45-c6817dccd7e8"), Name ="Michał", Surname="Student7", StudentNumber="129658", Username="student7",   Password=sha256_hash("1qaz@WSX"), Role="Student" },
+            new User{Id= Guid.Parse("6891709b-9c35-4b47-bcb5-a2f917466705"), Name ="Marek", Surname="Student8", StudentNumber="369517", Username="student8",    Password=sha256_hash("1qaz@WSX"), Role="Student" }
             };
             foreach (User s in users)
             {
-                byte[] bytes = Encoding.ASCII.GetBytes(s.Password);
-                s.Password = Encoding.ASCII.GetString(hash.ComputeHash(bytes));
                 context.User.Add(s);
             }
             context.SaveChanges();
 
             var promoters = new User[]
             {
-            new User{Id= Guid.Parse("42575545-8931-4f10-9fb6-7a17ef2915b9"), Name ="Andrzej", Surname="Promotor1", Username="promotor1", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.dr },
-            new User{Id= Guid.Parse("3a627291-c9fc-4e48-8ee8-e966edf27318"), Name ="Kacper", Surname="Promotor2", Username="promotor2", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.drHab },
-            new User{Id= Guid.Parse("5b6b3673-c6e1-4565-9d0b-65fedf905794"), Name ="Karol", Surname="Promotor3", Username="promotor3", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.drMgr },
-            new User{Id= Guid.Parse("734c295c-3ebe-478c-b129-7c95e108dc4c"), Name ="Bartosz", Surname="Promotor4", Username="promotor4", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.prof },
-            new User{Id= Guid.Parse("fb0f1566-cb66-48e4-8428-aa0f486ad579"), Name ="Jan", Surname="Promotor5", Username="promotor5", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.drInz },
-            new User{Id= Guid.Parse("7d89e79c-004c-417f-9320-ca4db26f633f"), Name ="Antoni", Surname="Promotor6", Username="promotor6", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.prof },
-            new User{Id= Guid.Parse("0df0bbd9-2303-40b1-8daf-a3ac7d3d02a8"), Name ="Michał", Surname="Promotor7", Username="promotor7", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.mgr },
-            new User{Id= Guid.Parse("4b0dd23c-b78e-436a-8971-bd82e1684d5d"), Name ="Marek", Surname="Promotor8", Username="promotor8", Password="1qaz@WSX", Role="Promoter", Availability= 0, Degrees = Degrees.dr }
+            new User{Id= Guid.Parse("42575545-8931-4f10-9fb6-7a17ef2915b9"), Name ="Andrzej", Surname="Promotor1", Username="promotor1",Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.dr },
+            new User{Id= Guid.Parse("3a627291-c9fc-4e48-8ee8-e966edf27318"), Name ="Kacper", Surname="Promotor2", Username="promotor2", Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.drHab },
+            new User{Id= Guid.Parse("5b6b3673-c6e1-4565-9d0b-65fedf905794"), Name ="Karol", Surname="Promotor3", Username="promotor3",  Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.drMgr },
+            new User{Id= Guid.Parse("734c295c-3ebe-478c-b129-7c95e108dc4c"), Name ="Bartosz", Surname="Promotor4", Username="promotor4",Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.prof },
+            new User{Id= Guid.Parse("fb0f1566-cb66-48e4-8428-aa0f486ad579"), Name ="Jan", Surname="Promotor5", Username="promotor5",    Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.drInz },
+            new User{Id= Guid.Parse("7d89e79c-004c-417f-9320-ca4db26f633f"), Name ="Antoni", Surname="Promotor6", Username="promotor6", Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.prof },
+            new User{Id= Guid.Parse("0df0bbd9-2303-40b1-8daf-a3ac7d3d02a8"), Name ="Michał", Surname="Promotor7", Username="promotor7", Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.mgr },
+            new User{Id= Guid.Parse("4b0dd23c-b78e-436a-8971-bd82e1684d5d"), Name ="Marek", Surname="Promotor8", Username="promotor8",  Password=sha256_hash("1qaz@WSX"), Role="Promoter", Availability= 0, Degrees = Degrees.dr }
             };
             foreach (User c in promoters)
             {
-                byte[] bytes = Encoding.ASCII.GetBytes(c.Password);
-                c.Password = Encoding.ASCII.GetString(hash.ComputeHash(bytes));
                 context.User.Add(c);
             }
             context.SaveChanges();
