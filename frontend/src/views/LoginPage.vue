@@ -49,6 +49,10 @@
         name: 'LoginPage',
         components:{}
     })
+    interface Icredential{
+      Password:string,
+      Username:string
+    };
     export default class LoginPage extends Vue{
         loading: any = false;
         login: Login = {
