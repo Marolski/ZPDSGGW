@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "apis1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/ZPDSGGWapi/apis/ZPDSGGW",
+      "type": "apis.azure",
+      "apiEndpoint": "https://zpdsggwapi.azure-api.net/"
+    },
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/zpdsggwdbserver2021/databases/ZPDSGGW_db",
+      "type": "mssql.azure",
+      "connectionId": "ZPDSGGWConnection",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}
