@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using ZPDSGGW.Database;
 using ZPDSGGW.Enums;
 using ZPDSGGW.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ZPDSGGW.Data
 {
@@ -16,7 +18,7 @@ namespace ZPDSGGW.Data
         {
             var logger = services.GetRequiredService<ILogger<DbInitializer>>();
             context.Database.EnsureCreated();
-
+            SHA256 hash = SHA256.Create();
             // Look for any users.
             if (context.User.Any())
             {
@@ -37,6 +39,8 @@ namespace ZPDSGGW.Data
             };
             foreach (User s in users)
             {
+                byte[] bytes = Encoding.ASCII.GetBytes(s.Password);
+                s.Password = Encoding.ASCII.GetString(hash.ComputeHash(bytes));
                 context.User.Add(s);
             }
             context.SaveChanges();
@@ -54,6 +58,8 @@ namespace ZPDSGGW.Data
             };
             foreach (User c in promoters)
             {
+                byte[] bytes = Encoding.ASCII.GetBytes(c.Password);
+                c.Password = Encoding.ASCII.GetString(hash.ComputeHash(bytes));
                 context.User.Add(c);
             }
             context.SaveChanges();
