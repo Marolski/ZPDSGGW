@@ -18,13 +18,13 @@
         <md-button to="/documents" class="md-primary md-raised">Dokumenty</md-button>
     </div>
     <div>
-        <mdb-modal :show="modal" @close="modal = false">
+        <mdb-modal :show="modal " @close="modal = false">
             <mdb-modal-header>
                 <mdb-modal-title>Lista promotorów</mdb-modal-title>
             </mdb-modal-header>
             <mdb-modal-body>
                 <mdb-list-group>
-                <mdb-list-group-item :action="true" v-for="item in promotersList" :key="item.Name" @click.native="updatePromoter(item)">{{item.Degrees}} {{item.Name}} {{item.Surname}}</mdb-list-group-item>
+                <mdb-list-group-item :action="true" v-for="item in promotersList" :key="item.Name" @click.native="updatePromoter(item)" v-html="getName(item)"></mdb-list-group-item>
                 </mdb-list-group>
             </mdb-modal-body>
             <mdb-modal-footer>
@@ -68,7 +68,7 @@ import InvitationHelper from "../services/helpers/InvitationHelper";
 import IInvitation from '../types/Invitation';
 import InvitationService from "../services/InvitationService";
 import { message } from 'ant-design-vue'
-import { InvitationStatus } from "../enums/Enum";
+import { InvitationStatus, degrees } from "../enums/Enum";
 
     const userService = new UserService();
     const proposalService = new ProposalService();
@@ -144,17 +144,12 @@ import { InvitationStatus } from "../enums/Enum";
         //methods
         //lifecycles hooks
         created(){
-            console.log(localStorage.getItem('role'));
             this.getData();
         }
         async getData() {
             try {
                 //pobranie danych usera i ustawienie imienia 
-                const userdata = await userService.getUser(localStorage.getItem('id')).catch(repsonse =>{
-                    console.log(localStorage.getItem('id'))
-                    console.log(localStorage.getItem('token'))
-                    console.log(localStorage.getItem('role'))
-                })
+                const userdata = await userService.getUser(localStorage.getItem('id'));
                 this.myProfile = userdata.data;
                 this.studentName = userHelper.getUserName(userdata.data);
 
@@ -163,14 +158,12 @@ import { InvitationStatus } from "../enums/Enum";
                 this.promotersList = promoterList.data;
                 const invitation = await invitationservice.getInvitation(localStorage.getItem('id'));
                 if(invitation.data!=""){
-                    console.log(invitation)
                     //tworzenie zaproszenia promotora w zmiennej invitation
                     this.invitation.StudentId = invitation.data.StudentId
                     this.invitation.PromoterId = invitation.data.PromoterId;
                     this.invitation.Topic = invitation.data.Topic;
-                    if(invitation.data.Accepted == InvitationStatus.InProgress || invitation.data.Accepted == InvitationStatus.Rejected)
-                        this.canChangePromoter = true;
-                    else this.canChangePromoter = false;
+                    if(invitation.data.Accepted == InvitationStatus.Send || invitation.data.Accepted == InvitationStatus.Accepted)
+                        this.canChangePromoter = false;
                     
                     //ustawienie imienia pormotora
                     if(this.invitation.PromoterId!=this.fakeGuid){
@@ -240,6 +233,9 @@ import { InvitationStatus } from "../enums/Enum";
             } catch (error) {
                     message.error("Wystąpił błąd, skontaktuj się z administratorem");
             }
+        }
+        getName(item){
+            return userHelper.getUserName(item);
         }
         //watchers
     }

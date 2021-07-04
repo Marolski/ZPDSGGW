@@ -136,7 +136,7 @@ interface Row{
 
         async getFiles(userId){
             try {
-                const documentsList = await documentService.getDocumentList(localStorage.getItem('id'));
+                const documentsList = await documentService.getDocumentList(userId);
                 const documentsListData = documentsList.data;
                 this.fileListDict = pathHelper.getPathList(documentsListData);
             } catch (error) {

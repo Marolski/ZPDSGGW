@@ -8,10 +8,11 @@ export default class PathHelepr{
             let kind ='';
             let specialChar = false;
             let nameStrictly ='';
-            name = element.Path.slice(53);  
+            name = element.Path.slice(29);  
             for (let index = 0; index < name.length; index++) {
-                if(name[index]!="\\" && specialChar==false)
+                if(name[index]!="\\" && specialChar==false){
                     kind += name[index];
+                }
                 else{
                     specialChar = true;
                     nameStrictly +=name[index];

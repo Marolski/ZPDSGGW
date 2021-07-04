@@ -72,6 +72,7 @@ export default class Documents extends Vue {
         const documentsList = await documentService.getDocumentList(localStorage.getItem('id'));
         const documentsListData = documentsList.data;
         this.fileListDict = pathHelper.getPathList(documentsListData);
+        console.log(this.fileListDict)
       } catch (error) {
         message.error("Wystąpił błąd, skontaktuj się z administratorem");
       }

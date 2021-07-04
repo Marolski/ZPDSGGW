@@ -2,7 +2,7 @@
   <div id="app">
     <div class="routing" v-if="this.$route.path !== '/'">
       <md-toolbar class="md-primary">
-        <md-button class="md-icon-button" @click="showNavigation = true">
+        <md-button class="md-icon-button" @click="showNavigation = true; getRole()">
           <md-icon>menu</md-icon>
         </md-button>
         <span class="md-title">System zarządzania pracą dyplomową</span>
@@ -29,6 +29,10 @@
 
           <md-list-item>
             <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/conversation">Komunikacja</router-link></span>
+          </md-list-item>
+
+          <md-list-item>
+            <span id="nav" class="md-list-item-text" @click="showNavigation = false"><router-link to="/documents">Dokumenty</router-link></span>
           </md-list-item>
         </md-list>
 
@@ -75,9 +79,13 @@ import router from './router';
     methods: {
       logout(){
         localStorage.clear();
+        this.userRole = "";
         setTimeout(() => {
                 router.push('/')
             }, 500);
+      },
+      getRole(){
+        this.userRole = localStorage.getItem('role');
       }
     }
   }
