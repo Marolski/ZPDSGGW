@@ -18,15 +18,20 @@
             <div class="large-12 medium-12 small-12 cell">
                 <mdb-list-group>        
                     <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___  '}}{{item.key}} 
-                        <a-popconfirm title="Czy na pewno chcesz zatwierdzić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
-                            <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
-                        </a-popconfirm>
+                        <div v-if="item.Accepted==0">
+                            <a-popconfirm title="Czy na pewno chcesz zatwierdzić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
+                                <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
+                            </a-popconfirm>
 
-                        <a-popconfirm title="Czy na pewno chcesz odrzucić plik?" ok-text="Tak" cancel-text="Nie" @confirm="reject(item.value)" style="z-index: 60;">
-                            <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Odrzuć</mdb-btn>
-                        </a-popconfirm>
+                            <a-popconfirm title="Czy na pewno chcesz odrzucić plik?" ok-text="Tak" cancel-text="Nie" @confirm="reject(item.value)" style="z-index: 60;">
+                                <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Odrzuć</mdb-btn>
+                            </a-popconfirm>
+                        </div>
+                        <div v-else>
+                            <mdb-icon far icon="check-circle" />
+                        </div>
                         
-                        </mdb-list-group-item>
+                    </mdb-list-group-item>
                 </mdb-list-group>
             </div>
         </div>
@@ -38,7 +43,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import UserService from '../services/UserService';
-import { mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer } from 'mdbvue';
+import { mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer, mdbIcon  } from 'mdbvue';
 import IUser from "../types/User";
 import DocumentService from "../services/DocumentService";
 import PathHelper from "../services/helpers/PathHelper";
@@ -56,7 +61,7 @@ interface Row{
 }
 @Component({
         name: 'UserList',
-        components:{mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  }
+        components:{mdbDatatable2,mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer, mdbIcon   }
     })
     export default class UserList extends Vue {
         visible = false;

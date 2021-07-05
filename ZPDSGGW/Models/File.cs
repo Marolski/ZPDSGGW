@@ -16,7 +16,7 @@ namespace ZPDSGGW.Models
         [Required]
         public DocumentKind DocumentKind {get; set;}
         [Required]
-        public bool Accepted { get; set; }
+        public FileStatusEnum Accepted { get; set; }
         [Required]
         public Guid UserId { get; set; }
         [Required]

@@ -54,7 +54,7 @@ namespace ZPDSGGW.Controllers
         }
 
         [HttpPost]
-        public ActionResult<FileReadDto> UploadThesis([FromForm] Models.FormFile objFile, DocumentKind documentKind, bool accepted, Guid userId)
+        public ActionResult<FileReadDto> UploadThesis([FromForm] Models.FormFile objFile, DocumentKind documentKind, FileStatusEnum accepted, Guid userId)
         {
             FileService service = new FileService(_environment);
             var path = service.Uploadfile(objFile, documentKind);
