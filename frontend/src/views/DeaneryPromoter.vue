@@ -98,7 +98,7 @@ export default class DeaneryPromoterVue extends Vue {
         const formData = new FormData();
         formData.append('file',this.file)
         console.log(this.selectedKindOfDocs.valueOf())
-        await documentService.uploadDocument(this.selectedKindOfDocs,false,localStorage.getItem('id'),formData);
+        await documentService.uploadDocument(this.selectedKindOfDocs,0,localStorage.getItem('id'),formData);
         this.getFiles();
       } catch (error) {
         message.error("Wystąpił błąd, skontaktuj się z Administratorem");

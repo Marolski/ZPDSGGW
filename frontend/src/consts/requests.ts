@@ -48,7 +48,7 @@ export default class Requests{
         await this.createHeaderWithToken();
         return await axios.patch(`${this.API_URL}/${endpoint}/${param}`, body, this.config)
     }
-    public async upload(endpoint = '', documentKind: string,accepted: boolean,userId: string, body: object): Promise<any>{
+    public async upload(endpoint = '', documentKind: string,accepted: number,userId: string, body: object): Promise<any>{
         await this.createHeaderWithToken();
         return await axios.post(`${this.API_URL}/${endpoint}?documentKind=${documentKind}&accepted=${accepted}&userId=${userId}`,body,this.configUpload)
     }
