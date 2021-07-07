@@ -11,7 +11,7 @@ namespace ZPDSGGW.DTOs.FileDto
         public Guid Id { get; set; }
         public string Path { get; set; }
         public DocumentKind DocumentKind { get; set; }
-        public bool Accepted { get; set; }
+        public FileStatusEnum Accepted { get; set; }
         public Guid UserId { get; set; }
         public string FileName { get; set; }
     }

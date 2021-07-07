@@ -54,7 +54,7 @@ export default class Requests{
     }
     public async getFileList(endpoint = '', param = ''): Promise<any>{
         await this.createHeaderWithToken();
-        return await axios.get(`${this.API_URL}/${endpoint}?id=${param}`, this.config)
+        return await axios.get(`${this.API_URL}/${endpoint}?id=${param}`, this.configUpload)
     }
     public async postMessage(endpoint = '', file: object, sendTo: string, sendFrom: string, description: string): Promise<any>{
         await this.createHeaderWithToken();

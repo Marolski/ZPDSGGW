@@ -5,7 +5,7 @@
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
     <div>
         <a-modal
-        title="Title"
+        title="Zaproszenie do współpracy"
         :visible="visible"
         :confirm-loading="confirmLoading"
         @ok="handleOk"
@@ -15,7 +15,7 @@
         closable
         :width="700"
         >
-        <p>Imie i Nazwisko: {{ name }} <br>Temat pracy: {{topic}} <br> {{description}}</p>
+        <p>Imie i Nazwisko: {{ name }} <br>Temat pracy: {{topic}} <br> WIadomość: {{description}}</p>
         </a-modal>
     </div>
   </div>

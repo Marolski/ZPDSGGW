@@ -14,11 +14,33 @@
     <div style="padding-top: 50px;"></div>
     <mdb-datatable-2 v-model="data" selectable  @selected="handleClick(selected = $event)"/>
     <template>
-        <div class="container">
+        <div class="container ">
             <div class="large-12 medium-12 small-12 cell">
+                <div class="proposal">
+                    <a-card v-if="proposalMapped.status!=1" title="Wniosek" style="width: 300px">
+                        <h4>{{proposalMapped.promoterName}}</h4>
+                        <h5>{{proposalMapped.studentName}}</h5>
+                        <p>{{proposalMapped.topic}}</p>
+                        <div v-if="proposalMapped.status==2">
+                            <a-popconfirm title="Czy na pewno chcesz zatwierdzić wniosek?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(proposalMapped)" style="z-index: 60;">
+                                <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
+                            </a-popconfirm>
+
+                            <a-popconfirm title="Czy na pewno chcesz odrzucić wniosek?" ok-text="Tak" cancel-text="Nie" @confirm="reject(proposalMapped)" style="z-index: 60;">
+                                <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Odrzuć</mdb-btn>
+                            </a-popconfirm>
+                        </div>
+                        <div v-if="proposalMapped.status==6">
+                            <mdb-icon far icon="check-circle" />
+                        </div>
+                        <div v-if="proposalMapped.status==5">
+                            <mdb-icon icon="ban" />
+                        </div>
+                    </a-card>
+                </div>
                 <mdb-list-group>        
-                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___  '}}{{item.key}} 
-                        <div v-if="item.Accepted==0">
+                    <mdb-list-group-item class="removeStyle" :action="true" v-for="item in fileListDict" @click.native="downloadFile(item.value, $event)"  tag="a" :key="item.value.Id">{{item.kind}} {{' ___  '}}{{item.key}}
+                        <div v-if="item.value.Accepted==2">
                             <a-popconfirm title="Czy na pewno chcesz zatwierdzić plik?" ok-text="Tak" cancel-text="Nie" @confirm="confirm(item.value)" style="z-index: 60;">
                                 <mdb-btn style="z-index: 1100;" color="primary" @mouseover="hover = true">Zatwierdź</mdb-btn>
                             </a-popconfirm>
@@ -27,8 +49,11 @@
                                 <mdb-btn style="z-index: 1100;" color="danger" @mouseover="hover = true">Odrzuć</mdb-btn>
                             </a-popconfirm>
                         </div>
-                        <div v-else>
+                        <div v-if="item.value.Accepted==1">
                             <mdb-icon far icon="check-circle" />
+                        </div>
+                        <div v-if="item.value.Accepted==0">
+                            <mdb-icon icon="ban" />
                         </div>
                         
                     </mdb-list-group-item>
@@ -50,8 +75,12 @@ import PathHelper from "../services/helpers/PathHelper";
 import IFile from '../types/File'
 import { message } from 'ant-design-vue'
 import UserHelper from "../services/helpers/UserHelper";
+import { FileStatus, ProposalStatus } from "../enums/Enum";
+import IProposal from "../types/Proposal";
+import ProposalService from "../services/ProposalService";
 
 const userService = new UserService();
+const proposalService = new ProposalService();
 const documentService = new DocumentService;
 const pathHelper = new PathHelper;
 const userHelper = new UserHelper;
@@ -74,6 +103,14 @@ interface Row{
         checkedUser = {};
         file = '';
         userList: Array<IUser> = [];
+        proposal: IProposal;
+        proposalExist = false;
+        proposalMapped = {
+            promoterName: '',
+            studentName: '',
+            topic: '',
+            status: 1
+        }
         data = {
           rows: [],    
         }
@@ -129,11 +166,13 @@ interface Row{
         }
         async handleClick(param: Row){
             try {
+                this.proposalMapped.status = 1;
                 this.userList.forEach(element => {
                     if(userHelper.getUserName(element) == param.name && element.StudentNumber == param.studentNumber)
                         this.checkedUserId = element.Id
                 });
                 this.getFiles(this.checkedUserId)
+                this.getProposal(this.checkedUserId)
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
@@ -172,9 +211,17 @@ interface Row{
         }
         async confirm(e) {
             try {
-                await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": 1}])
-                message.success('Plik został zaakceptowany');
-                this.getFiles(this.checkedUserId)
+                if(e.topic!=undefined)
+                {
+                    await proposalService.patchProposal(this.proposal.StudentId,[{ "op":"replace", "path":"/Status", "value": ProposalStatus.Accepted}]);
+                    message.success('Wniosek został zaakceptowany');
+                    this.proposalMapped.status = ProposalStatus.Accepted
+                }
+                if(e.Path!=undefined){
+                    await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": FileStatus.accepted}])
+                    message.success('Plik został zaakceptowany');
+                    this.getFiles(this.checkedUserId)
+                } 
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
@@ -182,9 +229,37 @@ interface Row{
 
         async reject(e) {
             try {
-                await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": 0}])
-                message.error('Plik został odrzucony');
-                this.getFiles(this.checkedUserId)
+                if(e.topic!=undefined)
+                {
+                    await proposalService.patchProposal(this.proposal.StudentId,[{ "op":"replace", "path":"/Status", "value": ProposalStatus.Reject}]);
+                    message.success('Wniosek został odrzucony');
+                    this.proposalMapped.status = ProposalStatus.Reject
+                }
+                if(e.Path!=undefined){
+                    await documentService.patchDocument(e.Id,[{ "op":"replace", "path":"/Accepted", "value": FileStatus.rejected}])
+                    message.success('Plik został odrzucony');
+                    this.getFiles(this.checkedUserId)
+                } 
+                
+            } catch (error) {
+                message.error("Wystąpił błąd, skontaktuj się z Administratorem");
+            }
+        }
+
+        async getProposal(userId: string){
+            try {
+                const proposal = await proposalService.getProposal(userId);
+                this.proposal = proposal.data;
+                if(this.proposal.StudentId!='')
+                    this.proposalExist = true;
+                const promoter = await userService.getUser(this.proposal.PromoterId);
+                const student = await userService.getUser(this.proposal.StudentId);
+                this.proposalMapped.promoterName = userHelper.getUserName(promoter.data);
+                this.proposalMapped.studentName = userHelper.getUserName(student.data)
+                this.proposalMapped.topic = this.proposal.Topic;
+                if(this.proposal.Status!=undefined)
+                    this.proposalMapped.status = this.proposal.Status;
+                console.log(this.proposalMapped.status)
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }
@@ -214,5 +289,9 @@ interface Row{
 }
 .form-control{
   min-width: 300px;
+}
+.proposal{
+    margin-left: 40%;
+    margin-bottom: 5%;
 }
 </style>

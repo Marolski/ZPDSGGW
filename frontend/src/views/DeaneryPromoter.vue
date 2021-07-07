@@ -31,7 +31,7 @@ import DocumentService from '../services/DocumentService'
 import PathHelper from '../services/helpers/PathHelper'
 import { mdbListGroup, mdbListGroupItem, mdbBtn, mdbBadge, mdbContainer  } from 'mdbvue';
 import IFile from "../types/File";
-import {documentKind, DocumentKind} from "../enums/Enum";
+import {documentKind, DocumentKind, FileStatus} from "../enums/Enum";
 import { message } from 'ant-design-vue'
 
 const documentService = new DocumentService;
@@ -98,7 +98,7 @@ export default class DeaneryPromoterVue extends Vue {
         const formData = new FormData();
         formData.append('file',this.file)
         console.log(this.selectedKindOfDocs.valueOf())
-        await documentService.uploadDocument(this.selectedKindOfDocs,0,localStorage.getItem('id'),formData);
+        await documentService.uploadDocument(this.selectedKindOfDocs,FileStatus.send,localStorage.getItem('id'),formData);
         this.getFiles();
       } catch (error) {
         message.error("Wystąpił błąd, skontaktuj się z Administratorem");

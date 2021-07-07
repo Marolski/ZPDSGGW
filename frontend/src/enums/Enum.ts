@@ -21,6 +21,12 @@ export enum DocumentKind{
     Inne
 }
 
+export enum FileStatus{
+    rejected = 0,
+    accepted,
+    send
+}
+
 export const documentKind = {
     1: "Praca ",
     2: "Wniosek",

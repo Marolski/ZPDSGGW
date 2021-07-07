@@ -9,6 +9,6 @@ namespace ZPDSGGW.DTOs.FileDto
     public class FileUpdateDto
     {
         public DocumentKind DocumentKind { get; set; }
-        public bool Accepted { get; set; }
+        public FileStatusEnum Accepted { get; set; }
     }
 }
