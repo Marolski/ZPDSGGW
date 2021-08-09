@@ -259,7 +259,6 @@ interface Row{
                 this.proposalMapped.topic = this.proposal.Topic;
                 if(this.proposal.Status!=undefined)
                     this.proposalMapped.status = this.proposal.Status;
-                console.log(this.proposalMapped.status)
             } catch (error) {
                 message.error("Wystąpił błąd, skontaktuj się z Administratorem");
             }

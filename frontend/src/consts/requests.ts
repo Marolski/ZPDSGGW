@@ -6,15 +6,23 @@ export default class Requests{
         Token: string|null = '';
         API_URL = process.env.VUE_APP_API_URL;
         config = {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, "Access-Control-Allow-Origin": "*" }
+            headers: { Authorization: `Bearer ${this.Token}`, "Access-Control-Allow-Origin": "*" }
         };
         configUpload = {
-            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}`,
+            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${this.Token}`,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE", 'Access-Control-Allow-Headers': 'X-Requested-With', "Access-Control-Allow-Origin": "*"
          }
         }
     public async createHeaderWithToken(){
         this.Token = localStorage.getItem('token');
+        this.config = {
+            headers: { Authorization: `Bearer ${this.Token}`, "Access-Control-Allow-Origin": "*" }
+        };
+        this.configUpload = {
+            headers: { 'content-type': 'multipart/form-data', Authorization: `Bearer ${this.Token}`,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE", 'Access-Control-Allow-Headers': 'X-Requested-With', "Access-Control-Allow-Origin": "*"
+         }
+        }
     }   
 
     public async get(endpoint = '', param = ''): Promise<any>{
