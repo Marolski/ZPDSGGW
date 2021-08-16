@@ -9,7 +9,8 @@ export default class PathHelepr{
             let specialChar = false;
             let nameStrictly ='';
             //name = element.Path.slice(29);  azure
-            name = element.Path.slice(53); // lokalnie
+            //name = element.Path.slice(53);  lokalnie
+            name = element.Path.slice(27);    //heroku
             for (let index = 0; index < name.length; index++) {
                 if(name[index]!="\\" && specialChar==false){
                     kind += name[index];
