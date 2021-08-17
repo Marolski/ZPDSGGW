@@ -136,7 +136,8 @@ export default class PromoterMessages extends Vue{
     }
     submitFile(e){
       this.file = e.target.files[0];
-      this.fileName = e.target.files[0];
+      this.fileName = e.target.files[0].name
+      console.log(this.fileName)
     }
     async getMessages(e){
       try {
