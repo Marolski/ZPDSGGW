@@ -42,7 +42,7 @@ namespace ZPDSGGW
             {
                 opt.AddPolicy(allowSpecificOrigins, builder =>
                  {
-                     builder.WithOrigins("http://localhost:8081, https://zpdsggw.herokuapp.com")
+                     builder.WithOrigins("https://zdpsggw.000webhostapp.com/")
                      .AllowAnyHeader()
                      .AllowAnyMethod();
                  });
