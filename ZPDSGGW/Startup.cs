@@ -40,9 +40,9 @@ namespace ZPDSGGW
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
             services.AddCors(opt =>
             {
-                opt.AddPolicy(allowSpecificOrigins, builder =>
+                opt.AddPolicy(name: allowSpecificOrigins, builder =>
                  {
-                     builder.WithOrigins("https://zdpsggw.000webhostapp.com/")
+                     builder.WithOrigins("https://zdpsggw.000webhostapp.com", "http://localhost:8080")
                      .AllowAnyHeader()
                      .AllowAnyMethod();
                  });
@@ -115,6 +115,8 @@ namespace ZPDSGGW
 
 
             app.UseRouting();
+
+            app.UseCors(allowSpecificOrigins);
 
             app.UseCors(x => x
                 .AllowAnyMethod()
