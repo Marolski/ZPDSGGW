@@ -39,19 +39,16 @@ namespace ZPDSGGW
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion
-            (CompatibilityVersion.Version_2_2);
             services.AddOptions();
-            services.AddMemoryCache();
-            services.Configure<IpRateLimitOptions>
-            (Configuration.GetSection("IpRateLimit"));
-            services.AddSingleton<IIpPolicyStore,
-            MemoryCacheIpPolicyStore>();
-            services.AddSingleton<IRateLimitCounterStore,
-            MemoryCacheRateLimitCounterStore>();
-            services.AddSingleton<IRateLimitConfiguration,
-            RateLimitConfiguration>();
-            services.AddHttpContextAccessor();
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
+
+            services.AddInMemoryRateLimiting();
+            services.AddMvc();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+            services.AddSingleton<IIpPolicyStore, DistributedCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore, DistributedCacheRateLimitCounterStore>();
 
 
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
@@ -131,6 +128,7 @@ namespace ZPDSGGW
             }
 
             app.UseIpRateLimiting();
+
             app.UseRouting();
 
             app.UseCors(allowSpecificOrigins);
