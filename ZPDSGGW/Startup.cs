@@ -21,6 +21,8 @@ using System.Linq;
 using ZPDSGGW.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using AspNetCoreRateLimit;
 
 namespace ZPDSGGW
 {
@@ -37,6 +39,21 @@ namespace ZPDSGGW
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion
+            (CompatibilityVersion.Version_2_2);
+            services.AddOptions();
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>
+            (Configuration.GetSection("IpRateLimit"));
+            services.AddSingleton<IIpPolicyStore,
+            MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore,
+            MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IRateLimitConfiguration,
+            RateLimitConfiguration>();
+            services.AddHttpContextAccessor();
+
+
             services.AddDbContext<ZPDSGGWContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZPDSGGWConnection")));
             services.AddCors(opt =>
             {
@@ -113,7 +130,7 @@ namespace ZPDSGGW
                 app.UseHsts();
             }
 
-
+            app.UseIpRateLimiting();
             app.UseRouting();
 
             app.UseCors(allowSpecificOrigins);
